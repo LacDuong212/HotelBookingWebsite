@@ -30,5 +30,24 @@ public class HomeController {
     public String signup(Model model) {
         return "web/signup";
     }
-
+    @GetMapping("/signin")
+    public String signin(Model model) {
+        return "web/signin";
+    }
+    @GetMapping("/forgotpassword")
+    public String forgotpassword(Model model) {
+        return "web/forgotpassword";
+    }
+    @GetMapping("/booking-history")
+    public String bookingHistory(Model model) {
+        return "web/booking-history";
+    }
+    @GetMapping("/booking-details")
+    public String bookingDetails(Model model) {
+        return "web/booking-details";
+    }
+    @GetMapping("/booking-payment")
+    public String bookingPayment(Model model) {
+        return "web/booking-payment";
+    }
 }
