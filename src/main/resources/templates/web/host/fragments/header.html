@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEYGOBI</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Header Fragment -->
+<header id="header" th:fragment="header">
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <h1>HEYGOBI</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="navigation">
+                    <ul class="nav-links">
+                        <li><a href="#" th:href="@{/}">Trang chủ</a></li>
+                        <li><a href="#" th:href="@{/vouchers}">Phiếu giảm giá và ưu đãi</a></li>
+                    </ul>
+                </nav>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <button class="btn-partner">Đăng ký đối tác</button>
+                    <button class="btn-menu" aria-label="Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="btn-user" aria-label="User profile">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* HEADER STYLES */
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Logo */
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 1px;
+        }
+
+        /* Navigation */
+        .navigation {
+            flex-grow: 1;
+            margin-left: 50px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-right: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #666;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-partner {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-partner:hover {
+            background-color: #555;
+        }
+
+        .btn-menu, .btn-user {
+            background: none;
+            border: none;
+            font-size: 20px;
+            margin-left: 15px;
+            cursor: pointer;
+            color: #333;
+            display: none;
+        }
+
+        .btn-user {
+            display: block;
+            font-size: 24px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .navigation {
+                display: none;
+            }
+
+            .btn-menu {
+                display: block;
+            }
+
+            .btn-partner {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</header>
+
+</body>
+</html>
