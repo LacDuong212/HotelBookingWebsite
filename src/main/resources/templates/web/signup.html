@@ -175,7 +175,6 @@
             font-size: 16px;
             margin-bottom: 20px;
             text-align: center;
-            letter-spacing: 5px;
         }
 
         .otp-submit {
@@ -192,6 +191,67 @@
         }
 
         .otp-submit:hover {
+            background-color: #555;
+        }
+
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s;
+            text-align: center;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .success-message {
+            margin-bottom: 20px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .success-button {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .success-button:hover {
             background-color: #555;
         }
 
@@ -216,7 +276,7 @@
     <div class="container">
         <div class="signup-content">
             <div class="signup-card">
-                <h1 class="signup-title">Đăng Ký Tài Khoản</h1>
+                <h1 class="signup-title">Đăng Ký</h1>
 
                 <form id="signupForm">
                     <div class="form-group">
@@ -248,7 +308,7 @@
                 </form>
 
                 <div class="login-link">
-                    Đã có tài khoản? <a href="#" th:href="@{/dang-nhap}">Đăng nhập ngay</a>
+                    Đã có tài khoản? <a href="#" th:href="@{/signin}">Đăng nhập ngay</a>
                 </div>
             </div>
         </div>
@@ -268,7 +328,21 @@
             </div>
 
             <button type="submit" class="otp-submit">Tiếp tục</button>
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="#" id="resendOtp">Gửi lại OTP</a>
+            </p>
         </form>
+    </div>
+</div>
+
+<!-- Success Popup -->
+<div class="success-popup" id="successPopup">
+    <div class="success-container">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h2 class="success-title">Đăng ký thành công!</h2>
+        <p class="success-message">Hãy bắt đầu khám phá những ưu đãi hấp dẫn dành riêng cho các thành viên nhé!</p>
+
+        <button class="success-button" id="backToLogin">Quay lại trang Đăng nhập</button>
     </div>
 </div>
 
@@ -311,8 +385,11 @@
 
         // Kiểm tra OTP (trong thực tế sẽ gọi API xác thực)
         if (otp.length === 6 && /^\d+$/.test(otp)) {
-            alert('Xác thực thành công! Tài khoản đã được tạo.');
+            // Ẩn popup OTP
             document.getElementById('otpPopup').style.display = 'none';
+
+            // Hiển thị popup thành công
+            document.getElementById('successPopup').style.display = 'flex';
 
             // Reset form
             document.getElementById('signupForm').reset();
@@ -321,19 +398,36 @@
         }
     });
 
-    // Đóng popup khi click bên ngoài
-    document.getElementById('otpPopup').addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.style.display = 'none';
-        }
+    // Xử lý gửi lại OTP
+    document.getElementById('resendOtp').addEventListener('click', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        console.log('Gửi lại OTP đến:', email);
+        alert('Đã gửi lại mã OTP. Vui lòng kiểm tra email của bạn.');
     });
 
-    // Tự động chuyển focus giữa các ô OTP (nâng cao)
+    // Xử lý nút quay lại đăng nhập
+    document.getElementById('backToLogin').addEventListener('click', function() {
+        window.location.href = '/signin';
+    });
+
+    // Đóng popup khi click bên ngoài
+    const popups = document.querySelectorAll('.popup');
+    popups.forEach(popup => {
+        popup.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+
+    // Tự động chuyển focus khi nhập đủ 6 số OTP
     document.getElementById('otp').addEventListener('input', function(e) {
         if (this.value.length === 6) {
             document.getElementById('otpForm').querySelector('button').focus();
         }
     });
+
 </script>
 </body>
 </html>
