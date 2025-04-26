@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEYGOBI - Danh sách phòng</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Embedded CSS -->
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+      background-color: #f5f5f5;
+    }
+
+    main {
+      flex: 1;
+      padding: 30px 0;
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    /* Room Listing Page Styles */
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-left: 15px;
+    }
+
+    .room-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 0 15px;
+    }
+
+    .add-room-btn {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px 15px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .add-room-btn:hover {
+      background-color: #f9f9f9;
+      border-color: #ccc;
+    }
+
+    .add-room-btn i {
+      margin-right: 5px;
+    }
+
+    /* Room Grid Layout */
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 0 15px;
+    }
+
+    .room-card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .room-image {
+      height: 180px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .room-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .room-info {
+      padding: 15px;
+    }
+
+    .room-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .room-actions-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .room-action-btn {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+    }
+
+    .view-btn {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    .edit-btn {
+      background-color: white;
+      color: #ff5a5f;
+      border-color: #ff5a5f;
+    }
+
+    /* Room Image Container */
+    .room-image-container {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    /* Footer Styles */
+    .footer {
+      background-color: #f8f9fa;
+      padding: 40px 0;
+      margin-top: 40px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+    }
+
+    .footer-section h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .footer-section p {
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 10px;
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section ul li {
+      margin-bottom: 8px;
+    }
+
+    .footer-section ul li a {
+      color: #6c757d;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .footer-section ul li a:hover {
+      color: #333;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      color: #6c757d;
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+
+    .social-links a:hover {
+      color: #333;
+    }
+
+    .footer-bottom {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #6c757d;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .room-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .room-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Include header fragment -->
+<div th:replace="~{web/fragments/header :: header}"></div>
+
+<!-- MAIN CONTENT -->
+<main>
+  <div class="container">
+    <h1 class="page-title">Danh sách phòng</h1>
+
+    <div class="room-actions">
+      <div></div>
+      <button class="add-room-btn">
+        <i class="fas fa-plus"></i> Thêm phòng
+      </button>
+    </div>
+
+    <div class="room-grid">
+      <!-- Room Card 1 -->
+      <div class="room-card">
+        <div class="room-image-container">
+          <img src="/path/to/room1.jpg" alt="Family Apartment" class="room-image">
+          <span class="room-tag">Family Apartment</span>
+        </div>
+        <div class="room-info">
+          <div class="room-actions-container">
+            <button class="room-action-btn view-btn">Chỉnh sửa</button>
+            <button class="room-action-btn edit-btn">Xóa</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Room Card 2 -->
+      <div class="room-card">
+        <div class="room-image-container">
+          <img src="/path/to/room2.jpg" alt="Family Apartment" class="room-image">
+          <span class="room-tag">Family Apartment</span>
+        </div>
+        <div class="room-info">
+          <div class="room-actions-container">
+            <button class="room-action-btn view-btn">Chỉnh sửa</button>
+            <button class="room-action-btn edit-btn">Xóa</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Room Card 3 -->
+      <div class="room-card">
+        <div class="room-image-container">
+          <img src="/path/to/room3.jpg" alt="Family Apartment" class="room-image">
+          <span class="room-tag">Family Apartment</span>
+        </div>
+        <div class="room-info">
+          <div class="room-actions-container">
+            <button class="room-action-btn view-btn">Chỉnh sửa</button>
+            <button class="room-action-btn edit-btn">Xóa</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer Section -->
+<div th:replace="~{web/fragments/footer :: footer}"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // JavaScript for room listing page functionality
+
+    // Add room button functionality
+    const addRoomBtn = document.querySelector('.add-room-btn');
+    if (addRoomBtn) {
+      addRoomBtn.addEventListener('click', function() {
+        // Redirect to room creation page or open modal
+        window.location.href = '/add-room';
+      });
+    }
+
+    // Edit and delete button functionality
+    const editButtons = document.querySelectorAll('.view-btn');
+    const deleteButtons = document.querySelectorAll('.edit-btn');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const roomId = this.closest('.room-card').dataset.roomId;
+        window.location.href = `/edit-room/${roomId}`;
+      });
+    });
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const roomId = this.closest('.room-card').dataset.roomId;
+        if (confirm('Bạn có chắc chắn muốn xóa phòng này?')) {
+          // Send delete request or handle deletion logic
+          console.log(`Delete room with ID: ${roomId}`);
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>
