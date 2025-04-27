@@ -1,0 +1,25 @@
+package model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "images")
+public class Images {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long iid;
+
+    @Column(nullable = false)
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private Long id;    // entity linked to the image
+
+    private byte stt = 0;   // for order, default = 0
+}
