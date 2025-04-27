@@ -50,4 +50,13 @@ public class HomeController {
     public String bookingPayment(Model model) {
         return "web/booking-payment";
     }
+    @GetMapping("/voucher")
+    public String voucher(Model model) {
+        return "web/voucher";
+    }
+
+    @GetMapping("/account")
+    public String Account(Model model) {
+        return "web/account";
+    }
 }
