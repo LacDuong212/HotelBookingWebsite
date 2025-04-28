@@ -49,6 +49,6 @@ public class HotelService {
         List<Images> images = imagesRepository.findImagesByHid(hotelId);
         return images.isEmpty() ?
                 "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                : images.get(0).getImageUrl();
+                : images.getFirst().getImageUrl();
     }
 }
