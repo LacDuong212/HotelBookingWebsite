@@ -35,22 +35,20 @@ public class HotelService {
     }
 
     private HotelDTO convertToDTO(Hotel hotel) {
-//        String imageUrl = getFirstHotelImageUrl(hotel.getHid());
-//        return new HotelDTO(
-//                hotel.getHid(),
-//                hotel.getName(),
-//                hotel.getAddress(),
-//                hotel.getDescription(),
-//                imageUrl
-//        );
-        return null;
+        String imageUrl = getFirstHotelImageUrl(hotel.getHid());
+        return new HotelDTO(
+                hotel.getHid(),
+                hotel.getName(),
+                hotel.getAddress(),
+                hotel.getDescription(),
+                imageUrl
+        );
     }
 
     private String getFirstHotelImageUrl(Long hotelId) {
         List<Images> images = imagesRepository.findImagesByHid(hotelId);
-        return null;
-//        return images.isEmpty() ?
-//                "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-//                : images.getFirst().getImageUrl();
+        return images.isEmpty() ?
+                "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                : images.getFirst().getImageUrl();
     }
 }
