@@ -27,6 +27,7 @@ public class Hotel {
     @Column(nullable = false)
     private String address = Constants.UNKNOWN;
 
+    @Column(length = 1000)
     private String description = Constants.UNKNOWN;
 
     @CreationTimestamp

@@ -1,4 +1,4 @@
-package com.example.hotelbookingwebsite;
+package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.Service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
