@@ -147,77 +147,6 @@
             background-color: #555;
         }
 
-        /* Footer Styles */
-        .footer {
-            background-color: #f8f9fa;
-            padding: 40px 0;
-            margin-top: 40px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-        }
-
-        .footer-section h3 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .footer-section p {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 10px;
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 8px;
-        }
-
-        .footer-section ul li a {
-            color: #6c757d;
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .footer-section ul li a:hover {
-            color: #333;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .social-links a {
-            color: #6c757d;
-            font-size: 18px;
-            transition: color 0.2s;
-        }
-
-        .social-links a:hover {
-            color: #333;
-        }
-
-        .footer-bottom {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #6c757d;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .booking-details {
@@ -228,10 +157,6 @@
             .booking-action {
                 justify-content: flex-start;
             }
-
-            .footer-content {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
 
         @media (max-width: 576px) {
@@ -239,22 +164,12 @@
                 flex-direction: column;
                 gap: 5px;
             }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: 10px;
-                align-items: center;
-            }
         }
     </style>
 </head>
 <body>
 <!-- Include header fragment -->
-<div th:replace="~{web/fragments/header :: header}"></div>
+<div th:replace="~{host/fragments/host-header :: header}"></div>
 
 <!-- MAIN CONTENT -->
 <main>
@@ -312,7 +227,7 @@
 </main>
 
 <!-- Footer Section -->
-<div th:replace="~{web/fragments/footer :: footer}"></div>
+<div th:replace="~{host/fragments/host-footer :: footer}"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

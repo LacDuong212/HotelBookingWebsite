@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEYGOBI - Danh sách người dùng</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+      background-color: #f5f5f5;
+    }
+
+    main {
+      flex: 1;
+      padding: 30px 0;
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    /* Main Content */
+    main {
+      padding: 40px 0;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      color: #333;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-filter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 15px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-filter i {
+      font-size: 12px;
+    }
+
+    /* User Table */
+    .user-table-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .status-filter {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .status-select {
+      padding: 8px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      min-width: 200px;
+      font-size: 14px;
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .user-table th {
+      text-align: left;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-bottom: 1px solid #eee;
+      font-weight: 600;
+    }
+
+    .user-table td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .user-table tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn-edit, .btn-delete {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-edit {
+      color: #555;
+    }
+
+    .btn-delete {
+      color: #ff4d4d;
+    }
+
+    .btn-edit:hover {
+      background-color: #eee;
+    }
+
+    .btn-delete:hover {
+      background-color: #ffeeee;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .pagination-info {
+      color: #666;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pagination-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination-button.active {
+      background-color: #4a4a4a;
+      color: white;
+      border-color: #4a4a4a;
+    }
+
+    .pagination-button:hover:not(.active) {
+      background-color: #f5f5f5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .user-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .filter-controls {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Include header fragment -->
+<div th:replace="~{admin/fragments/admin-header :: header}"></div>
+
+<!-- Main Content -->
+<main>
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Danh sách người dùng</h1>
+
+      <div class="filter-controls">
+        <button class="btn-filter">
+          <i class="fas fa-sort"></i>
+          Sắp xếp
+        </button>
+        <button class="btn-filter">
+          <i class="fas fa-filter"></i>
+          Lọc
+        </button>
+      </div>
+    </div>
+
+    <div class="user-table-container">
+      <div class="status-filter">
+        <select class="status-select">
+          <option>Trạng thái: Tất cả</option>
+          <option>Trạng thái: Hoạt động</option>
+          <option>Trạng thái: Bị khóa</option>
+        </select>
+      </div>
+
+      <table class="user-table">
+        <thead>
+        <tr>
+          <th>Họ và tên</th>
+          <th>Email</th>
+          <th>Số điện thoại</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Nguyễn Văn A</td>
+          <td>nguyenvana@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn B</td>
+          <td>nguyenvanb@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn C</td>
+          <td>nguyenvanc@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn D</td>
+          <td>nguyenvana@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn E</td>
+          <td>nguyenvand@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn E</td>
+          <td>nguyenvane@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn G</td>
+          <td>nguyenvang@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn F</td>
+          <td>nguyenvanf@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn I</td>
+          <td>nguyenvani@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn J</td>
+          <td>nguyenvanj@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn K</td>
+          <td>nguyenvank@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Nguyễn Văn L</td>
+          <td>nguyenvanl@email.com</td>
+          <td>0123456789</td>
+          <td>
+            <div class="action-buttons">
+              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div class="pagination-info">
+        Tổng có 3 trang
+      </div>
+      <div class="pagination-controls">
+        <a href="#" class="pagination-button">
+          <i class="fas fa-angle-left"></i>
+        </a>
+        <a href="#" class="pagination-button active">1</a>
+        <a href="#" class="pagination-button">
+          <i class="fas fa-angle-right"></i>
+        </a>
+      </div>
+    </div>0
+  </div>
+</main>
+
+<!-- Include footer fragment -->
+<div th:replace="~{admin/fragments/admin-footer :: footer}"></div>
+</body>
+</html>
