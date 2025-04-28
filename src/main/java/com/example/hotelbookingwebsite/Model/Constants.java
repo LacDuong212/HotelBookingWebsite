@@ -1,4 +1,4 @@
-package model;
+package com.example.hotelbookingwebsite.Model;
 
 public class Constants {
     public static final String UNKNOWN = "UNKNOWN";

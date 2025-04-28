@@ -1,4 +1,4 @@
-package model;
+package com.example.hotelbookingwebsite.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

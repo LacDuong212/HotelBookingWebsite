@@ -1,4 +1,4 @@
-package model;
+package com.example.hotelbookingwebsite.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
