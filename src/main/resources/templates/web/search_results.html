@@ -150,12 +150,6 @@
             align-items: center;
         }
 
-        .price-range {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
         .book-button {
             background-color: #333;
             color: white;
@@ -240,11 +234,14 @@
 <div th:replace="~{web/fragments/header :: header}"></div>
 
 <!-- MAIN CONTENT -->
+<!-- Main Content -->
 <main>
     <div class="container">
         <!-- Search Header -->
         <div class="search-header">
-            <div class="results-count">10 kết quả tìm thấy</div>
+            <div class="search-query">
+                <h2>Kết quả tìm kiếm cho: "<span th:text="${query}"></span>"</h2>
+            </div>
             <div class="search-controls">
                 <button class="control-button">
                     <i class="fas fa-sort"></i> Sắp xếp
@@ -257,130 +254,51 @@
 
         <!-- Search Results -->
         <div class="search-results">
-            <!-- Hotel Result 1 -->
-            <div class="hotel-result">
+            <!-- Hotel Results -->
+            <div th:each="hotel : ${hotels}" class="hotel-result">
                 <div class="hotel-image-container">
-                    <a th:href="@{/hotel-detail}">
-                        <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="La Opera Saigon Hotel" class="hotel-image">
+                    <a th:href="@{/hotel-detail/{id}(id=${hotel.id})}">
+                        <img th:src="${hotel.firstImageUrl}" th:alt="${hotel.name}" class="hotel-image">
                     </a>
                 </div>
                 <div class="hotel-details">
                     <div class="hotel-info">
-                        <a th:href="@{/hotel-detail}" class="hotel-name">La Opera Saigon Hotel</a>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 1, Hồ Chí Minh, Việt Nam</p>
+                        <a th:href="@{/hotel-detail/{id}(id=${hotel.id})}" class="hotel-name" th:text="${hotel.name}"></a>
+                        <p class="hotel-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span th:text="${hotel.address}"></span>
+                        </p>
                     </div>
                     <div class="hotel-price-booking">
-                        <div class="price-range">500.000 VND - 900.000 VND</div>
-                        <a th:href="@{/hotel-detail}" class="book-button">Đặt ngay</a>
+                        <a th:href="@{/hotel-detail/{id}(id=${hotel.id})}" class="book-button">Đặt ngay</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Hotel Result 2 -->
-            <div class="hotel-result">
-                <div class="hotel-image-container">
-                    <a th:href="@{/hotel-detail}">
-                        <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="New Pacific Hotel" class="hotel-image">
-                    </a>
-                </div>
-                <div class="hotel-details">
-                    <div class="hotel-info">
-                        <a th:href="@{/hotel-detail}" class="hotel-name">New Pacific Hotel</a>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 3, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                    <div class="hotel-price-booking">
-                        <div class="price-range">500.000 VND - 1.000.000 VND</div>
-                        <a th:href="@{/hotel-detail}" class="book-button">Đặt ngay</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hotel Result 3 -->
-            <div class="hotel-result">
-                <div class="hotel-image-container">
-                    <a th:href="@{/hotel-detail}">
-                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="BM Hotel" class="hotel-image">
-                    </a>
-                </div>
-                <div class="hotel-details">
-                    <div class="hotel-info">
-                        <a th:href="@{/hotel-detail}" class="hotel-name">BM Hotel</a>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Bình Tân, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                    <div class="hotel-price-booking">
-                        <div class="price-range">700.000 VND - 1.200.000 VND</div>
-                        <a th:href="@{/hotel-detail}" class="book-button">Đặt ngay</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hotel Result 4 -->
-            <div class="hotel-result">
-                <div class="hotel-image-container">
-                    <a th:href="@{/hotel-detail}">
-                        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="The Hammock Hotel" class="hotel-image">
-                    </a>
-                </div>
-                <div class="hotel-details">
-                    <div class="hotel-info">
-                        <a th:href="@{/hotel-detail}" class="hotel-name">The Hammock Hotel</a>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 1, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                    <div class="hotel-price-booking">
-                        <div class="price-range">300.000 VND - 700.000 VND</div>
-                        <a th:href="@{/hotel-detail}" class="book-button">Đặt ngay</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hotel Result 5 -->
-            <div class="hotel-result">
-                <div class="hotel-image-container">
-                    <a th:href="@{/hotel-detail}">
-                        <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Eden Hotel" class="hotel-image">
-                    </a>
-                </div>
-                <div class="hotel-details">
-                    <div class="hotel-info">
-                        <a th:href="@{/hotel-detail}" class="hotel-name">Eden Hotel</a>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gò Vấp, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                    <div class="hotel-price-booking">
-                        <div class="price-range">600.000 VND - 900.000 VND</div>
-                        <a th:href="@{/hotel-detail}" class="book-button">Đặt ngay</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hotel Result 6 -->
-            <div class="hotel-result">
-                <div class="hotel-image-container">
-                    <a th:href="@{/hotel-detail}">
-                        <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Express by M Village Đông Du" class="hotel-image">
-                    </a>
-                </div>
-                <div class="hotel-details">
-                    <div class="hotel-info">
-                        <a th:href="@{/hotel-detail}" class="hotel-name">Express by M Village Đông Du</a>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 1, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                    <div class="hotel-price-booking">
-                        <div class="price-range">800.000 VND - 1.500.000 VND</div>
-                        <a th:href="@{/hotel-detail}" class="book-button">Đặt ngay</a>
-                    </div>
-                </div>
+            <!-- No results -->
+            <div th:if="${hotels.empty}" class="no-results">
+                <p>Không tìm thấy khách sạn nào phù hợp với từ khóa "<span th:text="${query}"></span>"</p>
+                <p>Vui lòng thử lại với từ khóa khác</p>
             </div>
         </div>
 
         <!-- Pagination -->
-        <div class="pagination">
-            <a href="#" class="pagination-item disabled">
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:href="@{/search(query=${query}, page=${currentPage > 0 ? currentPage - 1 : 0})}"
+               class="pagination-item"
+               th:classappend="${currentPage == 0} ? 'disabled' : ''">
                 <i class="fas fa-chevron-left"></i>
             </a>
-            <a href="#" class="pagination-item active">1</a>
-            <a href="#" class="pagination-item">2</a>
-            <a href="#" class="pagination-item">3</a>
-            <a href="#" class="pagination-item">
+
+            <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+               th:href="@{/search(query=${query}, page=${i})}"
+               class="pagination-item"
+               th:classappend="${i == currentPage} ? 'active' : ''"
+               th:text="${i + 1}"></a>
+
+            <a th:href="@{/search(query=${query}, page=${currentPage < totalPages - 1 ? currentPage + 1 : totalPages - 1})}"
+               class="pagination-item"
+               th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
                 <i class="fas fa-chevron-right"></i>
             </a>
         </div>
