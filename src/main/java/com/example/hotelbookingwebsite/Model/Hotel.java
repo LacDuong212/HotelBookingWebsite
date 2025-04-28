@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -26,9 +28,9 @@ public class Hotel {
 
     private String description = Constants.UNKNOWN;
 
-    private float rating = 0;
-
-    private boolean status = Constants.HOTEL_STATUS.INACTIVE;
+    @CreationTimestamp
+    @Column(nullable = false)
+    private LocalDateTime createdDate = LocalDateTime.now();
 
     @OneToOne(mappedBy = "hotel")
     @JsonIgnoreProperties("hotel")  // Prevent infinite recursion during serialization (optional)

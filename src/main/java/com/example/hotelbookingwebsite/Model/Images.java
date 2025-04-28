@@ -21,5 +21,5 @@ public class Images {
     @Column(nullable = false)
     private Long id;    // entity linked to the image
 
-    private byte stt = 0;   // for order, default = 0
+    private Integer stt = 0;   // for order, default = 0
 }
