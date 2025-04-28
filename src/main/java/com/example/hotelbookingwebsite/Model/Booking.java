@@ -25,7 +25,7 @@ public class Booking {
     private LocalDateTime checkOutDate;
 
     @Column(nullable = false)
-    private boolean status = Constants.PROMOTION_STATUS.INACTIVE;
+    private String status = Constants.UNKNOWN;
 
     private float totalPrice = 0;
 
