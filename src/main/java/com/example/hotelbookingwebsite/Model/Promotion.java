@@ -31,7 +31,7 @@ public class Promotion {
     private LocalDateTime endDate;
 
     @Column(nullable = false)
-    private String status = Constants.UNKNOWN;
+    private boolean status = Constants.PROMOTION_STATUS.INACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "uid")  // Foreign key column for Manager
