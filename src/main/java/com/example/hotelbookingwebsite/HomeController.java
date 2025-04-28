@@ -1,16 +1,27 @@
 package com.example.hotelbookingwebsite;
 
+import com.example.hotelbookingwebsite.Service.HotelService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
+    private final HotelService hotelService;
+
+    @Autowired
+    public HomeController(HotelService hotelService) {
+        this.hotelService = hotelService;
+    }
 
     @GetMapping("/")
     public String home(Model model) {
+        model.addAttribute("newestHotels", hotelService.getNewestHotels());
+        model.addAttribute("nearbyHotels", hotelService.getAllHotels());
         return "web/home";
     }
+
     @GetMapping("/search")
     public String search(Model model) {
         return "web/search_results";

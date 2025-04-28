@@ -34,12 +34,6 @@ public class Constants {
         public static final String PENDING = "PENDING";
     }
 
-    // hotel status
-    public static class HOTEL_STATUS {
-        public static final boolean ACTIVE = true;
-        public static final boolean INACTIVE = false;
-    }
-
     // room status
     public static class ROOM_STATUS {
         public static final String AVAILABLE = "AVAILABLE";
