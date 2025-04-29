@@ -6,6 +6,9 @@ import com.example.hotelbookingwebsite.Model.Images;
 import com.example.hotelbookingwebsite.Repository.HotelRepository;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,8 +50,28 @@ public class HotelService {
 
     private String getFirstHotelImageUrl(Long hotelId) {
         List<Images> images = imagesRepository.findImagesByHid(hotelId);
-        return images.isEmpty() ?
-                "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                : images.get(0).getImageUrl();
+        return "/images/" + images.getFirst().getImageUrl();  // Relative path to your ImageController
+    }
+
+    public List<HotelDTO> getTop4NewestHotelsInHCM() {
+        List<Hotel> hcmHotels = hotelRepository.findTop4NewestHotelsInHCM();
+
+        return hcmHotels.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Page<HotelDTO> searchHotelsByAddress(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Hotel> hotelPage = hotelRepository.findByAddressContainingIgnoreCase(query, pageable);
+
+        return hotelPage.map(this::convertToDTO);
+    }
+
+    public Page<HotelDTO> getAllHotels(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Hotel> hotelPage = hotelRepository.findAll(pageable);
+
+        return hotelPage.map(this::convertToDTO);
     }
 }

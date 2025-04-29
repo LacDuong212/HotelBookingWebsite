@@ -1,4 +1,4 @@
-package com.example.hotelbookingwebsite;
+package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.Service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,8 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("newestHotels", hotelService.getNewestHotels());
-        model.addAttribute("nearbyHotels", hotelService.getAllHotels());
+        model.addAttribute("hcmHotels", hotelService.getTop4NewestHotelsInHCM());
         return "web/home";
-    }
-
-    @GetMapping("/search")
-    public String search(Model model) {
-        return "web/search_results";
     }
 
     @GetMapping("/hotel-detail")

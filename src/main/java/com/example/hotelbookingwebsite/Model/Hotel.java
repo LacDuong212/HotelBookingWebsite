@@ -1,5 +1,6 @@
 package com.example.hotelbookingwebsite.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,14 +27,16 @@ public class Hotel {
     @Column(nullable = false)
     private String address = Constants.UNKNOWN;
 
+    @Column(length = 1000)
     private String description = Constants.UNKNOWN;
 
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
 
-    @OneToOne(mappedBy = "hotel")
-    @JsonIgnoreProperties("hotel")  // Prevent infinite recursion during serialization (optional)
+    @OneToOne
+    @JoinColumn(name = "uid")  // Foreign key column for Manager
+    @JsonBackReference  // Prevent recursion in the Manager entity
     private Manager manager;  // A hotel is managed by one manager
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

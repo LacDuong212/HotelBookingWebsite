@@ -20,6 +20,7 @@ public class Room {
     @Column(nullable = false)
     private String roomName = Constants.UNKNOWN;
 
+    @Column(length = 1000)
     private String description = "";
 
     @Column(nullable = false)

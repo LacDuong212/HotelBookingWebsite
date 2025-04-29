@@ -1,6 +1,5 @@
 package com.example.hotelbookingwebsite.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,9 +22,8 @@ public class Manager {
     @JoinColumn(name = "uid")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "hid")  // Foreign key column for Hotel
-    @JsonBackReference  // Prevent recursion in the Manager entity
+    @OneToOne(mappedBy = "manager")
+    @JsonIgnoreProperties("hotel")  // Prevent infinite recursion during serialization (optional)
     private Hotel hotel;  // A manager is assigned to a hotel
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

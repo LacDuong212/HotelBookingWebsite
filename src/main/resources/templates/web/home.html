@@ -208,54 +208,37 @@
     <!-- Hero Section with Search -->
     <section class="hero">
         <div class="hero-content">
-            <h1 class="hero-title">TÌM KIẾM</h1>
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="Địa điểm - Bạn muốn đến đâu?">
-                <button class="search-button">
-                    <i class="fas fa-search"></i>
+            <h1 class="hero-title">TÌM KIẾM KHÁCH SẠN</h1>
+            <form th:action="@{/search}" method="get" class="search-bar">
+                <input type="text"
+                       name="query"
+                       class="search-input"
+                       placeholder="Nhập địa điểm, quận, thành phố...">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Tìm kiếm
                 </button>
-            </div>
+            </form>
         </div>
     </section>
 
     <div class="container">
         <!-- Recommended Hotels Section -->
         <section class="hotel-section">
-            <h2 class="section-title">Khách sạn được đề xuất</h2>
+            <h2 class="section-title">Khách sạn mới nhất</h2>
             <div class="hotel-grid">
-                <!-- Hotel Card 1 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Pistachio Hotel" class="hotel-image">
+                <!-- Dynamic Hotel Cards using Thymeleaf -->
+                <a th:each="hotel : ${newestHotels}"
+                   th:href="@{/hotel-detail/{id}(id=${hotel.id})}"
+                   class="hotel-card">
+                    <img th:src="${hotel.firstImageUrl}"
+                         th:alt="${hotel.name}"
+                         class="hotel-image">
                     <div class="hotel-info">
-                        <h3 class="hotel-name">Pistachio Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 1, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                </a>
-
-                <!-- Hotel Card 2 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mangata Beachfront Hotel" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">Mangata Beachfront Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Phước Mỹ, Đà Nẵng, Việt Nam</p>
-                    </div>
-                </a>
-
-                <!-- Hotel Card 3 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Nature Boutique Hotel" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">Nature Boutique Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Trung Hòa Cầu Giấy, Hà Nội, Việt Nam</p>
-                    </div>
-                </a>
-
-                <!-- Hotel Card 4 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="La Opera Saigon Hotel" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">La Opera Saigon Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 1, Hồ Chí Minh, Việt Nam</p>
+                        <h3 class="hotel-name" th:text="${hotel.name}">Hotel Name</h3>
+                        <p class="hotel-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span th:text="${hotel.address}">Hotel Address</span>
+                        </p>
                     </div>
                 </a>
             </div>
@@ -263,43 +246,20 @@
 
         <!-- Nearby Hotels Section -->
         <section class="hotel-section">
-            <h2 class="section-title">Khách sạn gần đây</h2>
+            <h2 class="section-title">Khách sạn mới nhất tại Thành phố Hồ Chí Minh</h2>
             <div class="hotel-grid">
-                <!-- Hotel Card 1 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="New Pacific Hotel" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">New Pacific Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 3, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                </a>
-
-                <!-- Hotel Card 2 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="BM HOTEL" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">BM HOTEL</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Bình Tân, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                </a>
-
-                <!-- Hotel Card 3 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="The Hammock Hotel" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">The Hammock Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Quận 1, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                </a>
-
-                <!-- Hotel Card 4 -->
-                <a th:href="@{/hotel-detail}" class="hotel-card">
-                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Eden Hotel" class="hotel-image">
-                    <div class="hotel-info">
-                        <h3 class="hotel-name">Eden Hotel</h3>
-                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gò Vấp, Hồ Chí Minh, Việt Nam</p>
-                    </div>
-                </a>
+                <div th:each="hotel : ${hcmHotels}" class="hotel-card">
+                    <a th:href="@{/hotel-detail/{id}(id=${hotel.id})}">
+                        <img th:src="${hotel.firstImageUrl}" th:alt="${hotel.name}" class="hotel-image">
+                        <div class="hotel-info">
+                            <h3 class="hotel-name" th:text="${hotel.name}"></h3>
+                            <p class="hotel-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span th:text="${hotel.address}"></span>
+                            </p>
+                        </div>
+                    </a>
+                </div>
             </div>
         </section>
     </div>
@@ -307,5 +267,16 @@
 
 <!-- Include footer fragment -->
 <div th:replace="~{web/fragments/footer :: footer}"></div>
+
+<script>
+    document.querySelector('.search-bar').addEventListener('submit', function(e) {
+        const input = this.querySelector('input[name="query"]');
+        if (input.value.trim() === '') {
+            e.preventDefault();
+            alert('Vui lòng nhập địa điểm tìm kiếm');
+            input.focus();
+        }
+    });
+</script>
 </body>
 </html>
