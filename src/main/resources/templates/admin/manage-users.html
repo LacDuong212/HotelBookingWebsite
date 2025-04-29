@@ -87,6 +87,9 @@
     .status-filter {
       padding: 15px;
       border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .status-select {
@@ -96,6 +99,28 @@
       background-color: white;
       min-width: 200px;
       font-size: 14px;
+    }
+
+    .save-changes {
+      padding: 8px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .save-changes:hover {
+      background-color: #45a049;
+    }
+
+    .save-changes:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
     }
 
     .user-table {
@@ -196,6 +221,49 @@
       background-color: #f5f5f5;
     }
 
+    /* Editable cells */
+    .editable {
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .editable:focus {
+      border: 1px solid #4a90e2;
+      outline: none;
+      background-color: #f0f7ff;
+    }
+
+    .role-select {
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+    }
+
+    td.editing {
+      background-color: rgba(74, 144, 226, 0.1);
+    }
+
+    /* Form message */
+    .form-message {
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+      display: none;
+    }
+
+    .form-message.success {
+      background-color: #dff0d8;
+      color: #3c763d;
+      border: 1px solid #d6e9c6;
+    }
+
+    .form-message.error {
+      background-color: #f2dede;
+      color: #a94442;
+      border: 1px solid #ebccd1;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .page-header {
@@ -207,6 +275,12 @@
       .user-table {
         display: block;
         overflow-x: auto;
+      }
+
+      .status-filter {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
       }
     }
 
@@ -239,156 +313,82 @@
       </div>
     </div>
 
+    <!-- Form message for feedback -->
+    <div id="formMessage" class="form-message"></div>
+
     <div class="user-table-container">
       <div class="status-filter">
-        <select class="status-select">
-          <option>Trạng thái: Tất cả</option>
-          <option>Trạng thái: Hoạt động</option>
-          <option>Trạng thái: Bị khóa</option>
+        <select class="status-select" id="roleFilter">
+          <option value="ALL">Trạng thái: Tất cả</option>
+          <option value="MANAGER">Trạng thái: Quản lý</option>
+          <option value="CUSTOMER">Trạng thái: Khách hàng</option>
         </select>
+
+        <button id="saveChanges" class="save-changes" disabled>
+          <i class="fas fa-save"></i>
+          Lưu thay đổi
+        </button>
       </div>
 
-      <table class="user-table">
+      <table class="user-table" id="userTable">
         <thead>
         <tr>
           <th>Họ và tên</th>
           <th>Email</th>
           <th>Số điện thoại</th>
-          <th></th>
+          <th>Vai trò</th>
+          <th>Thao tác</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <td>Nguyễn Văn A</td>
-          <td>nguyenvana@email.com</td>
-          <td>0123456789</td>
+        <!-- Vòng lặp hiển thị danh sách người dùng -->
+        <tr th:each="user : ${users}" th:data-id="${user.id}">
+          <td>
+            <div
+                    contenteditable="true"
+                    class="editable"
+                    th:text="${user.fullname}"
+                    data-field="fullname"
+                    data-original="${user.fullname}">
+              Nguyễn Văn A
+            </div>
+          </td>
+          <td>
+            <div
+                    contenteditable="true"
+                    class="editable"
+                    th:text="${user.email}"
+                    data-field="email"
+                    data-original="${user.email}">
+              nguyenvana@email.com
+            </div>
+          </td>
+          <td>
+            <div
+                    contenteditable="true"
+                    class="editable"
+                    th:text="${user.phoneNumber}"
+                    data-field="phoneNumber"
+                    data-original="${user.phoneNumber}">
+              0123456789
+            </div>
+          </td>
+          <td>
+            <select class="role-select" data-field="role" th:data-original="${user.role}">
+              <option value="manager" th:selected="${user.role == 'MANAGER'}">Quản lý</option>
+              <option value="customer" th:selected="${user.role == 'CUSTOMER'}">Khách hàng</option>
+            </select>
+          </td>
           <td>
             <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
+              <span class="btn-edit" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></span>
+              <span class="btn-delete" title="Xóa người dùng"><i class="fas fa-trash"></i></span>
             </div>
           </td>
         </tr>
-        <tr>
-          <td>Nguyễn Văn B</td>
-          <td>nguyenvanb@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn C</td>
-          <td>nguyenvanc@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn D</td>
-          <td>nguyenvana@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn E</td>
-          <td>nguyenvand@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn E</td>
-          <td>nguyenvane@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn G</td>
-          <td>nguyenvang@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn F</td>
-          <td>nguyenvanf@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn I</td>
-          <td>nguyenvani@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn J</td>
-          <td>nguyenvanj@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn K</td>
-          <td>nguyenvank@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>Nguyễn Văn L</td>
-          <td>nguyenvanl@email.com</td>
-          <td>0123456789</td>
-          <td>
-            <div class="action-buttons">
-              <a href="#" class="btn-edit"><i class="fas fa-pencil-alt"></i></a>
-              <a href="#" class="btn-delete"><i class="fas fa-trash"></i></a>
-            </div>
-          </td>
+        <!-- Nếu không có người dùng nào -->
+        <tr th:if="${#lists.isEmpty(users)}">
+          <td colspan="5" style="text-align: center;">Không có người dùng nào</td>
         </tr>
         </tbody>
       </table>
@@ -396,7 +396,7 @@
 
     <div class="pagination">
       <div class="pagination-info">
-        Tổng có 3 trang
+        Tổng có <span th:text="${users != null ? #lists.size(users) : 0}">0</span> người dùng
       </div>
       <div class="pagination-controls">
         <a href="#" class="pagination-button">
@@ -407,11 +407,274 @@
           <i class="fas fa-angle-right"></i>
         </a>
       </div>
-    </div>0
+    </div>
   </div>
 </main>
 
 <!-- Include footer fragment -->
 <div th:replace="~{admin/fragments/admin-footer :: footer}"></div>
+
+<!-- CSRF Token for security -->
+<!--<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const saveButton = document.getElementById('saveChanges');
+    const formMessage = document.getElementById('formMessage');
+    const roleFilter = document.getElementById('roleFilter');
+    const userTable = document.getElementById('userTable');
+    const editableCells = document.querySelectorAll('.editable');
+    const roleSelects = document.querySelectorAll('.role-select');
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    /*const csrfToken = document.getElementById('csrfToken').value;*/
+
+    // Object to track changes
+    let changedUsers = {};
+
+    // Helper to check if there are any changes
+    function checkForChanges() {
+      const hasChanges = Object.keys(changedUsers).length > 0;
+      saveButton.disabled = !hasChanges;
+      return hasChanges;
+    }
+
+    // Helper to show message
+    function showMessage(type, message) {
+      formMessage.textContent = message;
+      formMessage.className = `form-message ${type}`;
+      formMessage.style.display = 'block';
+
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        formMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    // Make cells editable
+    editableCells.forEach(cell => {
+      cell.addEventListener('focus', function() {
+        this.parentElement.classList.add('editing');
+      });
+
+      cell.addEventListener('blur', function() {
+        this.parentElement.classList.remove('editing');
+
+        const userId = this.closest('tr').dataset.id;
+        const fieldName = this.dataset.field;
+        const originalValue = this.dataset.original;
+        const newValue = this.textContent.trim();
+
+        // If value changed
+        if (newValue !== originalValue) {
+          if (!changedUsers[userId]) {
+            changedUsers[userId] = {};
+          }
+          changedUsers[userId][fieldName] = newValue;
+        } else if (changedUsers[userId] && changedUsers[userId][fieldName]) {
+          // If changed back to original
+          delete changedUsers[userId][fieldName];
+          if (Object.keys(changedUsers[userId]).length === 0) {
+            delete changedUsers[userId];
+          }
+        }
+
+        checkForChanges();
+      });
+
+      // Prevent enter key from creating new lines
+      cell.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.blur();
+        }
+      });
+    });
+
+    // Track role changes
+    roleSelects.forEach(select => {
+      const originalValue = select.dataset.original;
+
+      select.addEventListener('change', function() {
+        const userId = this.closest('tr').dataset.id;
+        const fieldName = this.dataset.field;
+        const newValue = this.value;
+
+        if (newValue !== originalValue) {
+          if (!changedUsers[userId]) {
+            changedUsers[userId] = {};
+          }
+          changedUsers[userId][fieldName] = newValue;
+        } else if (changedUsers[userId] && changedUsers[userId][fieldName]) {
+          delete changedUsers[userId][fieldName];
+          if (Object.keys(changedUsers[userId]).length === 0) {
+            delete changedUsers[userId];
+          }
+        }
+
+        checkForChanges();
+      });
+    });
+
+    // Handle save button
+    saveButton.addEventListener('click', function() {
+      if (!checkForChanges()) return;
+
+      // Prepare data for submission
+      const data = {
+        users: []
+      };
+
+      for (const userId in changedUsers) {
+        data.users.push({
+          id: userId,
+          ...changedUsers[userId]
+        });
+      }
+
+      // Send to backend
+      fetch('/admin/update-users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                return response.json();
+              })
+              .then(result => {
+                if (result.success) {
+                  showMessage('success', 'Cập nhật người dùng thành công!');
+
+                  // Update original values
+                  for (const userId in changedUsers) {
+                    const row = document.querySelector(`tr[data-id="${userId}"]`);
+                    if (row) {
+                      for (const field in changedUsers[userId]) {
+                        const el = row.querySelector(`[data-field="${field}"]`);
+                        if (el) {
+                          el.dataset.original = changedUsers[userId][field];
+                        }
+                      }
+                    }
+                  }
+
+                  // Reset changes
+                  changedUsers = {};
+                  checkForChanges();
+                } else {
+                  showMessage('error', result.message || 'Có lỗi xảy ra khi cập nhật!');
+                }
+              })
+              .catch(error => {
+                console.error('Error updating users:', error);
+                showMessage('error', 'Lỗi kết nối: Không thể cập nhật người dùng!');
+              });
+    });
+
+    // Handle delete buttons
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const row = this.closest('tr');
+        const userId = row.dataset.id;
+        const userName = row.querySelector('[data-field="fullname"]').textContent;
+
+        if (confirm(`Bạn có chắc chắn muốn xóa người dùng "${userName}"?`)) {
+          fetch(`/admin/delete-user/${userId}`, {
+            method: 'DELETE'
+          })
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                  })
+                  .then(result => {
+                    if (result.success) {
+                      row.remove();
+                      showMessage('success', `Đã xóa người dùng "${userName}"!`);
+
+                      // Update total count
+                      const countEl = document.querySelector('.pagination-info span');
+                      if (countEl) {
+                        const currentCount = parseInt(countEl.textContent);
+                        countEl.textContent = currentCount - 1;
+                      }
+
+                      // Remove from changed users if present
+                      if (changedUsers[userId]) {
+                        delete changedUsers[userId];
+                        checkForChanges();
+                      }
+                    } else {
+                      showMessage('error', result.message || 'Có lỗi xảy ra khi xóa người dùng!');
+                    }
+                  })
+                  .catch(error => {
+                    console.error('Error deleting user:', error);
+                    showMessage('error', 'Lỗi kết nối: Không thể xóa người dùng!');
+                  });
+        }
+      });
+    });
+
+    // Filter by role
+    roleFilter.addEventListener('change', function() {
+      const value = this.value;
+      const rows = userTable.querySelectorAll('tbody tr:not([th\\:if])');
+
+      console.log("Giá trị đã chọn trong bộ lọc:", value);
+
+      // Đếm số lượng hàng hiển thị sau khi lọc
+      let visibleRows = 0;
+
+      if (value === 'ALL') {
+        rows.forEach(row => {
+          row.style.display = '';
+          visibleRows++;
+        });
+      } else {
+        rows.forEach(row => {
+          const roleSelect = row.querySelector('.role-select');
+          if (roleSelect) {
+            const currentRoleValue = roleSelect.value.toUpperCase();
+
+            console.log(`Row ID: ${row.dataset.id}, Role value: ${roleSelect.value}, Converted: ${currentRoleValue}, Filter: ${value}`);
+
+            if (currentRoleValue === value) {
+              row.style.display = '';
+              // Thêm hiệu ứng highlight tạm thời
+              row.style.backgroundColor = '#f0f7ff';
+              setTimeout(() => {
+                row.style.backgroundColor = '';
+              }, 1000);
+              visibleRows++;
+            } else {
+              // Đảm bảo dùng !important để ghi đè CSS khác
+              row.style.cssText = 'display: none !important';
+            }
+          }
+        });
+      }
+
+      console.log(`Số hàng hiển thị sau khi lọc: ${visibleRows}/${rows.length}`);
+
+      // Cập nhật số lượng hiển thị trong thông tin phân trang
+      const countEl = document.querySelector('.pagination-info span');
+      if (countEl) {
+        if (value === 'ALL') {
+          // Hiển thị lại tổng số ban đầu
+          countEl.textContent = rows.length;
+        } else {
+          // Hiển thị số lượng sau khi lọc
+          countEl.textContent = visibleRows;
+        }
+      }
+    });
+  });
+</script>
 </body>
 </html>

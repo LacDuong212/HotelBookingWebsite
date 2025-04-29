@@ -5,6 +5,7 @@ import com.example.hotelbookingwebsite.Model.Hotel;
 import com.example.hotelbookingwebsite.Model.Images;
 import com.example.hotelbookingwebsite.Repository.HotelRepository;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

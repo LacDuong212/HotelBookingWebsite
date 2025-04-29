@@ -26,4 +26,6 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
     List<Hotel> findTop4NewestHotelsInHCM();
 
     Page<Hotel> findByAddressContainingIgnoreCase(String address, Pageable pageable);
+
+    void deleteByHid(Long hid);
 }
