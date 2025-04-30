@@ -211,6 +211,7 @@
                 padding: 15px;
                 justify-content: center;
             }
+
         }
     </style>
 </head>
@@ -227,26 +228,24 @@
         <div class="tabs">
             <div class="tab active" data-tab="upcoming">Sắp tới</div>
             <div class="tab" data-tab="ongoing">Đang diễn ra</div>
-            <div class="tab" data-tab="yours">Của bạn</div>
         </div>
 
         <!-- Voucher List - Upcoming -->
         <div class="voucher-list" id="upcoming-tab">
-            <!-- Voucher Item 1 -->
-            <div class="voucher-item">
+            <div th:each="promotion : ${promotioninactive}" class="voucher-item">
                 <div class="voucher-icon">
                     <div class="discount-icon">
                         <i class="fas fa-percentage fa-2x"></i>
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code">THUDUONGHOTEL123</div>
+                    <div class="voucher-code" th:text="${promotion.name}">Voucher Code</div>
                     <div class="voucher-dates">
-                        <span>Từ ngày: 15/04/2025</span>
-                        <span class="mx-2">|</span>
-                        <span>Đến ngày: 12/05/2025</span>
+                        <span>Từ ngày: <span th:text="${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}" style="margin-right: 15px;">Start Date</span></span>
+                        <span class="mx-2" style="margin-right: 15px;">|</span>
+                        <span>Đến ngày: <span th:text="${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">End Date</span></span>
                     </div>
-                    <div class="voucher-discount">30%</div>
+                    <div class="voucher-discount" th:text="${promotion.discount + '%'}">Discount</div>
                 </div>
                 <div class="voucher-actions">
                     <a href="#" class="btn btn-detail">Xem Chi Tiết</a>
@@ -257,65 +256,20 @@
 
         <!-- Voucher List - Ongoing -->
         <div class="voucher-list" id="ongoing-tab" style="display: none;">
-            <!-- Voucher Item 1 -->
-            <div class="voucher-item">
+            <div th:each="promotion : ${promotionactive}" class="voucher-item">
                 <div class="voucher-icon">
                     <div class="discount-icon red">
                         <i class="fas fa-tag fa-2x"></i>
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code">VICHANHONGCOHOTEL123</div>
+                    <div class="voucher-code" th:text="${promotion.name}">Voucher Code</div>
                     <div class="voucher-dates">
-                        <span>Từ ngày: 26/04/2025</span>
-                        <span class="mx-2">|</span>
-                        <span>Đến ngày: 20/05/2025</span>
+                        <span>Từ ngày: <span th:text="${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}" style="margin-right: 15px;">Start Date</span></span>
+                        <span class="mx-2" style="margin-right: 15px;">|</span>
+                        <span>Đến ngày: <span th:text="${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">End Date</span></span>
                     </div>
-                    <div class="voucher-discount">20%</div>
-                </div>
-                <div class="voucher-actions">
-                    <a href="#" class="btn btn-detail">Xem Chi Tiết</a>
-                    <a href="#" class="btn btn-outline">Lưu</a>
-                </div>
-            </div>
-
-            <!-- Voucher Item 2 -->
-            <div class="voucher-item">
-                <div class="voucher-icon">
-                    <div class="discount-icon red">
-                        <i class="fas fa-tags fa-2x"></i>
-                    </div>
-                </div>
-                <div class="voucher-content">
-                    <div class="voucher-code">VICHANHONGCOHOTEL123</div>
-                    <div class="voucher-dates">
-                        <span>Từ ngày: 26/04/2025</span>
-                        <span class="mx-2">|</span>
-                        <span>Đến ngày: 26/05/2025</span>
-                    </div>
-                    <div class="voucher-discount">20%</div>
-                </div>
-                <div class="voucher-actions">
-                    <a href="#" class="btn btn-detail">Xem Chi Tiết</a>
-                    <a href="#" class="btn btn-outline">Lưu</a>
-                </div>
-            </div>
-
-            <!-- Voucher Item 3 -->
-            <div class="voucher-item">
-                <div class="voucher-icon">
-                    <div class="discount-icon">
-                        <i class="fas fa-percentage fa-2x"></i>
-                    </div>
-                </div>
-                <div class="voucher-content">
-                    <div class="voucher-code">VICHANHONGCOHOTEL123</div>
-                    <div class="voucher-dates">
-                        <span>Từ ngày: 26/04/2025</span>
-                        <span class="mx-2">|</span>
-                        <span>Đến ngày: 15/05/2025</span>
-                    </div>
-                    <div class="voucher-discount">20%</div>
+                    <div class="voucher-discount" th:text="${promotion.discount + '%'}">Discount</div>
                 </div>
                 <div class="voucher-actions">
                     <a href="#" class="btn btn-detail">Xem Chi Tiết</a>
@@ -324,13 +278,6 @@
             </div>
         </div>
 
-        <!-- Voucher List - Yours -->
-        <div class="voucher-list" id="yours-tab" style="display: none;">
-            <div class="empty-state" style="text-align: center; padding: 50px 0;">
-                <i class="fas fa-ticket-alt fa-3x" style="color: #ddd; margin-bottom: 20px;"></i>
-                <p>Bạn chưa có mã giảm giá nào. Hãy lưu mã giảm giá để sử dụng sau!</p>
-            </div>
-        </div>
     </div>
 </main>
 
