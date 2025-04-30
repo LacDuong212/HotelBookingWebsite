@@ -50,6 +50,10 @@ public class HotelService {
 
     private String getFirstHotelImageUrl(Long hotelId) {
         List<Images> images = imagesRepository.findImagesByHid(hotelId);
+        if (images == null || images.isEmpty()) {
+            // TODO: tra ve anh mac dinh
+            return null;
+        }
         return "/images/" + images.getFirst().getImageUrl();  // Relative path to your ImageController
     }
 
