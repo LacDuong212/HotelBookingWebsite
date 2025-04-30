@@ -222,7 +222,7 @@
         <div class="add-room-container">
             <h1 class="add-room-title">Thêm phòng</h1>
 
-            <form class="add-room-form" action="/add-room" method="POST">
+            <form class="add-room-form" th:action="@{/host/add-room}" method="post" th:object="${room}">
                 <!-- Image Upload Section -->
                 <div class="image-upload-section">
                     <div class="main-image-container">
@@ -252,14 +252,14 @@
                     <!-- Room Name Field -->
                     <div class="form-group">
                         <label for="roomName" class="form-label">Tên phòng</label>
-                        <input type="text" id="roomName" name="roomName" class="form-control" required>
+                        <input type="text" id="roomName" th:field="*{roomName}" class="form-control" required>
                     </div>
 
                     <!-- Price Field -->
                     <div class="form-group">
                         <label for="price" class="form-label">Giá</label>
                         <div class="price-input-container">
-                            <input type="number" id="price" name="price" class="form-control" required>
+                            <input type="number" id="price" th:field="*{price}" class="form-control" required>
                             <span class="currency-label">VNĐ</span>
                         </div>
                     </div>
@@ -267,7 +267,7 @@
                     <!-- Description Field -->
                     <div class="form-group">
                         <label for="description" class="form-label">Mô tả</label>
-                        <textarea id="description" name="description" class="form-control form-control-textarea" required></textarea>
+                        <textarea id="description" th:field="*{description}" class="form-control form-control-textarea" required></textarea>
                     </div>
 
                     <!-- Form Actions -->
