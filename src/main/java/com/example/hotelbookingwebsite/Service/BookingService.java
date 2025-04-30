@@ -46,10 +46,11 @@ public class BookingService {
         dto.setRoom(roomService.convertToRoomDTO(booking.getRoom()));
         return dto;
     }
-    public Booking saveBooking(Booking booking) {
-        return bookingRepository.save(booking);
-    }
-    public void deleteBooking(long id) {
-        bookingRepository.deleteById(id);
+    public void cancelBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy booking"));
+
+        booking.setStatus("cancelled"); // đổi trạng thái
+        bookingRepository.save(booking);
     }
 }

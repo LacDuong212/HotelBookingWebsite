@@ -43,6 +43,6 @@ public class AccountController {
         System.out.println("Update user profile: " + user.getUid());
         // Gọi dịch vụ để cập nhật thông tin người dùng vào database
         userService.updateUser(user);
-        return "web/account";
+        return "redirect:/account";
     }
 }

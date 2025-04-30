@@ -61,11 +61,17 @@ public class HomeController {
             return "redirect:/signin"; // Chuyển hướng về URL "/signin"
         }
     }
+    @GetMapping("/cancel-booking/{id}")
+    public String cancelBooking(@PathVariable("id") Long id) {
+        bookingService.cancelBooking(id);
+        return "redirect:/booking-history"; // chuyển hướng về trang hiển thị danh sách booking
+    }
     @GetMapping("/booking-details/{id}")
     public String bookingDetails(@PathVariable("id") long id,Model model) {
         model.addAttribute("booking", bookingService.getBookingBybid(id));
         return "web/booking-details";
     }
+
     @GetMapping("/booking-payment")
     public String bookingPayment(Model model) {
         return "web/booking-payment";
