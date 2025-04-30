@@ -16,16 +16,13 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pmid;
 
-    @Column(nullable = false)
     private String paymentMethod = Constants.UNKNOWN;
 
-    @Column(nullable = false)
     private String status = Constants.UNKNOWN;
 
     private float amount = 0;
 
-    @OneToOne
-    @JoinColumn(name = "bid", referencedColumnName = "bid")  // Foreign key column in Payment referencing Booking's bid
-    @JsonBackReference  // Prevent recursion during serialization (optional)
+    @OneToOne(mappedBy = "payment")
+    @JsonBackReference
     private Booking booking;  // Each payment belongs to one booking
 }
