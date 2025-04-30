@@ -1,34 +1,82 @@
 package com.example.hotelbookingwebsite.Service;
 
-import com.example.hotelbookingwebsite.DTO.UserDTO;
+import com.example.hotelbookingwebsite.Model.Customer;
+import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Model.User;
 import com.example.hotelbookingwebsite.Repository.CustomerRepository;
+import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
 
-    public List<UserDTO> getAllUser() {
+    @Autowired
+    private ManagerRepository managerRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber).isPresent();
+    }
+
+    public User saveUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    public Customer saveCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    public Manager saveManager(Manager manager) {
+        return managerRepository.save(manager);
+    }
+
+    public User authenticate(String email, String password) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty() ||
+                !passwordEncoder.matches(password, userOptional.get().getPassword())) {
+            return null;
+        }
+
+        return userOptional.get();
+    }
+
+    public void updatePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+	 public List<UserDTO> getAllUser() {
         List<User> users = userRepository.findAll();
         return users.stream()
                 .map(this::convertUserToUserDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<UserDTO> updateUsers(List<UserDTO> userDTOList) {
+	public List<UserDTO> updateUsers(List<UserDTO> userDTOList) {
         return userDTOList.stream()
                 .map(userDTO -> {
                     Optional<User> userOptional = userRepository.findById(userDTO.getId());
@@ -60,7 +108,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public boolean deleteUser(Long id) {
+	public boolean deleteUser(Long id) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             customerRepository.deleteByUid(id);
@@ -68,20 +116,4 @@ public class UserService {
             return true;
         }
         return false;
-    }
-
-    private UserDTO convertUserToUserDTO(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        UserDTO userListDTO = new UserDTO();
-        userListDTO.setId(user.getUid());
-        userListDTO.setEmail(user.getEmail());
-        userListDTO.setFullname(user.getFullname());
-        userListDTO.setPhoneNumber(user.getPhoneNumber());
-        userListDTO.setRole(user.getRole());
-
-        return userListDTO;
-    }
 }

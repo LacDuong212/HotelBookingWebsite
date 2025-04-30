@@ -276,7 +276,7 @@
 </head>
 <body>
 <!-- Include header fragment -->
-<div th:replace="~{web/fragments/header :: header}"></div>
+<div th:replace="~{host/fragments/host-header :: header}"></div>
 
 <!-- MAIN CONTENT -->
 <main>
@@ -288,7 +288,7 @@
                 <!-- Error message -->
                 <div th:if="${error}" class="error-message" th:text="${error}"></div>
 
-                <form id="signupForm" th:action="@{/signup}" method="post">
+                <form id="signupForm" th:action="@{/signup-manager}" method="post">
                     <div class="form-group">
                         <label for="fullname">Họ và tên</label>
                         <input type="text" id="fullname" name="fullname" placeholder="Nhập họ và tên" required>
@@ -357,7 +357,7 @@
 </div>
 
 <!-- Include footer fragment -->
-<div th:replace="~{web/fragments/footer :: footer}"></div>
+<div th:replace="~{host/fragments/host-footer :: footer}"></div>
 
 <script>
     // Biến toàn cục tạm giữ thông tin đăng ký
@@ -391,7 +391,7 @@
         tempSignupData = { ...formData };
 
         // Gửi yêu cầu gửi OTP (chưa lưu user vào DB)
-        fetch('/signup', {
+        fetch('/signup-manager', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -441,7 +441,7 @@
             password: tempSignupData.password
         });
 
-        fetch('/signup/verify-otp', {
+        fetch('/signup-manager/verify-otp', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -474,7 +474,7 @@
             return;
         }
 
-        fetch('/signup/resend-otp', {
+        fetch('/signup-manager/resend-otp', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
