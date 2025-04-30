@@ -75,6 +75,39 @@
       font-size: 12px;
     }
 
+    /* Sorting dropdown menu */
+    .sort-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .sort-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 5px;
+    }
+
+    .sort-dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 14px;
+    }
+
+    .sort-dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .sort-dropdown:hover .sort-dropdown-content {
+      display: block;
+    }
+
     /* User Table */
     .user-table-container {
       background-color: white;
@@ -134,6 +167,22 @@
       background-color: #f9f9f9;
       border-bottom: 1px solid #eee;
       font-weight: 600;
+    }
+
+    .user-table th a {
+      color: #333;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .user-table th a:hover {
+      color: #4a4a4a;
+    }
+
+    .sort-icon {
+      margin-left: 5px;
+      font-size: 12px;
     }
 
     .user-table td {
@@ -201,7 +250,7 @@
     }
 
     .pagination-button {
-      width: 32px;
+      min-width: 32px;
       height: 32px;
       display: flex;
       align-items: center;
@@ -209,6 +258,9 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       cursor: pointer;
+      text-decoration: none;
+      color: #333;
+      padding: 0 10px;
     }
 
     .pagination-button.active {
@@ -217,7 +269,12 @@
       border-color: #4a4a4a;
     }
 
-    .pagination-button:hover:not(.active) {
+    .pagination-button.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .pagination-button:hover:not(.active):not(.disabled) {
       background-color: #f5f5f5;
     }
 
@@ -302,14 +359,26 @@
       <h1 class="page-title">Danh sách người dùng</h1>
 
       <div class="filter-controls">
-        <button class="btn-filter">
-          <i class="fas fa-sort"></i>
-          Sắp xếp
-        </button>
-        <button class="btn-filter">
-          <i class="fas fa-filter"></i>
-          Lọc
-        </button>
+        <div class="sort-dropdown">
+          <button class="btn-filter">
+            <i class="fas fa-sort"></i>
+            Sắp xếp
+          </button>
+          <div class="sort-dropdown-content">
+            <a th:href="@{/admin/manage-users(page=${currentPage},size=10,sortBy='fullname',sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},role=${currentRole})}">
+              Tên
+              <i class="fas" th:classappend="${sortField == 'fullname' ? (sortDir == 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'}"></i>
+            </a>
+            <a th:href="@{/admin/manage-users(page=${currentPage},size=10,sortBy='email',sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},role=${currentRole})}">
+              Email
+              <i class="fas" th:classappend="${sortField == 'email' ? (sortDir == 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'}"></i>
+            </a>
+            <a th:href="@{/admin/manage-users(page=${currentPage},size=10,sortBy='role',sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},role=${currentRole})}">
+              Vai trò
+              <i class="fas" th:classappend="${sortField == 'role' ? (sortDir == 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'}"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -318,10 +387,10 @@
 
     <div class="user-table-container">
       <div class="status-filter">
-        <select class="status-select" id="roleFilter">
-          <option value="ALL">Trạng thái: Tất cả</option>
-          <option value="MANAGER">Trạng thái: Quản lý</option>
-          <option value="CUSTOMER">Trạng thái: Khách hàng</option>
+        <select class="status-select" id="roleFilter" onchange="filterByRole()">
+          <option value="ALL" th:selected="${currentRole == 'ALL'}">Trạng thái: Tất cả</option>
+          <option value="MANAGER" th:selected="${currentRole == 'MANAGER'}">Trạng thái: Quản lý</option>
+          <option value="CUSTOMER" th:selected="${currentRole == 'CUSTOMER'}">Trạng thái: Khách hàng</option>
         </select>
 
         <button id="saveChanges" class="save-changes" disabled>
@@ -333,10 +402,25 @@
       <table class="user-table" id="userTable">
         <thead>
         <tr>
-          <th>Họ và tên</th>
-          <th>Email</th>
+          <th>
+            <a th:href="@{/admin/manage-users(page=${currentPage},size=10,sortBy='fullname',sortDir=${sortField == 'fullname' ? reverseSortDir : 'asc'},role=${currentRole})}">
+              Họ và tên
+              <i class="fas sort-icon" th:classappend="${sortField == 'fullname' ? (sortDir == 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'}"></i>
+            </a>
+          </th>
+          <th>
+            <a th:href="@{/admin/manage-users(page=${currentPage},size=10,sortBy='email',sortDir=${sortField == 'email' ? reverseSortDir : 'asc'},role=${currentRole})}">
+              Email
+              <i class="fas sort-icon" th:classappend="${sortField == 'email' ? (sortDir == 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'}"></i>
+            </a>
+          </th>
           <th>Số điện thoại</th>
-          <th>Vai trò</th>
+          <th>
+            <a th:href="@{/admin/manage-users(page=${currentPage},size=10,sortBy='role',sortDir=${sortField == 'role' ? reverseSortDir : 'asc'},role=${currentRole})}">
+              Vai trò
+              <i class="fas sort-icon" th:classappend="${sortField == 'role' ? (sortDir == 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'}"></i>
+            </a>
+          </th>
           <th>Thao tác</th>
         </tr>
         </thead>
@@ -375,8 +459,8 @@
           </td>
           <td>
             <select class="role-select" data-field="role" th:data-original="${user.role}">
-              <option value="manager" th:selected="${user.role == 'MANAGER'}">Quản lý</option>
-              <option value="customer" th:selected="${user.role == 'CUSTOMER'}">Khách hàng</option>
+              <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Quản lý</option>
+              <option value="CUSTOMER" th:selected="${user.role == 'CUSTOMER'}">Khách hàng</option>
             </select>
           </td>
           <td>
@@ -394,17 +478,45 @@
       </table>
     </div>
 
-    <div class="pagination">
+    <div class="pagination" th:if="${totalPages > 0}">
       <div class="pagination-info">
-        Tổng có <span th:text="${users != null ? #lists.size(users) : 0}">0</span> người dùng
+        Hiển thị <span th:text="${users.size()}">0</span> trên <span th:text="${totalItems}">0</span> người dùng
       </div>
       <div class="pagination-controls">
-        <a href="#" class="pagination-button">
+        <!-- First page -->
+        <a th:class="${currentPage == 0 ? 'pagination-button disabled' : 'pagination-button'}"
+           th:href="@{/admin/manage-users(page=0,size=10,sortBy=${sortField},sortDir=${sortDir},role=${currentRole})}"
+           th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+          <i class="fas fa-angle-double-left"></i>
+        </a>
+
+        <!-- Previous page -->
+        <a th:class="${currentPage == 0 ? 'pagination-button disabled' : 'pagination-button'}"
+           th:href="@{/admin/manage-users(page=${currentPage - 1},size=10,sortBy=${sortField},sortDir=${sortDir},role=${currentRole})}"
+           th:classappend="${currentPage == 0 ? 'disabled' : ''}">
           <i class="fas fa-angle-left"></i>
         </a>
-        <a href="#" class="pagination-button active">1</a>
-        <a href="#" class="pagination-button">
+
+        <!-- Page numbers -->
+        <span th:each="i: ${#numbers.sequence(0, totalPages - 1)}"
+              th:if="${i >= currentPage - 2 && i <= currentPage + 2}">
+          <a th:href="@{/admin/manage-users(page=${i},size=10,sortBy=${sortField},sortDir=${sortDir},role=${currentRole})}"
+             th:text="${i + 1}"
+             th:class="${i == currentPage ? 'pagination-button active' : 'pagination-button'}">1</a>
+        </span>
+
+        <!-- Next page -->
+        <a th:class="${currentPage == totalPages - 1 ? 'pagination-button disabled' : 'pagination-button'}"
+           th:href="@{/admin/manage-users(page=${currentPage + 1},size=10,sortBy=${sortField},sortDir=${sortDir},role=${currentRole})}"
+           th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
           <i class="fas fa-angle-right"></i>
+        </a>
+
+        <!-- Last page -->
+        <a th:class="${currentPage == totalPages - 1 ? 'pagination-button disabled' : 'pagination-button'}"
+           th:href="@{/admin/manage-users(page=${totalPages - 1},size=10,sortBy=${sortField},sortDir=${sortDir},role=${currentRole})}"
+           th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+          <i class="fas fa-angle-double-right"></i>
         </a>
       </div>
     </div>
@@ -414,19 +526,13 @@
 <!-- Include footer fragment -->
 <div th:replace="~{admin/fragments/admin-footer :: footer}"></div>
 
-<!-- CSRF Token for security -->
-<!--<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const saveButton = document.getElementById('saveChanges');
     const formMessage = document.getElementById('formMessage');
-    const roleFilter = document.getElementById('roleFilter');
-    const userTable = document.getElementById('userTable');
     const editableCells = document.querySelectorAll('.editable');
     const roleSelects = document.querySelectorAll('.role-select');
     const deleteButtons = document.querySelectorAll('.btn-delete');
-    /*const csrfToken = document.getElementById('csrfToken').value;*/
 
     // Object to track changes
     let changedUsers = {};
@@ -597,13 +703,6 @@
                       row.remove();
                       showMessage('success', `Đã xóa người dùng "${userName}"!`);
 
-                      // Update total count
-                      const countEl = document.querySelector('.pagination-info span');
-                      if (countEl) {
-                        const currentCount = parseInt(countEl.textContent);
-                        countEl.textContent = currentCount - 1;
-                      }
-
                       // Remove from changed users if present
                       if (changedUsers[userId]) {
                         delete changedUsers[userId];
@@ -620,61 +719,16 @@
         }
       });
     });
-
-    // Filter by role
-    roleFilter.addEventListener('change', function() {
-      const value = this.value;
-      const rows = userTable.querySelectorAll('tbody tr:not([th\\:if])');
-
-      console.log("Giá trị đã chọn trong bộ lọc:", value);
-
-      // Đếm số lượng hàng hiển thị sau khi lọc
-      let visibleRows = 0;
-
-      if (value === 'ALL') {
-        rows.forEach(row => {
-          row.style.display = '';
-          visibleRows++;
-        });
-      } else {
-        rows.forEach(row => {
-          const roleSelect = row.querySelector('.role-select');
-          if (roleSelect) {
-            const currentRoleValue = roleSelect.value.toUpperCase();
-
-            console.log(`Row ID: ${row.dataset.id}, Role value: ${roleSelect.value}, Converted: ${currentRoleValue}, Filter: ${value}`);
-
-            if (currentRoleValue === value) {
-              row.style.display = '';
-              // Thêm hiệu ứng highlight tạm thời
-              row.style.backgroundColor = '#f0f7ff';
-              setTimeout(() => {
-                row.style.backgroundColor = '';
-              }, 1000);
-              visibleRows++;
-            } else {
-              // Đảm bảo dùng !important để ghi đè CSS khác
-              row.style.cssText = 'display: none !important';
-            }
-          }
-        });
-      }
-
-      console.log(`Số hàng hiển thị sau khi lọc: ${visibleRows}/${rows.length}`);
-
-      // Cập nhật số lượng hiển thị trong thông tin phân trang
-      const countEl = document.querySelector('.pagination-info span');
-      if (countEl) {
-        if (value === 'ALL') {
-          // Hiển thị lại tổng số ban đầu
-          countEl.textContent = rows.length;
-        } else {
-          // Hiển thị số lượng sau khi lọc
-          countEl.textContent = visibleRows;
-        }
-      }
-    });
   });
+
+  // Function to filter by role
+  function filterByRole() {
+    const roleFilter = document.getElementById('roleFilter');
+    const selectedRole = roleFilter.value;
+
+    // Redirect to the same page with the role filter parameter
+    window.location.href = `/admin/manage-users?role=${selectedRole}`;
+  }
 </script>
 </body>
 </html>

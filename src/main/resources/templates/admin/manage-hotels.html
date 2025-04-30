@@ -125,6 +125,63 @@
             color: white;
         }
 
+        /* Pagination styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0 20px;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-item {
+            background-color: white;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 10px;
+            color: #333;
+            text-decoration: none;
+            border-right: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .page-item:last-child .page-link {
+            border-right: none;
+        }
+
+        .page-item.active .page-link {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .page-item.disabled .page-link {
+            color: #ccc;
+            pointer-events: none;
+        }
+
+        .page-link:hover:not(.active) {
+            background-color: #f5f5f5;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #777;
+            font-size: 14px;
+        }
+
         /* Modal styles */
         .modal {
             display: none;
@@ -182,6 +239,11 @@
             .hotel-grid {
                 grid-template-columns: 1fr;
             }
+
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -206,6 +268,63 @@
                 </div>
                 <a href="#" class="btn-delete" th:onclick="'confirmDelete(' + ${hotel.id} + ')'">Xóa</a>
             </div>
+        </div>
+
+        <!-- Empty state message -->
+        <div th:if="${#lists.isEmpty(hotels)}" style="text-align: center; padding: 30px;">
+            <p>Không có khách sạn nào.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" th:if="${totalPages > 0}">
+            <ul class="pagination">
+                <!-- First and Previous buttons -->
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/admin/manage-hotels(page=0,size=${size})}"
+                       aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link"
+                       th:href="@{/admin/manage-hotels(page=${currentPage - 1},size=${size})}"
+                       aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, lastPage)}"
+                    th:if="${i &gt; currentPage - 3 and i &lt; currentPage + 3}"
+                    th:classappend="${i == currentPage ? 'active' : ''}">
+                    <a class="page-link"
+                       th:href="@{/admin/manage-hotels(page=${i},size=${size})}"
+                       th:text="${i + 1}">1</a>
+                </li>
+
+                <!-- Next and Last buttons -->
+                <li class="page-item" th:classappend="${currentPage == lastPage ? 'disabled' : ''}">
+                    <a class="page-link"
+                       th:href="@{/admin/manage-hotels(page=${currentPage + 1},size=${size})}"
+                       aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == lastPage ? 'disabled' : ''}">
+                    <a class="page-link"
+                       th:href="@{/admin/manage-hotels(page=${lastPage},size=${size})}"
+                       aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Pagination info -->
+        <div class="pagination-info" th:if="${totalItems > 0}">
+            Hiển thị <span th:text="${currentPage * size + 1}"></span> đến
+            <span th:text="${(currentPage * size) + #lists.size(hotels)}"></span> của
+            <span th:text="${totalItems}"></span> khách sạn
         </div>
     </div>
 </main>
@@ -255,7 +374,7 @@
                 // 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
             }
         })
-                .then(response => {
+            .then(response => {
                 if (response.ok) {
                     // Redirect to the same page to refresh the hotel list
                     window.location.reload();

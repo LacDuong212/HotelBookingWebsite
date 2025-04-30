@@ -13,4 +13,7 @@ public interface ImagesRepository extends JpaRepository<Images, Long> {
     List<Images> findImagesByHid(Long hid);
 
     List<Images> findByOidOrderBySttAsc(Long oid);
+    Images findByOidAndStt(Long oid, int stt);
+    Integer findMaxSttByOid(Long oid);
+    List<Integer> findSttByOid(Long oid);
 }

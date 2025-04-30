@@ -5,6 +5,10 @@ import com.example.hotelbookingwebsite.DTO.UserDTO;
 import com.example.hotelbookingwebsite.Service.HotelService;
 import com.example.hotelbookingwebsite.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,9 +31,29 @@ public class AdminController {
     private HotelService hotelService;
 
     @GetMapping("/manage-hotels")
-    public String managehotels(Model model) {
-        List<HotelDTO> hotelDTOList = hotelService.getAllHotels();
-        model.addAttribute("hotels", hotelDTOList);
+    public String managehotels(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
+            @RequestParam(defaultValue = "hid") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            Model model) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<HotelDTO> hotelPage = hotelService.getAllHotelsPaginated(pageable);
+
+        model.addAttribute("hotels", hotelPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", hotelPage.getTotalPages());
+        model.addAttribute("totalItems", hotelPage.getTotalElements());
+        model.addAttribute("sortField", sortBy);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("lastPage", Math.max(0, hotelPage.getTotalPages() - 1));
+
         return "admin/manage-hotels";
     }
 
@@ -47,9 +71,36 @@ public class AdminController {
     }
 
     @GetMapping("/manage-users")
-    public String manageusers(Model model) {
-        List<UserDTO> userDTOList = userService.getAllUser();
-        model.addAttribute("users", userDTOList);
+    public String manageUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "uid") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(defaultValue = "ALL") String role,
+            Model model) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<UserDTO> userPage;
+        if (role.equals("ALL")) {
+            userPage = userService.getAllUsersPaginated(pageable);
+        } else {
+            userPage = userService.getUsersByRole(role, pageable);
+        }
+
+        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("totalItems", userPage.getTotalElements());
+        model.addAttribute("sortField", sortBy);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("currentRole", role);
+
         return "admin/manage-users";
     }
 

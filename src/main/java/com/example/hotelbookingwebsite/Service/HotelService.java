@@ -37,6 +37,11 @@ public class HotelService {
                 .collect(Collectors.toList());
     }
 
+    public Page<HotelDTO> getAllHotelsPaginated(Pageable pageable) {
+        Page<Hotel> hotelPage = hotelRepository.findAll(pageable);
+        return hotelPage.map(this::convertToDTO);
+    }
+
     public List<HotelDTO> getAllHotels() {
         return hotelRepository.findAllByOrderByCreatedDateDesc().stream()
                 .map(this::convertToDTO)
@@ -57,11 +62,7 @@ public class HotelService {
     private String getFirstHotelImageUrl(Long hotelId) {
         List<Images> images = imagesRepository.findByOidOrderBySttAsc(hotelId);
         if (images.isEmpty()) {
-            return "/images/default.jpg"; // Tr? v? ?nh m?c d?nh n?u kh�ng c� ?nh n�o
-        }
-        if (images == null || images.isEmpty()) {
-            // TODO: tra ve anh mac dinh
-            return null;
+            return "/images/default.jpg"; // Tr? v? ?nh m?c d?nh n?u kh�ng c� ?nh n�o
         }
         return "/images/" + images.getFirst().getImageUrl();  // Relative path to your ImageController
     }
@@ -102,5 +103,18 @@ public class HotelService {
         Page<Hotel> hotelPage = hotelRepository.findAll(pageable);
 
         return hotelPage.map(this::convertToDTO);
+    }
+
+    public Hotel getHotelByHostUid(Long hostUid) {
+        return hotelRepository.findByManager_Uid(hostUid);
+    }
+
+    public Hotel getHotelById(Long hotelId) {
+        return hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách sạn với ID: " + hotelId));
+    }
+
+    public void updateHotel(Hotel hotel) {
+        hotelRepository.save(hotel);
     }
 }

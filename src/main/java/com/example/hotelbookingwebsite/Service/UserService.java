@@ -8,6 +8,8 @@ import com.example.hotelbookingwebsite.Repository.CustomerRepository;
 import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -73,12 +75,15 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-	 public List<UserDTO> getAllUser() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(this::convertUserToUserDTO)
-                .collect(Collectors.toList());
-     }
+    public Page<UserDTO> getAllUsersPaginated(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(this::convertUserToUserDTO);
+    }
+
+    public Page<UserDTO> getUsersByRole(String role, Pageable pageable) {
+        Page<User> userPage = userRepository.findByRole(role, pageable);
+        return userPage.map(this::convertUserToUserDTO);
+    }
 
 	 public List<UserDTO> updateUsers(List<UserDTO> userDTOList) {
         return userDTOList.stream()

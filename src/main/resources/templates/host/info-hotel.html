@@ -205,35 +205,40 @@
             <div class="hotel-content">
                 <!-- Image Section -->
                 <div class="image-section">
-                    <div class="main-image-container">
-                        <img src="https://eholiday.vn/wp-content/uploads/2022/05/khach-san-pistachio-sapa-5-e1675840870440.jpg"
-                             alt="Pistachio Hotel" class="main-image">
+                    <!-- Hiển thị hình ảnh chính (hình đầu tiên trong danh sách) -->
+                    <div class="main-image-container" th:if="${not #lists.isEmpty(imagesList)}">
+                        <img th:src="@{/images/{imageUrl}(imageUrl=${imagesList[0].imageUrl})}"
+                             th:alt="${hotel.name}" class="main-image">
+                    </div>
+                    <!-- Hiển thị hình ảnh mặc định nếu không có hình nào -->
+                    <div class="main-image-container" th:if="${#lists.isEmpty(imagesList)}">
+                        <img th:src="@{/images/default.jpg}"
+                             th:alt="${hotel.name}" class="main-image">
                     </div>
 
+                    <!-- Hiển thị các hình ảnh thu nhỏ -->
                     <div class="thumbnail-container">
-                        <div class="thumbnail">
-                            <img src="https://eholiday.vn/wp-content/uploads/2022/05/khach-san-pistachio-sapa-5-e1675840870440.jpg" alt="Thumbnail 1">
+                        <!-- Lặp qua danh sách hình ảnh -->
+                        <div class="thumbnail" th:each="image, status : ${imagesList}" th:if="${status.index < 4}">
+                            <img th:src="@{/images/{imageUrl}(imageUrl=${image.imageUrl})}" th:alt="${hotel.name + ' - Ảnh ' + (status.index + 1)}">
                         </div>
-                        <div class="thumbnail">
-                            <img src="https://eholiday.vn/wp-content/uploads/2022/05/khach-san-pistachio-sapa-5-e1675840870440.jpg" alt="Thumbnail 2">
-                        </div>
-                        <div class="thumbnail">
-                            <img src="https://eholiday.vn/wp-content/uploads/2022/05/khach-san-pistachio-sapa-5-e1675840870440.jpg" alt="Thumbnail 3">
-                        </div>
-                        <div class="thumbnail">
-                            <img src="https://eholiday.vn/wp-content/uploads/2022/05/khach-san-pistachio-sapa-5-e1675840870440.jpg" alt="Thumbnail 4">
+
+                        <!-- Hiển thị hình ảnh mặc định nếu không có đủ hình -->
+                        <div class="thumbnail" th:if="${#lists.isEmpty(imagesList) or imagesList.size() < 4}"
+                             th:each="i : ${#numbers.sequence(1, 4 - (imagesList != null ? imagesList.size() : 0))}">
+                            <img th:src="@{/images/default.jpg}" th:alt="${hotel.name + ' - Ảnh mặc định'}">
                         </div>
                     </div>
                 </div>
 
                 <!-- Info Section -->
                 <div class="info-section">
-                    <h2 class="hotel-name">Pistachio Hotel</h2>
+                    <h2 class="hotel-name" th:text="${session.hotel.name}">Pistachio Hotel</h2>
                     <p class="hotel-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        Sapa, Lào Cai, Việt Nam
+                        <span th:text="${session.hotel.address != null ? session.hotel.address : 'Chưa có địa chỉ'}">Sapa, Lào Cai, Việt Nam</span>
                     </p>
-                    <p class="hotel-description">
+                    <p class="hotel-description" th:text="${session.hotel.description != null ? session.hotel.description : 'Chưa có mô tả'}">
                         Khách sạn Pistachio là một điểm đến lý tưởng cho những ai tìm kiếm sự thư giãn và
                         tận hưởng kỳ nghỉ trong không gian sang trọng, yên tĩnh. Nằm ngay trung tâm
                         thành phố, khách sạn cách các địa điểm du lịch nổi tiếng chỉ vài phút đi bộ, mang
@@ -241,8 +246,8 @@
                     </p>
 
                     <div class="hotel-actions">
-                        <a href="#" class="btn btn-outline">Chỉnh sửa</a>
-                        <a href="#" class="btn btn-primary">Danh sách phòng</a>
+                        <a th:href="@{/host/edit-info-hotel/{id}(id=${session.hotel.hid})}" class="btn btn-outline">Chỉnh sửa</a>
+                        <a th:href="@{/host/hotel-rooms/{id}(id=${session.hotel.hid})}" class="btn btn-primary">Danh sách phòng</a>
                     </div>
                 </div>
             </div>

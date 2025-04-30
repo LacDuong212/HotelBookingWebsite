@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
@@ -28,7 +27,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
     Page<Hotel> findByAddressContainingIgnoreCase(String address, Pageable pageable);
 
-    void deleteByHid(Long hid);
-
     boolean existsByManager_Uid(Long uid);
+
+    Hotel findByManager_Uid(Long uid);
 }

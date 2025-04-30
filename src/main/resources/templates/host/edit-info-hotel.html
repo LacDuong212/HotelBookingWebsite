@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEYGOBI - Thêm khách sạn</title>
+    <title>HEYGOBI - Chỉnh sửa khách sạn</title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Embedded CSS -->
+    <!-- Embedded CSS - Same as original, no changes needed -->
     <style>
         /* Reset and base styles */
         * {
@@ -17,18 +19,18 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             color: #333;
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
         }
 
         main {
             flex: 1;
-            padding: 30px 0;
+            padding: 40px 0;
         }
 
         /* Container */
@@ -40,25 +42,27 @@
         }
 
         /* Form styles */
-        .add-hotel-form {
+        .edit-hotel-form {
             background-color: #fff;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            padding: 40px;
             margin: 20px 0;
         }
 
         .form-title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
             margin-bottom: 30px;
-            color: #333;
+            color: #2c3e50;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 30px;
+            gap: 40px;
         }
 
         .form-left {
@@ -66,85 +70,256 @@
             flex-direction: column;
         }
 
-        .image-upload-area {
-            background-color: #f0f0f0;
-            height: 200px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .form-subtitle {
+            font-size: 18px;
+            font-weight: 500;
             margin-bottom: 20px;
+            color: #2c3e50;
         }
 
-        .thumbnail-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .thumbnail {
-            background-color: #f0f0f0;
-            height: 60px;
-            border-radius: 4px;
+        /* Image upload area */
+        .image-upload-area {
+            background-color: #f8f9fa;
+            height: 250px;
+            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .thumbnail.add {
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed #e0e0e0;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
-        .form-label {
+        .image-upload-area:hover {
+            border-color: #3498db;
+            background-color: #f0f7fc;
+        }
+
+        .image-upload-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .image-upload-area .upload-icon {
+            position: absolute;
+            font-size: 28px;
+            color: #3498db;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-upload-area .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            text-align: center;
             font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-upload-area:hover .upload-icon,
+        .image-upload-area:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        /* Thumbnail grid */
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .thumbnail {
+            background-color: #f8f9fa;
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .thumbnail:hover {
+            border-color: #3498db;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .thumbnail .empty-thumbnail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .thumbnail .empty-thumbnail i {
+            font-size: 20px;
+            color: #bbb;
+            margin-bottom: 5px;
+        }
+
+        .thumbnail .empty-text {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .thumbnail .thumbnail-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 12px;
+            padding: 5px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .thumbnail:hover .thumbnail-overlay {
+            opacity: 1;
+        }
+
+        .thumbnail.add {
+            background-color: #f0f7fc;
+            border: 1px dashed #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail.add:hover {
+            background-color: #e6f2fa;
+        }
+
+        .thumbnail.add i {
+            color: #3498db;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .thumbnail.add .add-text {
+            font-size: 11px;
+            color: #3498db;
+        }
+
+        .hotel-images-label {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Form controls */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
             display: block;
+            color: #2c3e50;
         }
 
         .form-input {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .form-textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            min-height: 100px;
+            border-radius: 8px;
+            font-size: 15px;
+            min-height: 150px;
             resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f1f1;
         }
 
         .btn {
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
             border: none;
+            transition: all 0.3s ease;
         }
 
         .btn-cancel {
-            background-color: #f0f0f0;
+            background-color: #f2f2f2;
             color: #333;
         }
 
+        .btn-cancel:hover {
+            background-color: #e5e5e5;
+        }
+
         .btn-submit {
-            background-color: #666;
+            background-color: #3498db;
             color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: #2980b9;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        /* File input styles */
+        .file-input {
+            display: none;
         }
 
         /* Responsive */
@@ -152,6 +327,39 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
+
+            .edit-hotel-form {
+                padding: 25px;
+            }
+
+            .form-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .image-upload-area {
+                height: 200px;
+            }
+        }
+
+        /* Alert messages */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
@@ -162,40 +370,99 @@
 <!-- MAIN CONTENT -->
 <main>
     <div class="container">
-        <form class="add-hotel-form">
-            <h1 class="form-title">Thêm khách sạn</h1>
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <form class="edit-hotel-form" th:action="@{/host/update-hotel}" method="post" enctype="multipart/form-data">
+            <h1 class="form-title">Chỉnh sửa thông tin khách sạn</h1>
+            <input type="hidden" name="hotelId" th:value="${hotel != null ? hotel.hid : ''}">
 
             <div class="form-grid">
                 <div class="form-left">
-                    <div class="image-upload-area">
-                        <!-- Placeholder for main image upload -->
-                    </div>
+                    <h3 class="form-subtitle">Hình ảnh khách sạn</h3>
+
+                    <!-- Main image upload area -->
+                    <label for="main-image-input" class="image-upload-area">
+                        <!-- Display current image if available -->
+                        <img th:if="${imagesList != null && !imagesList.isEmpty()}"
+                             th:src="@{/images/{imageUrl}(imageUrl=${imagesList[0].imageUrl})}"
+                             th:alt="${hotel != null ? hotel.name : 'Hotel Image'}" class="main-image">
+                        <!-- Display default image if none available -->
+                        <img th:if="${imagesList == null || imagesList.isEmpty()}"
+                             th:src="@{/images/default.jpg}"
+                             alt="Ảnh mặc định" class="main-image">
+                        <i class="fas fa-camera upload-icon"></i>
+                        <div class="upload-overlay">Thay đổi ảnh chính</div>
+                    </label>
+                    <input type="file" id="main-image-input" name="mainImage" class="file-input" accept="image/*">
 
                     <div class="thumbnail-grid">
-                        <div class="thumbnail"></div>
-                        <div class="thumbnail"></div>
-                        <div class="thumbnail"></div>
-                        <div class="thumbnail add">
-                            <i class="fas fa-plus" style="color: #666;"></i>
-                        </div>
+                        <!-- Display existing thumbnails -->
+                        <label th:each="image, status : ${imagesList}"
+                               th:if="${status.index > 0 && status.index < 4}"
+                               th:for="'thumbnail-input-' + ${status.index - 1}"
+                               class="thumbnail">
+                            <img th:src="@{/images/{imageUrl}(imageUrl=${image.imageUrl})}"
+                                 th:alt="${hotel != null ? hotel.name : 'Hotel Image'} + ' - Ảnh ' + (${status.index})">
+                            <div class="thumbnail-overlay">Cập nhật</div>
+                            <input type="file" th:id="'thumbnail-input-' + ${status.index - 1}"
+                                   th:name="'thumbnailImage' + ${status.index - 1}"
+                                   class="file-input" accept="image/*">
+                        </label>
+
+                        <!-- Display empty thumbnails for new images -->
+                        <label th:if="${imagesList == null || imagesList.size() <= 1}"
+                               th:each="i : ${#numbers.sequence(1, 3 - (imagesList != null && imagesList.size() > 1 ? imagesList.size() - 1 : 0))}"
+                               th:for="'thumbnail-input-new-' + ${i}"
+                               class="thumbnail">
+                            <div class="empty-thumbnail">
+                                <i class="fas fa-image"></i>
+                                <div class="empty-text">Thêm ảnh</div>
+                            </div>
+                            <input type="file" th:id="'thumbnail-input-new-' + ${i}"
+                                   th:name="'thumbnailImageNew' + ${i}"
+                                   class="file-input" accept="image/*">
+                        </label>
+
+                        <!-- Add additional images button -->
+                        <label for="add-image-input" class="thumbnail add">
+                            <i class="fas fa-plus"></i>
+                            <span class="add-text">Thêm ảnh</span>
+                            <input type="file" id="add-image-input" name="additionalImage" class="file-input" accept="image/*" multiple>
+                        </label>
                     </div>
 
-                    <p style="text-align: center; margin-top: 10px; font-size: 14px; color: #666;">Ảnh khách sạn</p>
+                    <p class="hotel-images-label">Thêm hình ảnh chất lượng cao để thu hút khách đặt phòng</p>
                 </div>
 
                 <div class="form-right">
-                    <label class="form-label" for="hotel-name">Tên khách sạn</label>
-                    <input type="text" id="hotel-name" class="form-input" placeholder="">
+                    <h3 class="form-subtitle">Thông tin cơ bản</h3>
 
-                    <label class="form-label" for="hotel-address">Địa chỉ</label>
-                    <input type="text" id="hotel-address" class="form-input" placeholder="">
+                    <div class="form-group">
+                        <label class="form-label" for="hotel-name">Tên khách sạn</label>
+                        <input type="text" id="hotel-name" name="hotelName" class="form-input"
+                               th:value="${hotel != null ? hotel.name : ''}"
+                               placeholder="Nhập tên khách sạn" required>
+                    </div>
 
-                    <label class="form-label" for="hotel-description">Mô tả</label>
-                    <textarea id="hotel-description" class="form-textarea" placeholder=""></textarea>
+                    <div class="form-group">
+                        <label class="form-label" for="hotel-address">Địa chỉ</label>
+                        <input type="text" id="hotel-address" name="hotelAddress" class="form-input"
+                               th:value="${hotel != null && hotel.address != null ? hotel.address : ''}"
+                               placeholder="Nhập địa chỉ khách sạn">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="hotel-description">Mô tả</label>
+                        <textarea id="hotel-description" name="hotelDescription" class="form-textarea"
+                                  th:text="${hotel != null && hotel.description != null ? hotel.description : ''}"
+                                  placeholder="Mô tả chi tiết về khách sạn, dịch vụ và tiện nghi..."></textarea>
+                    </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn btn-cancel">Quay lại</button>
-                        <button type="submit" class="btn btn-submit">Thêm</button>
+                        <a th:href="@{/host/info-hotel}" class="btn btn-cancel">Quay lại</a>
+                        <button type="submit" class="btn btn-submit">Cập nhật thông tin</button>
                     </div>
                 </div>
             </div>
@@ -208,19 +475,124 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Any JavaScript functionality can be added here
+        // Handle alert messages
+        const alertElements = document.querySelectorAll('.alert');
+        if (alertElements.length > 0) {
+            setTimeout(() => {
+                alertElements.forEach(alert => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 500);
+                });
+            }, 5000);
+        }
 
-        // Example: Handle image upload placeholder click
-        const imageUploadArea = document.querySelector('.image-upload-area');
-        imageUploadArea.addEventListener('click', function() {
-            // In a real implementation, this would trigger a file upload dialog
-            alert('Chọn ảnh để tải lên');
+        // Handle image preview before upload
+        function handleImageUpload(inputElement, previewElement) {
+            inputElement.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Find or create img tag
+                        let img = previewElement.querySelector('img');
+
+                        if (img) {
+                            img.src = e.target.result;
+                        } else {
+                            // Create new image if needed
+                            img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '100%';
+                            img.style.height = '100%';
+                            img.style.objectFit = 'cover';
+
+                            // Remove old content (icon and text)
+                            const emptyContent = previewElement.querySelector('.empty-thumbnail');
+                            if (emptyContent) {
+                                emptyContent.remove();
+                            }
+
+                            previewElement.appendChild(img);
+                        }
+
+                        // Handle UI when image is added
+                        if (previewElement.classList.contains('image-upload-area')) {
+                            const icon = previewElement.querySelector('.upload-icon');
+                            if (icon) icon.style.opacity = '0';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Handle main image
+        const mainImageInput = document.getElementById('main-image-input');
+        const mainImagePreview = document.querySelector('.image-upload-area');
+        if (mainImageInput && mainImagePreview) {
+            handleImageUpload(mainImageInput, mainImagePreview);
+        }
+
+        // Handle thumbnails
+        document.querySelectorAll('.thumbnail input[type="file"]').forEach(input => {
+            const thumbnail = input.parentElement;
+            handleImageUpload(input, thumbnail);
         });
 
-        // Example: Handle thumbnail add button click
-        const addThumbnailBtn = document.querySelector('.thumbnail.add');
-        addThumbnailBtn.addEventListener('click', function() {
-            alert('Thêm ảnh khách sạn');
+        // Handle multiple image selection
+        const addImageInput = document.getElementById('add-image-input');
+        if (addImageInput) {
+            addImageInput.addEventListener('change', function() {
+                const fileCount = this.files.length;
+                const message = fileCount === 1
+                    ? 'Đã chọn 1 ảnh! Nhấn "Cập nhật thông tin" để lưu thay đổi.'
+                    : `Đã chọn ${fileCount} ảnh! Nhấn "Cập nhật thông tin" để lưu thay đổi.`;
+
+                // Create notification
+                const notification = document.createElement('div');
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.right = '20px';
+                notification.style.backgroundColor = '#3498db';
+                notification.style.color = 'white';
+                notification.style.padding = '12px 20px';
+                notification.style.borderRadius = '8px';
+                notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                notification.style.zIndex = '9999';
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s ease';
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                // Show notification
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                }, 100);
+
+                // Hide notification after 5 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 5000);
+            });
+        }
+
+        // Add hover effects for buttons
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
         });
     });
 </script>
