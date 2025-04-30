@@ -1,18 +1,25 @@
 package com.example.hotelbookingwebsite.Controller;
 
+import com.example.hotelbookingwebsite.DTO.HotelDTO;
+import com.example.hotelbookingwebsite.DTO.HotelDetailDTO;
+import com.example.hotelbookingwebsite.Model.Hotel;
+import com.example.hotelbookingwebsite.Service.HotelDetailService;
 import com.example.hotelbookingwebsite.Service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class HomeController {
     private final HotelService hotelService;
+    private final HotelDetailService hotelDetailService;
 
     @Autowired
-    public HomeController(HotelService hotelService) {
+    public HomeController(HotelService hotelService, HotelDetailService hotelDetailService) {
         this.hotelService = hotelService;
+        this.hotelDetailService = hotelDetailService;
     }
 
     @GetMapping("/")
@@ -22,8 +29,9 @@ public class HomeController {
         return "web/home";
     }
 
-    @GetMapping("/hotel-detail")
-    public String hoteldetail(Model model) {
+    @GetMapping("/hotel-detail/{id}")
+    public String hoteldetail(@PathVariable("id") long id, Model model) {
+        model.addAttribute("hotel", hotelDetailService.getHotelById(id));
         return "web/hotel-detail";
     }
 
