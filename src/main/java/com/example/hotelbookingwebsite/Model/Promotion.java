@@ -34,7 +34,7 @@ public class Promotion {
     private boolean status = Constants.PROMOTION_STATUS.INACTIVE;
 
     @ManyToOne
-    @JoinColumn(name = "uid")  // Foreign key column for Manager
-    @JsonBackReference  // Prevent recursion during serialization (optional)
+    @JoinColumn(name = "uid")
+    @JsonBackReference
     private Manager manager;  // Each promotion belongs to one manager
 }

@@ -26,6 +26,5 @@ public class User {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = false)
     private String role = Constants.UNKNOWN;    // for clarity
 }

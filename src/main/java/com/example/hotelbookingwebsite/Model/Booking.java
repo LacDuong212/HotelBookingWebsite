@@ -1,7 +1,7 @@
 package com.example.hotelbookingwebsite.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,16 +30,17 @@ public class Booking {
     private float totalPrice = 0;
 
     @ManyToOne
-    @JoinColumn(name = "uid")  // Foreign key column for Customer
-    @JsonBackReference  // Prevent recursion during serialization (optional)
+    @JoinColumn(name = "uid")
+    @JsonBackReference
     private Customer customer;  // A booking belongs to one customer
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("booking")  // Prevent infinite recursion during serialization (optional)
+    @OneToOne
+    @JoinColumn(name = "pmid")
+    @JsonManagedReference
     private Payment payment;  // Each booking has one payment
 
     @OneToOne
-    @JoinColumn(name = "rid", referencedColumnName = "rid")  // Foreign key to Room
-    @JsonBackReference  // Prevent recursion during serialization (optional)
+    @JoinColumn(name = "rid")
+    @JsonManagedReference
     private Room room;  // Each booking is associated with one room
 }

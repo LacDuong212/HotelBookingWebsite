@@ -1,7 +1,6 @@
 package com.example.hotelbookingwebsite.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,11 +29,11 @@ public class Room {
     private float price = 0;
 
     @ManyToOne
-    @JoinColumn(name = "hid")  // Foreign key column for Hotel
-    @JsonBackReference  // Prevent recursion during serialization (optional)
+    @JoinColumn(name = "hid")
+    @JsonBackReference
     private Hotel hotel;  // Each room belongs to one hotel
 
     @OneToOne(mappedBy = "room")
-    @JsonIgnoreProperties("room")  // Prevent infinite recursion during serialization (optional)
-    private Booking booking;  // Each room is associated with one booking
+    @JsonBackReference
+    private Booking booking;
 }

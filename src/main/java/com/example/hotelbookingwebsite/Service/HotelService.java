@@ -57,7 +57,11 @@ public class HotelService {
     private String getFirstHotelImageUrl(Long hotelId) {
         List<Images> images = imagesRepository.findByOidOrderBySttAsc(hotelId);
         if (images.isEmpty()) {
-            return "/images/default.jpg"; // Trả về ảnh mặc định nếu không có ảnh nào
+            return "/images/default.jpg"; // Tr? v? ?nh m?c d?nh n?u kh�ng c� ?nh n�o
+        }
+        if (images == null || images.isEmpty()) {
+            // TODO: tra ve anh mac dinh
+            return null;
         }
         return "/images/" + images.getFirst().getImageUrl();  // Relative path to your ImageController
     }
