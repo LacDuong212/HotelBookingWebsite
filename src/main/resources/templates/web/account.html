@@ -188,16 +188,16 @@
                     <div class="avatar-circle">
                         <i class="fas fa-user avatar-placeholder"></i>
                     </div>
-                    <h2 class="profile-name">John Doe</h2>
-                    <h2 class="profile-role">Host</h2>
+                    <h2 class="profile-name" th:text="${user.fullname}">John Doe</h2>
+                    <h2 class="profile-role" th:text="${user.role}">Host</h2>
                 </div>
 
                 <div class="profile-info">
                     <div class="profile-info-item">
-                        <div class="profile-info-email">johndoe123@gmail.com</div>
+                        <div class="profile-info-email" th:text="${user.email}">johndoe123@gmail.com</div>
                     </div>
                     <div class="profile-info-item">
-                        <div class="profile-info-phone">+84 987 654 321</div>
+                        <div class="profile-info-phone" th:text="${user.phoneNumber}">+84 987 654 321</div>
                     </div>
 
                     <div class="profile-verification">
@@ -217,9 +217,9 @@
             <!-- Profile Content -->
             <div class="profile-content">
                 <div class="profile-header">
-                    <h1 class="welcome-title">Xin chào, John Doe</h1>
+                    <h1 class="welcome-title" th:text="'Xin chào, ' + ${user.fullname}">Xin chào, John Doe</h1>
                     <div class="join-date">Tham gia từ năm 2024</div>
-                    <a href="edit-account" class="edit-btn">Chỉnh sửa</a>
+                    <a th:href="@{/account/edit-account}" class="edit-btn">Chỉnh sửa</a>
                 </div>
             </div>
         </div>

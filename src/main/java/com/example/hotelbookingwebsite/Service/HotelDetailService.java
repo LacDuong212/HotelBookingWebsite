@@ -16,10 +16,12 @@ import java.util.stream.Collectors;
 public class HotelDetailService {
     private final ImagesRepository imagesRepository;
     private final HotelRepository hotelRepository;
+    private final RoomService roomService;
     @Autowired
-    public HotelDetailService(ImagesRepository imagesRepository, HotelRepository hotelRepository) {
+    public HotelDetailService(ImagesRepository imagesRepository, HotelRepository hotelRepository, RoomService roomService) {
         this.imagesRepository = imagesRepository;
         this.hotelRepository = hotelRepository;
+        this.roomService = roomService;
     }
     private HotelDetailDTO convertToDTO(Hotel hotel) {
         return new HotelDetailDTO(
@@ -29,30 +31,8 @@ public class HotelDetailService {
                 hotel.getDescription(),
                 getHotelImage(hotel.getHid()),
                 hotel.getManager(),
-                convertToRoomDTO(hotel)
+                roomService.getAllRoomByHotel(hotel)
         );
-    }
-    private List<Images> getRoomImage(Long hid,long rid) {
-        long id = hid*100 + rid;
-        return imagesRepository.findImagesByHid(id);
-
-    }
-    public List<RoomDTO> convertToRoomDTO(Hotel hotel) {
-        return hotel.getRooms().stream().map(room -> {
-            RoomDTO dto = new RoomDTO();
-            dto.setRid(room.getRid());
-            dto.setRoomName(room.getRoomName());
-            dto.setDescription(room.getDescription());
-            dto.setStatus(room.getStatus());
-            dto.setPrice((double) room.getPrice());
-            dto.setHid(hotel.getHid());
-
-            // Lấy ảnh đại diện từ room
-            List<Images> imageUrls = getRoomImage(hotel.getHid(),room.getRid());
-            dto.setImageUrl(imageUrls.isEmpty() ? null : "/images/" + imageUrls.get(0).getImageUrl());
-
-            return dto;
-        }).collect(Collectors.toList());
     }
     public List<Images> getHotelImage(Long hid) {
         List<Images> images = imagesRepository.findImagesByHid(hid);

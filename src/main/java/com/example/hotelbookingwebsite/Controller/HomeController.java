@@ -3,8 +3,11 @@ package com.example.hotelbookingwebsite.Controller;
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.DTO.HotelDetailDTO;
 import com.example.hotelbookingwebsite.Model.Hotel;
+import com.example.hotelbookingwebsite.Model.User;
 import com.example.hotelbookingwebsite.Service.HotelDetailService;
 import com.example.hotelbookingwebsite.Service.HotelService;
+import com.example.hotelbookingwebsite.Service.RoomService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,11 +18,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class HomeController {
     private final HotelService hotelService;
     private final HotelDetailService hotelDetailService;
+    private final RoomService roomService;
 
     @Autowired
-    public HomeController(HotelService hotelService, HotelDetailService hotelDetailService) {
+    public HomeController(HotelService hotelService, HotelDetailService hotelDetailService, RoomService roomService) {
         this.hotelService = hotelService;
         this.hotelDetailService = hotelDetailService;
+        this.roomService = roomService;
     }
 
     @GetMapping("/")
@@ -35,13 +40,15 @@ public class HomeController {
         return "web/hotel-detail";
     }
 
-    @GetMapping("/room-detail")
-    public String roomdetail(Model model) {
+    @GetMapping("/room-detail/{id}")
+    public String roomdetail(@PathVariable("id") long id, Model model) {
+        model.addAttribute("room",roomService.getRoomDTOById(id));
         return "web/room-detail";
     }
 
     @GetMapping("/booking-history")
     public String bookingHistory(Model model) {
+
         return "web/booking-history";
     }
     @GetMapping("/booking-details")
@@ -57,8 +64,15 @@ public class HomeController {
         return "web/voucher";
     }
 
-    @GetMapping("/account")
-    public String Account(Model model) {
-        return "web/account";
-    }
+//    @GetMapping("/account")
+//    public String Account(HttpSession session, Model model) {
+//        User loggedInUser = (User) session.getAttribute("loggedInUser");
+//        if (loggedInUser != null) {
+//            model.addAttribute("user", loggedInUser);
+//            return "web/account";
+//        }
+//        else {
+//            return "redirect:/signin"; // Chuyển hướng về URL "/signin"
+//        }
+//    }
 }

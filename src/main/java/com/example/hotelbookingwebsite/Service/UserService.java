@@ -68,4 +68,13 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    public void updateUser(User user) {
+        User existingUser = userRepository.findById(user.getUid()).orElseThrow();
+        existingUser.setFullname(user.getFullname());
+        existingUser.setPhoneNumber(user.getPhoneNumber());
+        existingUser.setEmail(user.getEmail());
+
+        userRepository.save(existingUser);
+    }
 }

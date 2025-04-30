@@ -1,6 +1,7 @@
 package com.example.hotelbookingwebsite.DTO;
 
 
+import com.example.hotelbookingwebsite.Model.Hotel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class RoomDTO {
     private Double price;
     private String roomName;
     private String status;
-    private Long hid;
+    private Hotel hotel;
 
     private String imageUrl; // URL ảnh đại diện của phòng
 }

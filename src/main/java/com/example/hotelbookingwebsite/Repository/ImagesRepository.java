@@ -11,5 +11,7 @@ import java.util.List;
 public interface ImagesRepository extends JpaRepository<Images, Long> {
     @Query("SELECT i FROM Images i WHERE i.oid = :hid ORDER BY i.stt ASC")
     List<Images> findImagesByHid(Long hid);
+    @Query("SELECT i FROM Images i WHERE i.oid = :rid ORDER BY i.stt ASC")
+    List<Images> findImagesByRid(Long rid);
 
 }
