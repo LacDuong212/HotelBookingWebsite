@@ -1,5 +1,6 @@
 package com.example.hotelbookingwebsite.Service;
 
+import com.example.hotelbookingwebsite.DTO.UserDTO;
 import com.example.hotelbookingwebsite.Model.Customer;
 import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Model.User;
@@ -11,7 +12,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -74,9 +78,9 @@ public class UserService {
         return users.stream()
                 .map(this::convertUserToUserDTO)
                 .collect(Collectors.toList());
-    }
+     }
 
-	public List<UserDTO> updateUsers(List<UserDTO> userDTOList) {
+	 public List<UserDTO> updateUsers(List<UserDTO> userDTOList) {
         return userDTOList.stream()
                 .map(userDTO -> {
                     Optional<User> userOptional = userRepository.findById(userDTO.getId());
@@ -116,4 +120,42 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    public User updateUser(User user) {
+        Optional<User> existingUserOpt = userRepository.findById(user.getUid());
+
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+
+            if (user.getEmail() != null) {
+                existingUser.setEmail(user.getEmail());
+            }
+            if (user.getFullname() != null) {
+                existingUser.setFullname(user.getFullname());
+            }
+            if (user.getPhoneNumber() != null) {
+                existingUser.setPhoneNumber(user.getPhoneNumber());
+            }
+            return userRepository.save(existingUser);
+        }
+
+        throw new UsernameNotFoundException("User not found with id: " + user.getUid());
+    }
+
+
+    private UserDTO convertUserToUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        UserDTO userListDTO = new UserDTO();
+        userListDTO.setId(user.getUid());
+        userListDTO.setEmail(user.getEmail());
+        userListDTO.setFullname(user.getFullname());
+        userListDTO.setPhoneNumber(user.getPhoneNumber());
+        userListDTO.setRole(user.getRole());
+
+        return userListDTO;
+    }
 }

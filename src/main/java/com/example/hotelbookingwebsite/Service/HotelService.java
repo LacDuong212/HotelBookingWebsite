@@ -3,8 +3,10 @@ package com.example.hotelbookingwebsite.Service;
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.Model.Hotel;
 import com.example.hotelbookingwebsite.Model.Images;
+import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Repository.HotelRepository;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
+import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class HotelService {
+
+    @Autowired
+    private ManagerRepository managerRepository;
     private final HotelRepository hotelRepository;
     private final ImagesRepository imagesRepository;
 
@@ -50,7 +55,10 @@ public class HotelService {
     }
 
     private String getFirstHotelImageUrl(Long hotelId) {
-        List<Images> images = imagesRepository.findImagesByHid(hotelId);
+        List<Images> images = imagesRepository.findByOidOrderBySttAsc(hotelId);
+        if (images.isEmpty()) {
+            return "/images/default.jpg"; // Trả về ảnh mặc định nếu không có ảnh nào
+        }
         return "/images/" + images.getFirst().getImageUrl();  // Relative path to your ImageController
     }
 
@@ -67,6 +75,22 @@ public class HotelService {
         Page<Hotel> hotelPage = hotelRepository.findByAddressContainingIgnoreCase(query, pageable);
 
         return hotelPage.map(this::convertToDTO);
+    }
+
+    @Transactional
+    public Long saveHotel(HotelDTO hotelDTO, Long uid) {
+        Manager manager = managerRepository.findById(uid)
+                .orElseThrow(() -> new RuntimeException("Manager not found with id: " + uid));
+
+        Hotel hotel = new Hotel();
+        hotel.setManager(manager);
+        hotel.setName(hotelDTO.getName());
+        hotel.setAddress(hotelDTO.getAddress());
+        hotel.setDescription(hotelDTO.getDescription());
+
+        Hotel savedHotel = hotelRepository.save(hotel);
+
+        return savedHotel.getHid();
     }
 
     public Page<HotelDTO> getAllHotels(int page, int size) {

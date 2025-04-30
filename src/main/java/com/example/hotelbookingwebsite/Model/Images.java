@@ -19,7 +19,7 @@ public class Images {
     private String imageUrl;
 
     @Column(nullable = false)
-    private Long id;    // entity linked to the image
+    private Long oid;    // entity linked to the image
 
     private Integer stt = 0;   // for order, default = 0
 }

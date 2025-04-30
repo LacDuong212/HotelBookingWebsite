@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
 
     @Autowired
@@ -25,14 +26,14 @@ public class AdminController {
     @Autowired
     private HotelService hotelService;
 
-    @GetMapping("/admin/manage-hotels")
+    @GetMapping("/manage-hotels")
     public String managehotels(Model model) {
         List<HotelDTO> hotelDTOList = hotelService.getAllHotels();
         model.addAttribute("hotels", hotelDTOList);
         return "admin/manage-hotels";
     }
 
-    @DeleteMapping("/admin/delete-hotel/{hotelId}")
+    @DeleteMapping("/delete-hotel/{hotelId}")
     @ResponseBody
     public ResponseEntity<?> deleteHotel(@PathVariable Long hotelId) {
         try {
@@ -45,14 +46,14 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/admin/manage-users")
+    @GetMapping("/manage-users")
     public String manageusers(Model model) {
         List<UserDTO> userDTOList = userService.getAllUser();
         model.addAttribute("users", userDTOList);
         return "admin/manage-users";
     }
 
-    @PostMapping("/admin/update-users")
+    @PostMapping("/update-users")
     @ResponseBody
     public Map<String, Object> updateUsers(@RequestBody Map<String, List<UserDTO>> payload) {
         List<UserDTO> userDTOList = payload.get("users");
@@ -70,7 +71,7 @@ public class AdminController {
         return response;
     }
 
-    @DeleteMapping("/admin/delete-user/{id}")
+    @DeleteMapping("/delete-user/{id}")
     @ResponseBody
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         boolean deleted = userService.deleteUser(id);

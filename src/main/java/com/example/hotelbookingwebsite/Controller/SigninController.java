@@ -1,6 +1,10 @@
 package com.example.hotelbookingwebsite.Controller;
 
+import com.example.hotelbookingwebsite.Model.Constants;
+import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Model.User;
+import com.example.hotelbookingwebsite.Repository.HotelRepository;
+import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +15,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Objects;
+
 @Controller
 @RequestMapping("/signin")
 public class SigninController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private HotelRepository hotelRepository;
+
+    @Autowired
+    private ManagerRepository managerRepository;
 
     @GetMapping
     public String showSigninForm(@RequestParam(required = false) String error, Model model) {
@@ -41,7 +53,18 @@ public class SigninController {
             return "web/signin";
         }
 
-        session.setAttribute("loggedInUser", user);
-        return "redirect:/";
+        session.setAttribute("user", user);
+
+        String role = user.getRole();
+
+        if (Objects.equals(role, Constants.ROLE.MANAGER)) {
+            if(hotelRepository.existsByManager_Uid(user.getUid())){
+                return "redirect:/host/home";
+            } else {
+                return "redirect:/host/add-hotel";
+            }
+        } else {
+            return "redirect:/";
+        }
     }
 }
