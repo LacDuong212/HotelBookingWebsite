@@ -1,6 +1,6 @@
 package com.example.hotelbookingwebsite.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,11 +18,11 @@ public class Customer {
     private Long uid;
 
     @OneToOne
-    @MapsId     // cus share same PK: uid
+    @MapsId     // customer share same PK: uid
     @JoinColumn(name = "uid")
     private User user;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("customer")  // Prevent infinite recursion during serialization (optional)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
+    @JsonManagedReference
     private List<Booking> bookings;  // A customer can have many bookings
 }

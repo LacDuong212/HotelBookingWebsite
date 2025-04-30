@@ -15,7 +15,7 @@ public class Admin {
     private Long uid;
 
     @OneToOne
-    @MapsId
+    @MapsId   // admin share same PK: uid
     @JoinColumn(name = "uid")
     private User user;
 }
