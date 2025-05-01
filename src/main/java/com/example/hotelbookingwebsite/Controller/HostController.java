@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -52,7 +53,8 @@ public class HostController {
             HttpSession session,
             BindingResult result,
             @RequestParam("mainImage") MultipartFile mainImage,
-            @RequestParam("additionalImages") MultipartFile[] additionalImages,
+            @RequestParam(value = "additionalImages", required = false) MultipartFile[] additionalImages,
+            @RequestParam(value = "extraImages", required = false) MultipartFile[] extraImages,
             RedirectAttributes redirectAttributes
     ) {
         User loggedInUser = (User) session.getAttribute("user");
@@ -68,6 +70,7 @@ public class HostController {
         try {
             Long hotelId = hotelService.saveHotel(hotelDTO, loggedInUser.getUid());
 
+            // Xử lý ảnh chính
             if (!mainImage.isEmpty()) {
                 String mainImageUrl = imageService.uploadImage(mainImage);
                 Images mainImageEntity = new Images();
@@ -77,16 +80,36 @@ public class HostController {
                 imageService.saveImage(mainImageEntity);
             }
 
-            int order = 1;
-            for (MultipartFile file : additionalImages) {
-                if (file != null && !file.isEmpty()) {
-                    String imageUrl = imageService.uploadImage(file);
-                    Images imageEntity = new Images();
-                    imageEntity.setImageUrl(imageUrl);
-                    imageEntity.setOid(hotelId);
-                    imageEntity.setStt(order++);
-                    imageService.saveImage(imageEntity);
+            // Xử lý các ảnh thumbnail cơ bản
+            List<MultipartFile> allAdditionalImages = new ArrayList<>();
+
+            // Thêm ảnh từ additionalImages nếu có
+            if (additionalImages != null) {
+                for (MultipartFile file : additionalImages) {
+                    if (file != null && !file.isEmpty()) {
+                        allAdditionalImages.add(file);
+                    }
                 }
+            }
+
+            // Thêm ảnh từ extraImages nếu có
+            if (extraImages != null) {
+                for (MultipartFile file : extraImages) {
+                    if (file != null && !file.isEmpty()) {
+                        allAdditionalImages.add(file);
+                    }
+                }
+            }
+
+            // Lưu tất cả các ảnh bổ sung
+            int order = 1;
+            for (MultipartFile file : allAdditionalImages) {
+                String imageUrl = imageService.uploadImage(file);
+                Images imageEntity = new Images();
+                imageEntity.setImageUrl(imageUrl);
+                imageEntity.setOid(hotelId);
+                imageEntity.setStt(order++);
+                imageService.saveImage(imageEntity);
             }
 
             redirectAttributes.addFlashAttribute("success", "Khách sạn đã được thêm thành công!");
