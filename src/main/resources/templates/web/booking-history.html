@@ -199,82 +199,46 @@
         <!-- Upcoming Bookings -->
         <div id="upcoming-bookings" class="tab-content active">
             <div class="booking-list">
-                <!-- Booking Item 1 -->
-                <div class="booking-item">
-                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Executive Suite" class="booking-image">
+                <div class="booking-item" th:each="booking : ${upcomingBookings}">
+                    <img th:src="@{${booking.room.imageUrl}}" class="booking-image" alt="Room Image"/>
 
                     <div class="booking-details">
-                        <h3 class="booking-title">Executive Suite</h3>
+                        <h3 class="booking-title" th:text="${booking.room.roomName}">Room Name</h3>
                         <div class="booking-dates">
-                            <span>Ngày nhận phòng: 15/05/2025</span>
-                            <span>Ngày trả phòng: 18/05/2025</span>
+                            <span th:text="'Ngày nhận phòng: ' + ${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')}"></span>
+                            <span th:text="'Ngày trả phòng: ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}"></span>
                         </div>
-                        <div class="booking-price">2.500.000 VNĐ</div>
+                        <div class="booking-price" th:text="${booking.totalPrice} + ' VNĐ'"></div>
                     </div>
 
                     <div class="booking-actions">
-                        <a href="/booking-details" th:href="@{/booking-details}" class="btn-view">Xem Chi Tiết</a>
-                        <a href="/cancel-booking" th:href="@{/cancel-booking}" class="btn-cancel">Hủy Đặt Phòng</a>
-                    </div>
-                </div>
-
-                <!-- Booking Item 2 -->
-                <div class="booking-item">
-                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Family Room" class="booking-image">
-
-                    <div class="booking-details">
-                        <h3 class="booking-title">Family Room</h3>
-                        <div class="booking-dates">
-                            <span>Ngày nhận phòng: 20/05/2025</span>
-                            <span>Ngày trả phòng: 22/05/2025</span>
-                        </div>
-                        <div class="booking-price">1.800.000 VNĐ</div>
-                    </div>
-
-                    <div class="booking-actions">
-                        <a href="/booking-details" th:href="@{/booking-details}" class="btn-view">Xem Chi Tiết</a>
-                        <a href="/cancel-booking" th:href="@{/cancel-booking}" class="btn-cancel">Hủy Đặt Phòng</a>
+<!--                        <a href="/booking-details" th:href="@{/booking-details}" class="btn-view">Xem Chi Tiết</a>-->
+                        <a th:href="@{/booking-details/{id}(id=${booking.bid})}" class="btn-view">Xem Chi Tiết</a>
+<!--                        <a href="/cancel-booking" th:href="@{/cancel-booking}" class="btn-cancel">Hủy Đặt Phòng</a>-->
+                        <a th:href="@{/cancel-booking/{id}(id=${booking.bid})}" class="btn-cancel">Hủy Đặt Phòng</a>
                     </div>
                 </div>
             </div>
         </div>
 
+
         <!-- Booked Bookings -->
         <div id="booked-bookings" class="tab-content">
             <div class="booking-list">
-                <!-- Booking Item 1 -->
-                <div class="booking-item">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Deluxe Twin" class="booking-image">
+                <div class="booking-item" th:each="booking : ${confirmedBookings}">
+                    <img th:src="@{${booking.room.imageUrl}}" class="booking-image" alt="Room Image"/>
 
                     <div class="booking-details">
-                        <h3 class="booking-title">Deluxe Twin</h3>
+                        <h3 class="booking-title" th:text="${booking.room.roomName}">Room Name</h3>
                         <div class="booking-dates">
-                            <span>Ngày nhận phòng: 28/04/2025</span>
-                            <span>Ngày trả phòng: 30/04/2025</span>
+                            <span th:text="'Ngày nhận phòng: ' + ${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')}"></span>
+                            <span th:text="'Ngày trả phòng: ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}"></span>
                         </div>
-                        <div class="booking-price">1.200.000 VNĐ</div>
+                        <div class="booking-price" th:text="${booking.totalPrice} + ' VNĐ'"></div>
                     </div>
 
                     <div class="booking-actions">
-                        <a href="/booking-details" th:href="@{/booking-details}" class="btn-view">Xem Chi Tiết</a>
-                    </div>
-                </div>
-
-                <!-- Booking Item 2 -->
-                <div class="booking-item">
-                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Superior Twin" class="booking-image">
-
-                    <div class="booking-details">
-                        <h3 class="booking-title">Superior Twin</h3>
-                        <div class="booking-dates">
-                            <span>Ngày nhận phòng: 01/05/2025</span>
-                            <span>Ngày trả phòng: 03/05/2025</span>
-                        </div>
-                        <div class="booking-price">800.000 VNĐ</div>
-                    </div>
-
-                    <div class="booking-actions">
-                        <a href="/booking-details" th:href="@{/booking-details}" class="btn-view">Xem Chi Tiết</a>
+                        <a th:href="@{/booking-details/{id}(id=${booking.bid})}" class="btn-view">Xem Chi Tiết</a>
                     </div>
                 </div>
             </div>

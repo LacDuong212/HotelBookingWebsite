@@ -154,25 +154,25 @@
 
         <div class="booking-details-card">
             <div class="booking-header">
-                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Deluxe Twin" class="booking-image">
+                <img th:src="${booking.room.imageUrl}" alt="Premium Deluxe Twin" class="booking-image">
 
                 <div>
-                    <h2 class="booking-title">Premium Deluxe Twin</h2>
-                    <p class="booking-hotel">Pistachio Hotel</p>
+                    <h2 class="booking-title" th:text="${booking.room.roomName}">Premium Deluxe Twin</h2>
+                    <p class="booking-hotel" th:text="${booking.room.hotel.name}">Pistachio Hotel</p>
                 </div>
             </div>
 
             <div class="booking-info-grid">
                 <div class="booking-info-section">
                     <h3 class="booking-info-title">Chi tiết đơn đặt</h3>
-                    <p class="booking-info-item">Ngày đặt: 20/01/2025</p>
-                    <p class="booking-info-item">Ngày check-in: 24/01/2025</p>
-                    <p class="booking-info-item">Ngày check-out: 26/01/2025</p>
+                    <p class="booking-info-item" >Ngày đặt: 20/01/2025</p>
+                    <p class="booking-info-item" th:text="'Ngày check-in: ' + ${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')}">Ngày check-in: 24/01/2025</p>
+                    <p class="booking-info-item" th:text="'Ngày check-out: ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}">Ngày check-out: 26/01/2025</p>
                 </div>
 
                 <div class="booking-info-section">
                     <h3 class="booking-info-title">Chi tiết hóa đơn</h3>
-                    <p class="booking-info-item">Đơn giá: 1.500.000 VNĐ</p>
+                    <p class="booking-info-item" th:text="'Đơn giá: ' + ${booking.room.price} + ' VNĐ'">Đơn giá: 1.500.000 VNĐ</p>
                     <p class="booking-info-item">Thuế: 10%</p>
                     <p class="booking-info-item">Khuyến mãi: 10%</p>
                 </div>
@@ -183,8 +183,8 @@
                 </div>
             </div>
 
-            <div class="booking-total">
-                Tổng tiền: 1.500.000 VNĐ
+            <div class="booking-total" th:text="'Tổng tiền: ' + ${booking.totalPrice} + ' VNĐ'">
+                1.500.000 VNĐ
             </div>
         </div>
     </div>

@@ -3,8 +3,11 @@ package com.example.hotelbookingwebsite.Service;
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.Model.Hotel;
 import com.example.hotelbookingwebsite.Model.Images;
+import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Repository.HotelRepository;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
+import com.example.hotelbookingwebsite.Repository.ManagerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class HotelService {
+
+    @Autowired
+    private ManagerRepository managerRepository;
     private final HotelRepository hotelRepository;
     private final ImagesRepository imagesRepository;
 
@@ -29,6 +35,11 @@ public class HotelService {
         return hotelRepository.findTop4ByOrderByCreatedDateDesc().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Page<HotelDTO> getAllHotelsPaginated(Pageable pageable) {
+        Page<Hotel> hotelPage = hotelRepository.findAll(pageable);
+        return hotelPage.map(this::convertToDTO);
     }
 
     public List<HotelDTO> getAllHotels() {
@@ -49,10 +60,9 @@ public class HotelService {
     }
 
     private String getFirstHotelImageUrl(Long hotelId) {
-        List<Images> images = imagesRepository.findImagesByHid(hotelId);
-        if (images == null || images.isEmpty()) {
-            // TODO: tra ve anh mac dinh
-            return null;
+        List<Images> images = imagesRepository.findByOidOrderBySttAsc(hotelId);
+        if (images.isEmpty()) {
+            return "/images/default.jpg"; // Tr? v? ?nh m?c d?nh n?u kh�ng c� ?nh n�o
         }
         return "/images/" + images.getFirst().getImageUrl();  // Relative path to your ImageController
     }
@@ -72,10 +82,39 @@ public class HotelService {
         return hotelPage.map(this::convertToDTO);
     }
 
+    @Transactional
+    public Long saveHotel(HotelDTO hotelDTO, Long uid) {
+        Manager manager = managerRepository.findById(uid)
+                .orElseThrow(() -> new RuntimeException("Manager not found with id: " + uid));
+
+        Hotel hotel = new Hotel();
+        hotel.setManager(manager);
+        hotel.setName(hotelDTO.getName());
+        hotel.setAddress(hotelDTO.getAddress());
+        hotel.setDescription(hotelDTO.getDescription());
+
+        Hotel savedHotel = hotelRepository.save(hotel);
+
+        return savedHotel.getHid();
+    }
+
     public Page<HotelDTO> getAllHotels(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Hotel> hotelPage = hotelRepository.findAll(pageable);
 
         return hotelPage.map(this::convertToDTO);
+    }
+
+    public Hotel getHotelByHostUid(Long hostUid) {
+        return hotelRepository.findByManager_Uid(hostUid);
+    }
+
+    public Hotel getHotelById(Long hotelId) {
+        return hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách sạn với ID: " + hotelId));
+    }
+
+    public void updateHotel(Hotel hotel) {
+        hotelRepository.save(hotel);
     }
 }
