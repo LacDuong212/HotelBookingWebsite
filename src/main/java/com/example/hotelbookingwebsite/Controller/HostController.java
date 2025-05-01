@@ -363,6 +363,57 @@ public class HostController {
         }
     }
 
+    // Add this method to actually perform the deletion
+    @GetMapping("/delete-image")
+    public String deleteImage(@RequestParam("id") Long imageId, RedirectAttributes redirectAttributes, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Bạn chưa đăng nhập.");
+            return "redirect:/signin";
+        }
+
+        try {
+            Images image = imagesRepository.findById(imageId).orElse(null);
+            if (image == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy hình ảnh.");
+                return "redirect:/host/info-hotel";
+            }
+
+            // Don't allow deleting main image (STT = 0)
+            if (image.getStt() == 0) {
+                redirectAttributes.addFlashAttribute("error", "Không thể xóa ảnh chính của khách sạn.");
+                return "redirect:/host/edit-info-hotel/" + image.getOid();
+            }
+
+            Long hotelId = image.getOid();
+
+            // Delete the image
+            imagesRepository.deleteById(imageId);
+
+            // Reindex the STT values to maintain continuity
+            List<Images> remainingImages = imagesRepository.findByOidOrderBySttAsc(hotelId);
+            for (int i = 0; i < remainingImages.size(); i++) {
+                Images img = remainingImages.get(i);
+                // Skip the main image (STT = 0)
+                if (img.getStt() > 0) {
+                    img.setStt(i); // Adjust index as needed
+                    imageService.saveImage(img);
+                }
+            }
+
+            // Update the image list in session
+            List<Images> updatedImagesList = imagesRepository.findByOidOrderBySttAsc(hotelId);
+            session.setAttribute("imagesList", updatedImagesList);
+
+            redirectAttributes.addFlashAttribute("success", "Xóa ảnh thành công!");
+            return "redirect:/host/edit-info-hotel/" + hotelId;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa ảnh: " + e.getMessage());
+            return "redirect:/host/info-hotel";
+        }
+    }
+
     @GetMapping("/add-room")
     public String AddRoom(Model model) {
         return "host/add-room";

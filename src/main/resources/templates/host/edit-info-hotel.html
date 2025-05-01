@@ -631,7 +631,7 @@
             <p>Bạn có chắc chắn muốn xóa ảnh này?</p>
             <div class="modal-actions">
                 <a th:href="@{/host/edit-info-hotel/{id}(id=${hotel != null ? hotel.hid : ''})}" class="modal-btn modal-btn-cancel">Hủy</a>
-                <a th:href="@{/host/remove-image/{id}(id=${imageToDelete})}" class="modal-btn modal-btn-confirm">Xóa</a>
+                <a th:href="@{/host/delete-image(id=${imageToDelete})}" class="modal-btn modal-btn-confirm">Xóa</a>
             </div>
         </div>
     </div>
@@ -667,6 +667,20 @@
         const confirmModal = document.getElementById('confirmModal');
         if (confirmModal) {
             confirmModal.style.display = 'block';
+
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                if (event.target === confirmModal) {
+                    window.location.href = document.querySelector('.modal-btn-cancel').href;
+                }
+            });
+
+            // Add keyboard support (Esc to cancel)
+            document.addEventListener('keydown', function(event) {
+                if (event.key === "Escape" && confirmModal.style.display === 'block') {
+                    window.location.href = document.querySelector('.modal-btn-cancel').href;
+                }
+            });
         }
 
         // Handle image preview before upload
@@ -807,6 +821,23 @@
 
             button.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add animation for image cards when they're removed
+        document.querySelectorAll('.image-card .btn-danger').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Don't add animation for confirm dialog, only for direct delete links
+                if (!this.getAttribute('href').includes('remove-image-confirm')) {
+                    e.preventDefault();
+                    const card = this.closest('.image-card');
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        window.location.href = this.getAttribute('href');
+                    }, 300);
+                }
             });
         });
     });
