@@ -59,7 +59,7 @@ public class HomeController {
 
     @GetMapping("/booking-history")
     public String bookingHistory(HttpSession session,Model model) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        User loggedInUser = (User) session.getAttribute("user");
         if (loggedInUser != null) {
             model.addAttribute("upcomingBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"UPCOMING"));
             model.addAttribute("confirmedBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"CONFIRMED"));
