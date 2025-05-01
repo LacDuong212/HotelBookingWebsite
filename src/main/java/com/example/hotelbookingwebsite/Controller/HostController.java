@@ -1,12 +1,13 @@
 package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
-import com.example.hotelbookingwebsite.Model.Hotel;
-import com.example.hotelbookingwebsite.Model.Images;
-import com.example.hotelbookingwebsite.Model.User;
+import com.example.hotelbookingwebsite.Model.*;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
+import com.example.hotelbookingwebsite.Repository.ManagerRepository;
+import com.example.hotelbookingwebsite.Repository.PromotionRepository;
 import com.example.hotelbookingwebsite.Service.HotelService;
 import com.example.hotelbookingwebsite.Service.ImageService;
+import com.example.hotelbookingwebsite.Service.PromotionService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/host")
@@ -32,7 +34,16 @@ public class HostController {
     private ImageService imageService;
 
     @Autowired
+    private PromotionService promotionService;
+
+    @Autowired
     private ImagesRepository imagesRepository;
+
+    @Autowired
+    private PromotionRepository promotionRepository;
+
+    @Autowired
+    private ManagerRepository managerRepository;
 
     @GetMapping("/home")
     public String homePage(Model model) {
@@ -369,6 +380,67 @@ public class HostController {
 
     @GetMapping("/manage-voucher")
     public String manageVoucher(Model model) {
+        List<Promotion> validPromotions = promotionService.getValidPromotions();
+        List<Promotion> expiredPromotions = promotionService.getExpiredPromotions();
+
+        model.addAttribute("validPromotions", validPromotions);
+        model.addAttribute("expiredPromotions", expiredPromotions);
+
         return "host/manage-voucher";
+    }
+
+    @PostMapping("/voucher/add")
+    public String addPromotion(@ModelAttribute("newPromotion") Promotion promotion,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "redirect:/signin";
+        }
+
+        Optional<Manager> optionalManager = managerRepository.findById(loggedInUser.getUid());
+        if (optionalManager.isEmpty()) {
+            return "redirect:/signin";
+        }
+
+        promotion.setManager(optionalManager.get());
+        promotionRepository.save(promotion);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Mã giảm giá đã được thêm thành công!");
+
+        return "redirect:/host/manage-voucher";
+    }
+
+    @GetMapping("/voucher/delete")
+    public String deletePromotion(@RequestParam("id") Long promotionId,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "redirect:/signin";
+        }
+
+        Optional<Manager> optionalManager = managerRepository.findById(loggedInUser.getUid());
+        if (optionalManager.isEmpty()) {
+            return "redirect:/signin";
+        }
+
+        Optional<Promotion> optionalPromotion = promotionRepository.findById(promotionId);
+        if (optionalPromotion.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy mã giảm giá!");
+            return "redirect:/host/manage-voucher";
+        }
+
+        Promotion promotion = optionalPromotion.get();
+
+        if (!promotion.getManager().getUid().equals(loggedInUser.getUid())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền xóa mã giảm giá này!");
+            return "redirect:/host/manage-voucher";
+        }
+
+        promotionRepository.delete(promotion);
+        redirectAttributes.addFlashAttribute("successMessage", "Mã giảm giá đã được xóa thành công!");
+
+        return "redirect:/host/manage-voucher";
     }
 }
