@@ -5,6 +5,7 @@ import com.example.hotelbookingwebsite.Model.*;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Repository.PromotionRepository;
+import com.example.hotelbookingwebsite.Repository.RoomRepository;
 import com.example.hotelbookingwebsite.Service.HotelService;
 import com.example.hotelbookingwebsite.Service.ImageService;
 import com.example.hotelbookingwebsite.Service.PromotionService;
@@ -44,6 +45,8 @@ public class HostController {
 
     @Autowired
     private ManagerRepository managerRepository;
+    @Autowired
+    private RoomRepository roomRepository;
 
     @GetMapping("/home")
     public String homePage(Model model) {
@@ -429,6 +432,13 @@ public class HostController {
         return "host/list-room";
     }
 
+    @GetMapping("/host/room/edit/{id}")
+    public String showEditRoomForm(@PathVariable("id") Long id, Model model) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng"));
+        model.addAttribute("room", room);
+        return "host/edit-info-room";
+    }
     @GetMapping("/manage-voucher")
     public String manageVoucher(Model model) {
         List<Promotion> validPromotions = promotionService.getValidPromotions();
