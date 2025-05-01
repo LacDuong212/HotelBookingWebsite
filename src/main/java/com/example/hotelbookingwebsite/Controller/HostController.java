@@ -146,6 +146,11 @@ public class HostController {
     @GetMapping("/edit-info-hotel/{id}")
     public String editInfoHotel(@PathVariable("id") Long id, Model model, HttpSession session) {
         Hotel hotel = hotelService.getHotelById(id);
+        if (hotel == null) {
+            model.addAttribute("error", "Không tìm thấy thông tin khách sạn.");
+            return "redirect:/host/home";
+        }
+
         List<Images> imagesList = imagesRepository.findByOidOrderBySttAsc(hotel.getHid());
 
         model.addAttribute("hotel", hotel);
@@ -165,22 +170,28 @@ public class HostController {
             @RequestParam(value = "thumbnailImage0", required = false) MultipartFile thumbnailImage0,
             @RequestParam(value = "thumbnailImage1", required = false) MultipartFile thumbnailImage1,
             @RequestParam(value = "thumbnailImage2", required = false) MultipartFile thumbnailImage2,
-            @RequestParam(value = "thumbnailImageNew1", required = false) MultipartFile thumbnailImageNew1,
-            @RequestParam(value = "thumbnailImageNew2", required = false) MultipartFile thumbnailImageNew2,
-            @RequestParam(value = "thumbnailImageNew3", required = false) MultipartFile thumbnailImageNew3,
-            @RequestParam(value = "additionalImage", required = false) MultipartFile[] additionalImages,
+            @RequestParam(value = "extraImages", required = false) MultipartFile[] extraImages,
+            @RequestParam(value = "additionalImages", required = false) MultipartFile[] additionalImages,
             RedirectAttributes redirectAttributes,
-            HttpSession session
+            HttpSession session,
+            Model model
     ) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Bạn chưa đăng nhập.");
+            return "redirect:/signin";
+        }
+
         try {
             Hotel hotel = hotelService.getHotelById(hotelId);
-
             hotel.setName(hotelName);
             hotel.setAddress(hotelAddress);
             hotel.setDescription(hotelDescription);
-
             hotelService.updateHotel(hotel);
 
+            boolean imagesUpdated = false;
+
+            // Process main image
             if (mainImage != null && !mainImage.isEmpty()) {
                 Images mainImageEntity = imagesRepository.findByOidAndStt(hotelId, 0);
                 if (mainImageEntity != null) {
@@ -195,75 +206,149 @@ public class HostController {
                     newMainImage.setImageUrl(newImageUrl);
                     imageService.saveImage(newMainImage);
                 }
+                imagesUpdated = true;
             }
 
-            processExistingThumbnail(hotelId, 1, thumbnailImage0);
-            processExistingThumbnail(hotelId, 2, thumbnailImage1);
-            processExistingThumbnail(hotelId, 3, thumbnailImage2);
-            processNewThumbnail(hotelId, thumbnailImageNew1);
-            processNewThumbnail(hotelId, thumbnailImageNew2);
-            processNewThumbnail(hotelId, thumbnailImageNew3);
+            // Process individual thumbnails (for updating existing thumbnail images)
+            if (thumbnailImage0 != null && !thumbnailImage0.isEmpty()) {
+                updateOrCreateImage(thumbnailImage0, hotelId, 1);
+                imagesUpdated = true;
+            }
 
-            if (additionalImages != null) {
-                Integer maxStt = imagesRepository.findMaxSttByOid(hotelId);
-                int nextStt = (maxStt != null) ? maxStt + 1 : 4;
+            if (thumbnailImage1 != null && !thumbnailImage1.isEmpty()) {
+                updateOrCreateImage(thumbnailImage1, hotelId, 2);
+                imagesUpdated = true;
+            }
 
-                for (MultipartFile file : additionalImages) {
+            if (thumbnailImage2 != null && !thumbnailImage2.isEmpty()) {
+                updateOrCreateImage(thumbnailImage2, hotelId, 3);
+                imagesUpdated = true;
+            }
+
+            // Collect all additional images from different sources
+            List<MultipartFile> allAdditionalImages = new ArrayList<>();
+
+            // Add images from extraImages (for new thumbnails in empty slots)
+            if (extraImages != null) {
+                for (MultipartFile file : extraImages) {
                     if (file != null && !file.isEmpty()) {
-                        String imageUrl = imageService.uploadImage(file);
-                        Images imageEntity = new Images();
-                        imageEntity.setImageUrl(imageUrl);
-                        imageEntity.setOid(hotelId);
-                        imageEntity.setStt(nextStt++);
-                        imageService.saveImage(imageEntity);
+                        allAdditionalImages.add(file);
+                        imagesUpdated = true;
                     }
                 }
+            }
+
+            // Add images from additionalImages (for "Thêm ảnh" button)
+            if (additionalImages != null) {
+                for (MultipartFile file : additionalImages) {
+                    if (file != null && !file.isEmpty()) {
+                        allAdditionalImages.add(file);
+                        imagesUpdated = true;
+                    }
+                }
+            }
+
+            // Save all additional images
+            if (!allAdditionalImages.isEmpty()) {
+                // Get the maximum STT value for this hotel
+                Integer maxStt = imagesRepository.findMaxSttByOid(hotelId);
+                int nextStt = (maxStt != null) ? maxStt + 1 : 1;
+
+                for (MultipartFile file : allAdditionalImages) {
+                    String imageUrl = imageService.uploadImage(file);
+                    Images imageEntity = new Images();
+                    imageEntity.setImageUrl(imageUrl);
+                    imageEntity.setOid(hotelId);
+                    imageEntity.setStt(nextStt++);
+                    imageService.saveImage(imageEntity);
+                }
+            }
+
+            // Refresh the image list if any images were updated
+            if (imagesUpdated) {
+                List<Images> updatedImagesList = imagesRepository.findByOidOrderBySttAsc(hotelId);
+                session.setAttribute("imagesList", updatedImagesList);
+                model.addAttribute("imagesList", updatedImagesList);
             }
 
             redirectAttributes.addFlashAttribute("success", "Cập nhật khách sạn thành công!");
             return "redirect:/host/info-hotel";
 
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi tải ảnh lên: " + e.getMessage());
+            return "redirect:/host/edit-info-hotel/" + hotelId;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("success", "Cập nhật khách sạn thành công!");
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật khách sạn: " + e.getMessage());
             return "redirect:/host/edit-info-hotel/" + hotelId;
         }
     }
 
-    // Phương thức hỗ trợ xử lý thumbnail đã tồn tại
-    private void processExistingThumbnail(Long hotelId, int stt, MultipartFile thumbnailImage) throws IOException {
-        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
-            Images existingImage = imagesRepository.findByOidAndStt(hotelId, stt);
-            if (existingImage != null) {
-                String newImageUrl = imageService.uploadImage(thumbnailImage);
-                existingImage.setImageUrl(newImageUrl);
-                imageService.saveImage(existingImage);
-            } else {
-                String imageUrl = imageService.uploadImage(thumbnailImage);
-                Images newImage = new Images();
-                newImage.setOid(hotelId);
-                newImage.setStt(stt);
-                newImage.setImageUrl(imageUrl);
-                imageService.saveImage(newImage);
-            }
+    // Helper method to update an existing image or create a new one at a specific position
+    private void updateOrCreateImage(MultipartFile imageFile, Long hotelId, int position) throws IOException {
+        if (imageFile == null || imageFile.isEmpty()) {
+            return;
+        }
+
+        // Check if an image exists at this position
+        Images existingImage = imagesRepository.findByOidAndStt(hotelId, position);
+        String newImageUrl = imageService.uploadImage(imageFile);
+
+        if (existingImage != null) {
+            // Update existing image
+            existingImage.setImageUrl(newImageUrl);
+            imageService.saveImage(existingImage);
+        } else {
+            // Create new image at this position
+            Images newImage = new Images();
+            newImage.setOid(hotelId);
+            newImage.setStt(position);
+            newImage.setImageUrl(newImageUrl);
+            imageService.saveImage(newImage);
         }
     }
 
-    private void processNewThumbnail(Long hotelId, MultipartFile thumbnailImage) throws IOException {
-        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
-            List<Integer> existingStts = imagesRepository.findSttByOid(hotelId);
-            int nextStt = 1;
-            while (existingStts.contains(nextStt) && nextStt < 4) {
-                nextStt++;
+    // New method to show confirmation page before deleting an image
+    @GetMapping("/remove-image-confirm")
+    public String confirmRemoveImage(@RequestParam("id") Long imageId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "redirect:/signin";
+        }
+
+        try {
+            Images image = imagesRepository.findById(imageId).orElse(null);
+            if (image == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy hình ảnh.");
+                return "redirect:/host/info-hotel";
             }
 
-            if (nextStt < 4) {
-                String imageUrl = imageService.uploadImage(thumbnailImage);
-                Images newImage = new Images();
-                newImage.setOid(hotelId);
-                newImage.setStt(nextStt);
-                newImage.setImageUrl(imageUrl);
-                imageService.saveImage(newImage);
+            // Don't allow deleting main image (STT = 0)
+            if (image.getStt() == 0) {
+                redirectAttributes.addFlashAttribute("error", "Không thể xóa ảnh chính của khách sạn.");
+                return "redirect:/host/edit-info-hotel/" + image.getOid();
             }
+
+            // Get hotel for the return path
+            Hotel hotel = hotelService.getHotelById(image.getOid());
+            if (hotel == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy thông tin khách sạn.");
+                return "redirect:/host/home";
+            }
+
+            // Set up confirmation data
+            model.addAttribute("showConfirmation", true);
+            model.addAttribute("imageToDelete", imageId);
+            model.addAttribute("hotel", hotel);
+
+            // Get all images for the hotel to display on the page
+            List<Images> imagesList = imagesRepository.findByOidOrderBySttAsc(hotel.getHid());
+            model.addAttribute("imagesList", imagesList);
+
+            return "host/edit-info-hotel";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xử lý yêu cầu: " + e.getMessage());
+            return "redirect:/host/info-hotel";
         }
     }
 
