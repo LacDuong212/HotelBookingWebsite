@@ -1,13 +1,14 @@
 package com.example.hotelbookingwebsite.Controller;
 
+import com.example.hotelbookingwebsite.DTO.BookingDTO;
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
+import com.example.hotelbookingwebsite.DTO.RoomDTO;
 import com.example.hotelbookingwebsite.Model.*;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Repository.PromotionRepository;
-import com.example.hotelbookingwebsite.Service.HotelService;
-import com.example.hotelbookingwebsite.Service.ImageService;
-import com.example.hotelbookingwebsite.Service.PromotionService;
+import com.example.hotelbookingwebsite.Repository.RoomRepository;
+import com.example.hotelbookingwebsite.Service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,12 @@ public class HostController {
     private HotelService hotelService;
 
     @Autowired
+    private BookingService bookingService;
+
+    @Autowired
+    private RoomService roomService;
+
+    @Autowired
     private ImageService imageService;
 
     @Autowired
@@ -38,6 +45,9 @@ public class HostController {
 
     @Autowired
     private ImagesRepository imagesRepository;
+
+    @Autowired
+    private RoomRepository roomRepository;
 
     @Autowired
     private PromotionRepository promotionRepository;
@@ -415,18 +425,106 @@ public class HostController {
     }
 
     @GetMapping("/add-room")
-    public String AddRoom(Model model) {
-        return "host/add-room";
+    public String showAddRoomForm(Model model) {
+        model.addAttribute("room", new Room());  // Khởi tạo đối tượng phòng mới
+        return "host/add-room";  // Trả về trang thêm phòng
+    }
+
+    @PostMapping("/add-room")
+    public String addRoom(
+            @ModelAttribute("room") Room room,
+            @RequestParam("images") MultipartFile[] images,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Bạn chưa đăng nhập.");
+            return "web/signin";
+        }
+
+        try {
+            // Lấy khách sạn của người dùng
+            Hotel hotel = hotelService.getHotelByHostUid(loggedInUser.getUid());
+            if (hotel == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy khách sạn của bạn.");
+                return "host/home";
+            }
+
+            // Gán khách sạn cho phòng
+            room.setHotel(hotel);
+
+            // Lưu phòng vào cơ sở dữ liệu
+            Room savedRoom = roomRepository.save(room);  // Lưu phòng và lấy ID
+
+            // Xử lý ảnh
+            for (int i = 0; i < images.length; i++) {
+                MultipartFile image = images[i];
+                if (!image.isEmpty()) {
+                    // Lưu ảnh vào hệ thống (thư mục)
+                    String imageUrl = imageService.uploadImage(image); // Lưu ảnh và nhận URL
+
+                    // Tạo đối tượng Images và lưu vào cơ sở dữ liệu
+                    Images imageEntity = new Images();
+                    imageEntity.setImageUrl(imageUrl);  // Lưu URL ảnh
+                    imageEntity.setOid(savedRoom.getRid());  // Gán oid là ID của phòng
+                    imageEntity.setStt(i);  // Gán thứ tự ảnh
+
+                    imageService.saveImage(imageEntity);  // Lưu ảnh vào bảng Images
+                }
+            }
+
+            redirectAttributes.addFlashAttribute("success", "Phòng đã được thêm thành công!");
+            return "host/list-room";  // Chuyển hướng đến danh sách phòng
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm phòng: " + e.getMessage());
+            return "host/add-room";
+        }
     }
 
     @GetMapping("/list-book-room")
-    public String listBookRoom(Model model) {
-        return "host/list-book-room";
+    public String listBookedRooms(Model model, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "web/signin";  // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+        }
+
+        // Lấy khách sạn của người dùng
+        Hotel hotel = hotelService.getHotelByHostUid(loggedInUser.getUid());
+        if (hotel == null) {
+            model.addAttribute("error", "Không tìm thấy khách sạn của bạn.");
+            return "host/home";
+        }
+
+        // Lấy danh sách các booking đã đặt với trạng thái 'confirmed' (hoặc trạng thái khác nếu cần)
+        List<BookingDTO> bookedRooms = bookingService.getBookingByUidAndStatus(loggedInUser.getUid(), "confirmed");
+        model.addAttribute("bookedRooms", bookedRooms);
+
+        return "host/list-book-room";  // Trả về trang hiển thị danh sách phòng đã đặt
     }
 
+
     @GetMapping("/list-room")
-    public String listRoom(Model model) {
-        return "host/list-room";
+    public String listRooms(Model model, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "web/signin";  // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+        }
+
+        // Lấy khách sạn của người dùng
+        Hotel hotel = hotelService.getHotelByHostUid(loggedInUser.getUid());
+        if (hotel == null) {
+            model.addAttribute("error", "Không tìm thấy khách sạn của bạn.");
+            return "host/home";
+        }
+
+        // Lấy danh sách phòng của khách sạn thông qua RoomService
+        List<RoomDTO> rooms = roomService.getAllRoomByHotel(hotel);
+        model.addAttribute("rooms", rooms);  // Trả về danh sách phòng
+
+        return "host/list-room";  // Trả về trang hiển thị danh sách phòng
     }
 
     @GetMapping("/manage-voucher")
