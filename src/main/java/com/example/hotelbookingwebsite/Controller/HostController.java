@@ -426,61 +426,85 @@ public class HostController {
 
     @GetMapping("/add-room")
     public String showAddRoomForm(Model model) {
-        model.addAttribute("room", new Room());  // Khởi tạo đối tượng phòng mới
+        model.addAttribute("roomDTO", new RoomDTO());
         return "host/add-room";  // Trả về trang thêm phòng
     }
 
     @PostMapping("/add-room")
     public String addRoom(
-            @ModelAttribute("room") Room room,
-            @RequestParam("images") MultipartFile[] images,
+            @Valid @ModelAttribute("roomDTO") RoomDTO roomDTO,
             HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
+            BindingResult result,
+            @RequestParam("mainImage") MultipartFile mainImage,
+            @RequestParam(value = "additionalImages", required = false) MultipartFile[] additionalImages,
+            @RequestParam(value = "extraImages", required = false) MultipartFile[] extraImages,
+            Model model
+    ) {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         User loggedInUser = (User) session.getAttribute("user");
         if (loggedInUser == null) {
-            redirectAttributes.addFlashAttribute("error", "Bạn chưa đăng nhập.");
-            return "web/signin";
+            model.addAttribute("error", "Bạn chưa đăng nhập.");
+            return "host/add-room";  // Trả về cùng trang và hiển thị thông báo lỗi
+        }
+
+        // Kiểm tra xem có lỗi trong form không
+        if (result.hasErrors()) {
+            return "host/add-room";
         }
 
         try {
-            // Lấy khách sạn của người dùng
-            Hotel hotel = hotelService.getHotelByHostUid(loggedInUser.getUid());
-            if (hotel == null) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy khách sạn của bạn.");
-                return "host/home";
+            // Lưu phòng vào cơ sở dữ liệu và lấy ID phòng
+            Long roomId = roomService.saveRoom(roomDTO, loggedInUser.getUid());
+
+            // Xử lý ảnh chính (main image)
+            if (!mainImage.isEmpty()) {
+                String mainImageUrl = imageService.uploadImage(mainImage);
+                Images mainImageEntity = new Images();
+                mainImageEntity.setImageUrl(mainImageUrl);
+                mainImageEntity.setOid(roomId);  // Gán oid là ID của phòng
+                mainImageEntity.setStt(0);  // Đặt thứ tự ảnh là 0 cho ảnh chính
+                imageService.saveImage(mainImageEntity);
             }
 
-            // Gán khách sạn cho phòng
-            room.setHotel(hotel);
-
-            // Lưu phòng vào cơ sở dữ liệu
-            Room savedRoom = roomRepository.save(room);  // Lưu phòng và lấy ID
-
-            // Xử lý ảnh
-            for (int i = 0; i < images.length; i++) {
-                MultipartFile image = images[i];
-                if (!image.isEmpty()) {
-                    // Lưu ảnh vào hệ thống (thư mục)
-                    String imageUrl = imageService.uploadImage(image); // Lưu ảnh và nhận URL
-
-                    // Tạo đối tượng Images và lưu vào cơ sở dữ liệu
-                    Images imageEntity = new Images();
-                    imageEntity.setImageUrl(imageUrl);  // Lưu URL ảnh
-                    imageEntity.setOid(savedRoom.getRid());  // Gán oid là ID của phòng
-                    imageEntity.setStt(i);  // Gán thứ tự ảnh
-
-                    imageService.saveImage(imageEntity);  // Lưu ảnh vào bảng Images
+            // Xử lý các ảnh bổ sung (additional images)
+            List<MultipartFile> allAdditionalImages = new ArrayList<>();
+            if (additionalImages != null) {
+                for (MultipartFile file : additionalImages) {
+                    if (file != null && !file.isEmpty()) {
+                        allAdditionalImages.add(file);
+                    }
                 }
             }
 
-            redirectAttributes.addFlashAttribute("success", "Phòng đã được thêm thành công!");
-            return "host/list-room";  // Chuyển hướng đến danh sách phòng
+            // Xử lý các ảnh extra images
+            if (extraImages != null) {
+                for (MultipartFile file : extraImages) {
+                    if (file != null && !file.isEmpty()) {
+                        allAdditionalImages.add(file);
+                    }
+                }
+            }
 
+            // Lưu tất cả các ảnh bổ sung vào cơ sở dữ liệu
+            int order = 1;
+            for (MultipartFile file : allAdditionalImages) {
+                String imageUrl = imageService.uploadImage(file);
+                Images imageEntity = new Images();
+                imageEntity.setImageUrl(imageUrl);
+                imageEntity.setOid(roomId);  // Gán oid là ID của phòng
+                imageEntity.setStt(order++);  // Tăng thứ tự cho từng ảnh
+                imageService.saveImage(imageEntity);
+            }
+
+            model.addAttribute("success", "Phòng đã được thêm thành công!");
+            return "host/list-room";  // Chuyển hướng tới danh sách phòng và hiển thị thông báo thành công
+
+        } catch (IOException e) {
+            model.addAttribute("error", "Lỗi khi tải ảnh lên: " + e.getMessage());
+            return "host/add-room";  // Quay lại trang thêm phòng nếu có lỗi
         } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm phòng: " + e.getMessage());
-            return "host/add-room";
+            model.addAttribute("error", "Lỗi khi thêm phòng: " + e.getMessage());
+            return "host/add-room";  // Quay lại trang nếu có lỗi
         }
     }
 

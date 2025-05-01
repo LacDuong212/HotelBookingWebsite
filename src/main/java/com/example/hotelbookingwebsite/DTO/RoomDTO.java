@@ -13,7 +13,7 @@ public class RoomDTO {
 
     private Long rid;
     private String description;
-    private Double price;
+    private Float price;
     private String roomName;
     private String status;
     private Hotel hotel;

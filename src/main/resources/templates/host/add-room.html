@@ -39,135 +39,201 @@
             padding: 0 15px;
         }
 
-        /* Add Room Form Styles */
-        .add-room-container {
-            background-color: #fff;
+        /* Alert messages */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
             border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Form styles */
+        .add-hotel-form {
+            background-color: #fff;
+            border-radius: 8px;
             border: 1px solid #ddd;
             padding: 30px;
             margin: 20px 0;
         }
 
-        .add-room-title {
-            font-size: 22px;
+        .form-title {
+            font-size: 24px;
             font-weight: 600;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             color: #333;
         }
 
-        .add-room-form {
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 30px;
         }
 
-        .image-upload-section {
-            grid-column: 1;
+        .form-left {
+            display: flex;
+            flex-direction: column;
         }
 
-        .form-fields-section {
-            grid-column: 2;
-        }
-
-        /* Image Upload Styles */
-        .main-image-container {
+        .image-upload-area {
             background-color: #f0f0f0;
             height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
             border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
         }
 
-        .thumbnail-container {
+        .image-upload-area img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .image-upload-placeholder {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin-bottom: 15px;
         }
 
         .thumbnail {
-            width: 60px;
-            height: 60px;
             background-color: #f0f0f0;
+            height: 60px;
             border-radius: 4px;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
         }
 
-        .add-photo-btn {
-            width: 60px;
-            height: 60px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .thumbnail img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail.add {
             cursor: pointer;
-            border: none;
         }
 
-        .add-photo-btn i {
-            color: #999;
-            font-size: 20px;
+        .additional-images-section {
+            margin-top: 15px;
         }
 
-        .upload-text {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
+        .additional-images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-top: 10px;
         }
 
-        /* Form Fields Styles */
-        .form-group {
-            margin-bottom: 20px;
+        .additional-image-item {
+            width: calc(25% - 8px);
+            height: 60px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .additional-image-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #dc3545;
+            font-size: 12px;
+        }
+
+        .add-more-btn {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            color: #666;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .add-more-btn:hover {
+            background-color: #e0e0e0;
         }
 
         .form-label {
-            display: block;
             font-size: 14px;
+            font-weight: 600;
             margin-bottom: 8px;
-            color: #333;
+            display: block;
         }
 
-        .form-control {
+        .form-input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            margin-bottom: 20px;
             font-size: 14px;
         }
 
-        .form-control-textarea {
+        .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
             min-height: 100px;
             resize: vertical;
         }
 
-        .price-input-container {
-            position: relative;
-        }
-
-        .price-input-container .form-control {
-            padding-right: 50px;
-        }
-
-        .currency-label {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-            font-size: 14px;
-        }
-
-        /* Form Actions */
         .form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .btn {
@@ -176,12 +242,10 @@
             font-size: 14px;
             cursor: pointer;
             border: none;
-            font-weight: 500;
         }
 
         .btn-cancel {
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
+            background-color: #f0f0f0;
             color: #333;
         }
 
@@ -190,173 +254,233 @@
             color: white;
         }
 
-        .btn-cancel:hover {
-            background-color: #e9e9e9;
-        }
-
-        .btn-submit:hover {
-            background-color: #555;
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 15px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .add-room-form {
+            .form-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
             }
 
-            .image-upload-section,
-            .form-fields-section {
-                grid-column: 1;
+            .additional-image-item {
+                width: calc(33.333% - 7px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .additional-image-item {
+                width: calc(50% - 5px);
             }
         }
     </style>
 </head>
 <body>
-<!-- Include header fragment -->
+<!-- Header -->
 <div th:replace="~{host/fragments/host-header :: header}"></div>
 
 <!-- MAIN CONTENT -->
 <main>
     <div class="container">
-        <div class="add-room-container">
-            <h1 class="add-room-title">Thêm phòng</h1>
+        <!-- Alert messages -->
+        <div class="alert alert-success" th:if="${success != null}" th:text="${success}"></div>
+        <div class="alert alert-danger" th:if="${error != null}" th:text="${error}"></div>
 
-            <form class="add-room-form" action="/add-room" method="POST">
-                <!-- Image Upload Section -->
-                <div class="image-upload-section">
-                    <div class="main-image-container">
-                        <i class="fas fa-image" style="color: #ccc; font-size: 32px;"></i>
+        <form class="add-room-form" th:action="@{/host/add-room}" method="post" enctype="multipart/form-data" th:object="${roomDTO}">
+            <h1 class="form-title">Thêm phòng</h1>
+            <div class="form-grid">
+                <div class="form-left">
+                    <!-- Main image upload -->
+                    <div class="image-upload-area" id="mainImageContainer">
+                        <div class="image-upload-placeholder">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <span>Tải ảnh chính lên *</span>
+                        </div>
+                        <img id="mainImagePreview" style="display: none;" />
+                        <input type="file" id="mainImageInput" name="mainImage" accept="image/*" style="display: none;" required />
                     </div>
 
+                    <!-- Thumbnail images -->
                     <div class="thumbnail-container">
-                        <div class="thumbnail">
-                            <i class="fas fa-image" style="color: #ccc; font-size: 16px;"></i>
+                        <div class="thumbnail" id="thumbContainer1">
+                            <div class="image-upload-placeholder">
+                                <i class="fas fa-plus" style="font-size: 1rem;"></i>
+                            </div>
+                            <img id="thumbPreview1" style="display: none;" />
+                            <input type="file" id="thumbInput1" name="additionalImages" accept="image/*" style="display: none;" />
                         </div>
-                        <div class="thumbnail">
-                            <i class="fas fa-image" style="color: #ccc; font-size: 16px;"></i>
+                        <div class="thumbnail" id="thumbContainer2">
+                            <div class="image-upload-placeholder">
+                                <i class="fas fa-plus" style="font-size: 1rem;"></i>
+                            </div>
+                            <img id="thumbPreview2" style="display: none;" />
+                            <input type="file" id="thumbInput2" name="additionalImages" accept="image/*" style="display: none;" />
                         </div>
-                        <div class="thumbnail">
-                            <i class="fas fa-image" style="color: #ccc; font-size: 16px;"></i>
+                        <div class="thumbnail" id="thumbContainer3">
+                            <div class="image-upload-placeholder">
+                                <i class="fas fa-plus" style="font-size: 1rem;"></i>
+                            </div>
+                            <img id="thumbPreview3" style="display: none;" />
+                            <input type="file" id="thumbInput3" name="additionalImages" accept="image/*" style="display: none;" />
                         </div>
-                        <button type="button" class="add-photo-btn">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                        <div class="thumbnail add" id="addMoreImages">
+                            <i class="fas fa-plus" style="color: #666;"></i>
+                        </div>
                     </div>
 
-                    <div class="upload-text">Thêm ảnh phòng</div>
+                    <!-- Hidden input for additional images -->
+                    <input type="file" id="extraImagesInput" name="extraImages" accept="image/*" multiple style="display: none;" />
                 </div>
 
-                <!-- Form Fields Section -->
-                <div class="form-fields-section">
-                    <!-- Room Name Field -->
-                    <div class="form-group">
-                        <label for="roomName" class="form-label">Tên phòng</label>
-                        <input type="text" id="roomName" name="roomName" class="form-control" required>
-                    </div>
+                <!-- Form fields -->
+                <div class="form-right">
+                    <label class="form-label" for="roomName">Tên phòng *</label>
+                    <input type="text" id="roomName" class="form-input" th:field="*{roomName}" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></div>
 
-                    <!-- Price Field -->
-                    <div class="form-group">
-                        <label for="price" class="form-label">Giá</label>
-                        <div class="price-input-container">
-                            <input type="number" id="price" name="price" class="form-control" required>
-                            <span class="currency-label">VNĐ</span>
-                        </div>
-                    </div>
+                    <label class="form-label" for="price">Giá *</label>
+                    <input type="number" id="price" class="form-input" th:field="*{price}" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
 
-                    <!-- Description Field -->
-                    <div class="form-group">
-                        <label for="description" class="form-label">Mô tả</label>
-                        <textarea id="description" name="description" class="form-control form-control-textarea" required></textarea>
-                    </div>
+                    <label class="form-label" for="description">Mô tả</label>
+                    <textarea id="description" class="form-textarea" th:field="*{description}"></textarea>
+                    <div class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
 
-                    <!-- Form Actions -->
                     <div class="form-actions">
-                        <button type="button" class="btn btn-cancel">Quay lại</button>
+                        <a th:href="@{/host/rooms}" class="btn btn-cancel">Quay lại</a>
                         <button type="submit" class="btn btn-submit">Thêm</button>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </main>
 
-<!-- Footer Section -->
+<!-- Footer -->
 <div th:replace="~{host/fragments/host-footer :: footer}"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Image upload functionality
-        const addPhotoBtn = document.querySelector('.add-photo-btn');
-        const mainImageContainer = document.querySelector('.main-image-container');
-        let fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'image/*';
-        fileInput.multiple = true;
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
+        // Main image upload
+        const mainImageContainer = document.getElementById('mainImageContainer');
+        const mainImageInput = document.getElementById('mainImageInput');
+        const mainImagePreview = document.getElementById('mainImagePreview');
+        const mainImagePlaceholder = document.querySelector('#mainImageContainer .image-upload-placeholder');
 
-        // Add click event to main image container
         mainImageContainer.addEventListener('click', function() {
-            fileInput.click();
+            mainImageInput.click();
         });
 
-        // Add click event to add photo button
-        addPhotoBtn.addEventListener('click', function() {
-            fileInput.click();
-        });
+        mainImageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
 
-        // Handle file selection
-        fileInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (files.length > 0) {
-                // Display first image in main container
-                const mainImage = files[0];
-                const mainImageUrl = URL.createObjectURL(mainImage);
-                mainImageContainer.innerHTML = `<img src="${mainImageUrl}" alt="Room image" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
-
-                // Display thumbnails
-                const thumbnails = document.querySelectorAll('.thumbnail');
-                for (let i = 0; i < Math.min(files.length - 1, thumbnails.length); i++) {
-                    const file = files[i + 1];
-                    const thumbnailUrl = URL.createObjectURL(file);
-                    thumbnails[i].innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">`;
+                reader.onload = function(e) {
+                    mainImagePreview.src = e.target.result;
+                    mainImagePreview.style.display = 'block';
+                    mainImagePlaceholder.style.display = 'none';
                 }
+
+                reader.readAsDataURL(this.files[0]);
             }
         });
 
-        // Cancel button functionality
-        const cancelBtn = document.querySelector('.btn-cancel');
-        cancelBtn.addEventListener('click', function() {
-            window.location.href = '/rooms'; // Return to room list page
-        });
+        // Thumbnail uploads
+        function setupThumbnailUpload(containerId, inputId, previewId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const placeholder = document.querySelector(`#${containerId} .image-upload-placeholder`);
 
-        // Form submission
-        const form = document.querySelector('.add-room-form');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Form validation
-            const roomName = document.getElementById('roomName').value;
-            const price = document.getElementById('price').value;
-            const description = document.getElementById('description').value;
-
-            if (!roomName || !price || !description) {
-                alert('Vui lòng điền đầy đủ thông tin phòng');
-                return;
-            }
-
-            // If all is valid, submit form
-            console.log('Form submitted with data:', {
-                roomName,
-                price,
-                description
+            container.addEventListener('click', function() {
+                input.click();
             });
 
-            // In a real application, you would submit the form data including images
-            // For this example, we'll just redirect back to the room list
-            alert('Phòng đã được thêm thành công!');
-            window.location.href = '/rooms';
+            input.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        if (placeholder) {
+                            placeholder.style.display = 'none';
+                        }
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        setupThumbnailUpload('thumbContainer1', 'thumbInput1', 'thumbPreview1');
+        setupThumbnailUpload('thumbContainer2', 'thumbInput2', 'thumbPreview2');
+        setupThumbnailUpload('thumbContainer3', 'thumbInput3', 'thumbPreview3');
+
+        // Handle "Add More Images" button (the plus icon in the thumbnail grid)
+        const addMoreImagesBtn = document.getElementById('addMoreImages');
+        addMoreImagesBtn.addEventListener('click', function() {
+            document.getElementById('extraImagesInput').click();
+        });
+
+        // Handle extra "Add More Images" button below thumbnails
+        const addExtraImagesBtn = document.getElementById('addExtraImagesBtn');
+        const extraImagesInput = document.getElementById('extraImagesInput');
+        const additionalImagesContainer = document.getElementById('additionalImagesContainer');
+
+        addExtraImagesBtn.addEventListener('click', function() {
+            extraImagesInput.click();
+        });
+
+        // Handle file selection for extra images
+        extraImagesInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                const filesArray = Array.from(this.files);
+
+                filesArray.forEach((file, index) => {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'additional-image-item';
+
+                        const imageElement = document.createElement('img');
+                        imageElement.src = e.target.result;
+
+                        const removeBtn = document.createElement('div');
+                        removeBtn.className = 'remove-image';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'file';
+                        hiddenInput.name = 'additionalImages';
+                        hiddenInput.style.display = 'none';
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        hiddenInput.files = dataTransfer.files;
+
+                        removeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            imageContainer.remove();
+                        });
+
+                        imageContainer.appendChild(imageElement);
+                        imageContainer.appendChild(removeBtn);
+                        imageContainer.appendChild(hiddenInput);
+
+                        additionalImagesContainer.appendChild(imageContainer);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+
+                this.value = '';
+            }
         });
     });
 </script>

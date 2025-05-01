@@ -3,9 +3,13 @@ package com.example.hotelbookingwebsite.Service;
 import com.example.hotelbookingwebsite.DTO.RoomDTO;
 import com.example.hotelbookingwebsite.Model.Hotel;
 import com.example.hotelbookingwebsite.Model.Images;
+import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Model.Room;
+import com.example.hotelbookingwebsite.Repository.HotelRepository;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
+import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,13 +22,13 @@ import java.util.stream.Collectors;
 public class RoomService {
     private final ImagesRepository imagesRepository;
     private final RoomRepository roomRepository;
-    private final ImageService imageService;
+    private final HotelRepository hotelRepository;
 
     @Autowired
-    public RoomService(ImagesRepository imagesRepository, RoomRepository roomRepository, ImageService imageService) {
+    public RoomService(ImagesRepository imagesRepository, RoomRepository roomRepository, HotelRepository hotelRepository) {
         this.imagesRepository = imagesRepository;
         this.roomRepository = roomRepository;
-        this.imageService = imageService;
+        this.hotelRepository = hotelRepository;
     }
     public RoomDTO getRoomDTOById(Long rid) {
         Room room = roomRepository.findById(rid)
@@ -43,7 +47,7 @@ public class RoomService {
             dto.setRoomName(room.getRoomName());
             dto.setDescription(room.getDescription());
             dto.setStatus(room.getStatus());
-            dto.setPrice((double) room.getPrice());
+            dto.setPrice((float) room.getPrice());
             dto.setHotel(room.getHotel());
 
             // Lấy ảnh đại diện từ room
@@ -52,35 +56,28 @@ public class RoomService {
 
             return dto;
     }
-    public Room saveRoom(String roomName, float price, String description, MultipartFile[] images) throws IOException {
-        // Tạo đối tượng Room và gán thông tin từ form vào
+    @Transactional
+    public Long saveRoom(RoomDTO roomDTO, Long uid) {
+        System.out.println("Saving room with data: " + roomDTO);
+        // Tìm khách sạn của người quản lý dựa trên UID
+        Hotel hotel = hotelRepository.findByManager_Uid(uid);
+
+        // Tạo đối tượng Room mới và gán các thuộc tính từ RoomDTO
         Room room = new Room();
-        room.setRoomName(roomName);
-        room.setPrice(price);
-        room.setDescription(description);
-        room.setStatus("available");  // Trạng thái mặc định
+        room.setRoomName(roomDTO.getRoomName());
+        room.setDescription(roomDTO.getDescription());
+        room.setPrice(roomDTO.getPrice());
+        room.setStatus("available");  // Trạng thái mặc định là "available"
+        room.setHotel(hotel);  // Gán khách sạn cho phòng
 
         // Lưu phòng vào cơ sở dữ liệu
         Room savedRoom = roomRepository.save(room);
 
-        // Xử lý và lưu ảnh
-        for (int i = 0; i < images.length; i++) {
-            if (!images[i].isEmpty()) {
-                // Lưu ảnh vào thư mục và lấy URL
-                String imageUrl = imageService.uploadImage(images[i]);
-
-                // Lưu thông tin ảnh vào bảng Images
-                Images imageEntity = new Images();
-                imageEntity.setImageUrl(imageUrl);  // URL ảnh
-                imageEntity.setOid(savedRoom.getRid());  // Liên kết ảnh với phòng
-                imageEntity.setStt(i);  // Thứ tự ảnh
-
-                imagesRepository.save(imageEntity);
-            }
-        }
-
-        return savedRoom;
+        // Trả về ID của phòng đã lưu
+        return savedRoom.getRid();
     }
+
+
     private List<Images> getRoomImage(long rid) {
         return imagesRepository.findImagesByRid(rid);
 
