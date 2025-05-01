@@ -47,6 +47,7 @@ public class AdminController {
 
         model.addAttribute("hotels", hotelPage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", hotelPage.getTotalPages());
         model.addAttribute("totalItems", hotelPage.getTotalElements());
         model.addAttribute("sortField", sortBy);
