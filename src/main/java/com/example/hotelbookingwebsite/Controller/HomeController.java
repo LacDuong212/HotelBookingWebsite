@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,21 +115,19 @@ public class HomeController {
     }
 
     @PostMapping({"/host/update-account", "/customer/update-account"})
-    @ResponseBody
-    public Map<String, Object> updateAccount(@RequestParam("uid") Long uid,
-                                             @RequestParam("fullname") String fullname,
-                                             @RequestParam("email") String email,
-                                             @RequestParam("phoneNumber") String phoneNumber,
-                                             HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
+    public String updateAccount(@RequestParam("uid") Long uid,
+                                @RequestParam("fullname") String fullname,
+                                @RequestParam("email") String email,
+                                @RequestParam("phoneNumber") String phoneNumber,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
 
         try {
             User currentUser = (User) session.getAttribute("user");
 
             if (currentUser == null || !currentUser.getUid().equals(uid)) {
-                response.put("success", false);
-                response.put("message", "Không có quyền cập nhật thông tin này");
-                return response;
+                redirectAttributes.addFlashAttribute("error", "Không có quyền cập nhật thông tin này");
+                return "redirect:/signin";
             }
 
             currentUser.setFullname(fullname);
@@ -137,16 +136,27 @@ public class HomeController {
 
             User updatedUser = userService.updateUser(currentUser);
 
-            session.setAttribute("loggedInUser", updatedUser);
+            // Update session
+            session.setAttribute("user", updatedUser);
 
-            response.put("success", true);
-            response.put("message", "Cập nhật thông tin thành công");
+            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công");
+
+            // Redirect based on user role
+            if ("MANAGER".equals(currentUser.getRole())) {
+                return "redirect:/host/account";
+            } else {
+                return "redirect:/customer/account";
+            }
 
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", e.getMessage());
-        }
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
 
-        return response;
+            // Redirect back to edit page based on user role
+            if (session.getAttribute("user") != null && "MANAGER".equals(((User)session.getAttribute("user")).getRole())) {
+                return "redirect:/host/edit-account";
+            } else {
+                return "redirect:/customer/edit-account";
+            }
+        }
     }
 }
