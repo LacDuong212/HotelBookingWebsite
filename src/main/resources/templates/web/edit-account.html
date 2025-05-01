@@ -330,7 +330,7 @@
                     </div>
 
                     <div class="form-actions">
-                        <a th:href="${session.user.role == 'MANAGER' ? '/host/home' : '/customer/customer'}" class="btn btn-cancel">Hủy</a>
+                        <a th:href="${session.user.role == 'MANAGER' ? '/host/account' : '/customer/account'}" class="btn btn-cancel">Hủy</a>
                         <button type="submit" class="btn btn-save">Lưu</button>
                     </div>
                 </form>
