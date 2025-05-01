@@ -22,7 +22,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/host")
@@ -510,46 +512,59 @@ public class HostController {
 
     @GetMapping("/list-book-room")
     public String listBookedRooms(Model model, HttpSession session) {
+        // Lấy thông tin người quản lý từ session
         User loggedInUser = (User) session.getAttribute("user");
+
         if (loggedInUser == null) {
-            return "web/signin";  // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+            model.addAttribute("error", "Bạn chưa đăng nhập.");
+            return "redirect:/login";  // Điều hướng đến trang đăng nhập nếu chưa đăng nhập
         }
 
-        // Lấy khách sạn của người dùng
+        // Lấy khách sạn của người quản lý
         Hotel hotel = hotelService.getHotelByHostUid(loggedInUser.getUid());
-        if (hotel == null) {
-            model.addAttribute("error", "Không tìm thấy khách sạn của bạn.");
-            return "host/home";
+
+        // Lấy tất cả các phòng của khách sạn
+        List<RoomDTO> allRooms = roomService.getAllRoomByHotel(hotel);
+
+        // Lọc ra các phòng đã được đặt
+        List<RoomDTO> bookedRooms = allRooms.stream()
+                .filter(roomDTO -> !Objects.equals(roomDTO.getStatus(), "AVAILABLE"))
+                .collect(Collectors.toList());
+
+        if (bookedRooms.isEmpty()) {
+            model.addAttribute("message", "Không có phòng nào đã được đặt.");
         }
 
-        // Lấy danh sách các booking đã đặt với trạng thái 'confirmed' (hoặc trạng thái khác nếu cần)
-        List<BookingDTO> bookedRooms = bookingService.getBookingByUidAndStatus(loggedInUser.getUid(), "confirmed");
         model.addAttribute("bookedRooms", bookedRooms);
-
-        return "host/list-book-room";  // Trả về trang hiển thị danh sách phòng đã đặt
+        return "host/list-book-room";  // Chuyển tới trang hiển thị danh sách phòng đã được đặt
     }
+
 
 
     @GetMapping("/list-room")
     public String listRooms(Model model, HttpSession session) {
+        // Lấy thông tin người quản lý từ session
         User loggedInUser = (User) session.getAttribute("user");
+
         if (loggedInUser == null) {
-            return "web/signin";  // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+            model.addAttribute("error", "Bạn chưa đăng nhập.");
+            return "redirect:/login";  // Điều hướng đến trang đăng nhập nếu chưa đăng nhập
         }
 
-        // Lấy khách sạn của người dùng
+        // Lấy khách sạn của người quản lý
         Hotel hotel = hotelService.getHotelByHostUid(loggedInUser.getUid());
-        if (hotel == null) {
-            model.addAttribute("error", "Không tìm thấy khách sạn của bạn.");
-            return "host/home";
+
+        // Lấy tất cả các phòng của khách sạn
+        List<RoomDTO> rooms = roomService.getAllRoomByHotel(hotel);
+
+        if (rooms.isEmpty()) {
+            model.addAttribute("message", "Khách sạn của bạn chưa có phòng nào.");
         }
 
-        // Lấy danh sách phòng của khách sạn thông qua RoomService
-        List<RoomDTO> rooms = roomService.getAllRoomByHotel(hotel);
-        model.addAttribute("rooms", rooms);  // Trả về danh sách phòng
-
-        return "host/list-room";  // Trả về trang hiển thị danh sách phòng
+        model.addAttribute("rooms", rooms);
+        return "host/list-room";  // Chuyển tới trang hiển thị danh sách phòng
     }
+
 
     @GetMapping("/manage-voucher")
     public String manageVoucher(Model model) {

@@ -178,47 +178,28 @@
 
         <!-- Booking Tabs -->
         <div class="booking-tabs">
-            <div class="tab-item active">Sắp tới</div>
-            <div class="tab-item">Đã đặt</div>
-            <div class="tab-item">Hủy</div>
+            <div class="tab-item active" data-status="upcoming">Sắp tới</div>
+            <div class="tab-item" data-status="booked">Đã đặt</div>
+            <div class="tab-item" data-status="canceled">Hủy</div>
         </div>
 
         <!-- Booking List -->
         <div class="booking-list">
-            <!-- Booking Item 1 -->
-            <div class="booking-item">
-                <img src="/path/to/room1.jpg" alt="Phòng đôi" class="booking-image">
+            <!-- Thymeleaf to loop through the booked rooms -->
+            <div th:each="room : ${bookedRooms}" class="booking-item">
+                <img th:src="@{'/path/to/images/' + ${room.imageUrl}}" alt="Phòng" class="booking-image">
                 <div class="booking-details">
                     <div class="booking-info">
-                        <h3 class="booking-title">Phòng đôi</h3>
+                        <h3 class="booking-title" th:text="${room.roomName}">Phòng</h3>
                         <div class="booking-meta">
-                            <div class="booking-date">Ngày đến: 15/05/2025</div>
-                            <div class="booking-date">Ngày đi: 18/05/2025</div>
-                            <div class="booking-guests">Khách: 2 người lớn</div>
+                            <div class="booking-date" th:text="'Ngày đến: ' + ${room.checkInDate}">Ngày đến</div>
+                            <div class="booking-date" th:text="'Ngày đi: ' + ${room.checkOutDate}">Ngày đi</div>
+                            <div class="booking-guests" th:text="'Khách: ' + ${room.guests}">Khách</div>
                         </div>
-                        <div class="booking-host">By: Thụy Dun</div>
+                        <div class="booking-host" th:text="'By: ' + ${room.host}">By</div>
                     </div>
                     <div class="booking-action">
-                        <button class="view-details-btn">Xem chi tiết</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Booking Item 2 -->
-            <div class="booking-item">
-                <img src="/path/to/room2.jpg" alt="Phòng đơn - 4P" class="booking-image">
-                <div class="booking-details">
-                    <div class="booking-info">
-                        <h3 class="booking-title">Phòng đơn - 4P</h3>
-                        <div class="booking-meta">
-                            <div class="booking-date">Ngày đến: 21/05/2025</div>
-                            <div class="booking-date">Ngày đi: 23/05/2025</div>
-                            <div class="booking-guests">Khách: 4 người lớn</div>
-                        </div>
-                        <div class="booking-host">By: Lạc Dương</div>
-                    </div>
-                    <div class="booking-action">
-                        <button class="view-details-btn">Xem chi tiết</button>
+                        <button class="view-details-btn" th:attr="data-room-id=${room.rid}">Xem chi tiết</button>
                     </div>
                 </div>
             </div>
@@ -230,52 +211,26 @@
 <div th:replace="~{host/fragments/host-footer :: footer}"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Tab switching functionality
         const tabs = document.querySelectorAll('.tab-item');
-
         tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs
+            tab.addEventListener('click', function () {
                 tabs.forEach(t => t.classList.remove('active'));
-
-                // Add active class to clicked tab
                 this.classList.add('active');
-
-                // In a real application, you would load different booking data based on tab
-                const tabName = this.textContent.trim();
+                const tabName = this.getAttribute('data-status');
                 console.log(`Switched to ${tabName} tab`);
 
-                // Example of how you might load data based on tab selection
-                // loadBookings(tabName);
+                // Load bookings for the selected status
+                loadBookings(tabName);
             });
         });
 
-        // View details button functionality
-        const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
-
-        viewDetailsButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const bookingItem = this.closest('.booking-item');
-                const bookingTitle = bookingItem.querySelector('.booking-title').textContent;
-
-                // In a real application, you would get the booking ID and redirect to details page
-                console.log(`View details for: ${bookingTitle}`);
-                // window.location.href = `/booking-details/${bookingId}`;
-            });
-        });
-
-        // Function to load bookings based on status (would be implemented with actual data)
+        // Function to load bookings based on status
         function loadBookings(status) {
-            // This would be replaced with actual API call or data loading
-            // Example:
-            // fetch(`/api/bookings?status=${status}`)
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         renderBookings(data);
-            //     });
-
-            console.log(`Loading ${status} bookings...`);
+            // Here you would make an actual request to load data
+            console.log(`Loading bookings with status: ${status}`);
+            // Example: You would dynamically filter the rooms based on `status`
         }
     });
 </script>
