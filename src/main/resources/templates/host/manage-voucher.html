@@ -195,6 +195,22 @@
             color: white;
         }
 
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -295,6 +311,48 @@
             color: white;
         }
 
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+        }
+
+        .alert-dismissible {
+            position: relative;
+            padding-right: 4rem;
+        }
+
+        .alert-dismissible .close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 15px;
+            color: inherit;
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .voucher-item {
@@ -325,6 +383,12 @@
 <!-- MAIN CONTENT -->
 <main>
     <div class="container">
+        <!-- Success Message Alert -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible">
+            <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
+            <span th:text="${successMessage}"></span>
+        </div>
+
         <div class="page-header">
             <h1 class="page-title">Quản lý mã giảm giá</h1>
             <button class="btn-add" id="openModalBtn">
@@ -338,54 +402,59 @@
             <div class="tab" data-tab="expired">Đã diễn ra</div>
         </div>
 
-        <!-- Voucher List - Ongoing -->
+        <!-- Voucher List - Ongoing (Valid Promotions) -->
         <div class="voucher-list" id="ongoing-tab">
-            <!-- Voucher Item 1 -->
-            <div class="voucher-item">
-                <div class="voucher-icon">
-                    <div class="discount-icon">
-                        <i class="fas fa-percentage fa-2x"></i>
-                    </div>
-                </div>
-                <div class="voucher-content">
-                    <div class="voucher-code">THUDUONGHOTEL123</div>
-                    <div class="voucher-dates">
-                        <span>Từ ngày: 15/02/2025</span>
-                        <span>Đến ngày: 15/05/2025</span>
-                    </div>
-                    <div class="voucher-discount">100%</div>
-                </div>
-                <div class="voucher-actions">
-                    <a href="#" class="btn btn-delete">Xóa</a>
-                </div>
+            <!-- Loop through valid promotions -->
+            <div th:if="${#lists.isEmpty(validPromotions)}" class="empty-state">
+                <i class="fas fa-ticket-alt"></i>
+                <p>Không có mã giảm giá nào đang diễn ra.</p>
             </div>
 
-            <!-- Voucher Item 2 -->
-            <div class="voucher-item">
+            <div th:each="promotion : ${validPromotions}" class="voucher-item">
                 <div class="voucher-icon">
                     <div class="discount-icon">
                         <i class="fas fa-percentage fa-2x"></i>
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code">VICHANHONGCOHOTEL123</div>
+                    <div class="voucher-code" th:text="${promotion.name}">VOUCHER123</div>
                     <div class="voucher-dates">
-                        <span>Từ ngày: 26/04/2025</span>
-                        <span>Đến ngày: 26/05/2025</span>
+                        <span th:text="'Từ ngày: ' + ${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}">Từ ngày: 15/02/2025</span>
+                        <span th:text="'Đến ngày: ' + ${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">Đến ngày: 15/05/2025</span>
                     </div>
-                    <div class="voucher-discount">20%</div>
+                    <div class="voucher-discount" th:text="${#numbers.formatDecimal(promotion.discount, 1, 0) + '%'}">100%</div>
                 </div>
                 <div class="voucher-actions">
-                    <a href="#" class="btn btn-delete">Xóa</a>
+                    <a th:href="@{/host/voucher/delete(id=${promotion.pid})}" class="btn btn-delete">Xóa</a>
                 </div>
             </div>
         </div>
 
         <!-- Voucher List - Expired -->
         <div class="voucher-list" id="expired-tab" style="display: none;">
-            <div class="empty-state">
+            <!-- Loop through expired promotions -->
+            <div th:if="${#lists.isEmpty(expiredPromotions)}" class="empty-state">
                 <i class="fas fa-ticket-alt"></i>
                 <p>Không có mã giảm giá nào đã hết hạn.</p>
+            </div>
+
+            <div th:each="promotion : ${expiredPromotions}" class="voucher-item">
+                <div class="voucher-icon">
+                    <div class="discount-icon">
+                        <i class="fas fa-percentage fa-2x"></i>
+                    </div>
+                </div>
+                <div class="voucher-content">
+                    <div class="voucher-code" th:text="${promotion.name}">VOUCHER123</div>
+                    <div class="voucher-dates">
+                        <span th:text="'Từ ngày: ' + ${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}">Từ ngày: 15/02/2025</span>
+                        <span th:text="'Đến ngày: ' + ${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">Đến ngày: 15/05/2025</span>
+                    </div>
+                    <div class="voucher-discount" th:text="${#numbers.formatDecimal(promotion.discount, 1, 0) + '%'}">100%</div>
+                </div>
+                <div class="voucher-actions">
+                    <a th:href="@{/host/voucher/delete(id=${promotion.pid})}" class="btn btn-delete">Xóa</a>
+                </div>
             </div>
         </div>
     </div>
@@ -397,23 +466,29 @@
                 <h2 class="modal-title">Thêm mã giảm giá</h2>
             </div>
             <div class="modal-body">
-                <form id="addDiscountForm">
+                <form id="addDiscountForm" th:action="@{/host/voucher/add}" method="post" th:object="${newPromotion}">
                     <div class="form-group">
-                        <input type="text" class="form-control" id="discountCode" placeholder="Nhập mã giảm giá" required>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Nhập mã giảm giá" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" id="discountValue" placeholder="Nhập giá trị mã giảm VD: &quot;50%&quot;" required>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Mô tả (không bắt buộc)">
+                    </div>
+                    <div class="form-group">
+                        <input type="number" class="form-control" id="discount" name="discount" placeholder="Nhập % giảm giá (VD: 50)" min="0" max="100" required>
                     </div>
                     <div class="date-inputs">
                         <div class="date-group">
                             <label class="form-label">Ngày bắt đầu</label>
-                            <input type="date" class="form-control" id="startDate" required>
+                            <input type="date" class="form-control" id="startDate" name="startDateSelector" required>
+                            <input type="hidden" id="startDateFull" name="startDate">
                         </div>
                         <div class="date-group">
                             <label class="form-label">Ngày kết thúc</label>
-                            <input type="date" class="form-control" id="endDate" required>
+                            <input type="date" class="form-control" id="endDate" name="endDateSelector" required>
+                            <input type="hidden" id="endDateFull" name="endDate">
                         </div>
                     </div>
+                    <input type="hidden" name="status" value="true">
                 </form>
             </div>
             <div class="modal-footer">
@@ -458,14 +533,24 @@
         const openModalBtn = document.getElementById('openModalBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const addDiscountBtn = document.getElementById('addDiscountBtn');
+        const addDiscountForm = document.getElementById('addDiscountForm');
 
         // Set default dates
-        const today = new Date();
-        const tomorrow = new Date(today);
+        const now = new Date();
+        const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        document.getElementById('startDate').valueAsDate = today;
-        document.getElementById('endDate').valueAsDate = tomorrow;
+        // Format for date input
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        };
+
+        document.getElementById('startDate').value = formatDate(now);
+        document.getElementById('endDate').value = formatDate(tomorrow);
 
         // Open modal
         openModalBtn.addEventListener('click', function() {
@@ -484,18 +569,33 @@
             }
         });
 
-        // Add discount code
+        // Set time to start of day for start date and end of day for end date
         addDiscountBtn.addEventListener('click', function() {
-            const form = document.getElementById('addDiscountForm');
-            if (form.checkValidity()) {
-                // Here you would normally submit the form data to the server
-                // For now, we'll just close the modal
-                alert('Mã giảm giá đã được thêm thành công!');
-                modal.style.display = 'none';
-            } else {
-                form.reportValidity();
-            }
+            const startDateSelector = document.getElementById('startDate');
+            const endDateSelector = document.getElementById('endDate');
+            const startDateInput = document.getElementById('startDateFull');
+            const endDateInput = document.getElementById('endDateFull');
+
+            // Set start date to beginning of day (00:00:00)
+            const startDate = new Date(startDateSelector.value);
+            startDate.setHours(0, 0, 0, 0);
+            startDateInput.value = startDate.toISOString().slice(0, 19);
+
+            // Set end date to end of day (23:59:59)
+            const endDate = new Date(endDateSelector.value);
+            endDate.setHours(23, 59, 59, 999);
+            endDateInput.value = endDate.toISOString().slice(0, 19);
+
+            addDiscountForm.submit();
         });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.display = 'none';
+            });
+        }, 5000);
     });
 </script>
 </body>
