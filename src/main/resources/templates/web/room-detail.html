@@ -290,37 +290,23 @@
     <div class="container">
         <!-- Room Gallery -->
         <div class="room-gallery">
-            <!-- Main large image on the left -->
+            <!-- Main large image on the left (first image) -->
             <div class="gallery-main">
-                <img th:src="${room.imageUrl}" alt="Deluxe Double Room">
+                <img th:src="${room.imageUrl[0]}" alt="Deluxe Double Room">
                 <div class="gallery-user">
                     <div class="gallery-user-avatar">
                         <i class="fas fa-user"></i>
                     </div>
-                    <span th:text ="${room.hotel.manager.user.fullname}"></span>
+                    <span th:text="${room.hotel.manager.user.fullname}"></span>
                 </div>
             </div>
 
-            <!-- 2x2 grid of smaller images on the right -->
+<!--             2x2 grid of smaller images on the right-->
             <div class="gallery-grid">
-                <!-- Top left image -->
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Room Detail">
-                </div>
-
-                <!-- Top right image -->
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Room Detail">
-                </div>
-
-                <!-- Bottom left image -->
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Room Detail">
-                </div>
-
-                <!-- Bottom right image -->
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Room Detail">
+                <!-- Loop through the remaining images (after the first) -->
+                <div class="gallery-item" th:each="i : ${#numbers.sequence(1, 4)}">
+                    <img th:src="${room.imageUrl.size() > i ? room.imageUrl[i] : 'https://tse1.explicit.bing.net/th/id/OIP.0IExeKJRZtA3hKrUHjOnywHaKA?rs=1'}"
+                         alt="Room Detail">
                 </div>
             </div>
         </div>

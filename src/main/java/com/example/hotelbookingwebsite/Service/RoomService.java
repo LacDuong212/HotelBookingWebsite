@@ -44,7 +44,9 @@ public class RoomService {
 
             // Lấy ảnh đại diện từ room
             List<Images> imageUrls = getRoomImage(room.getRid());
-            dto.setImageUrl(imageUrls.isEmpty() ? null : "/images/" + imageUrls.get(0).getImageUrl());
+            dto.setImageUrl(imageUrls.stream()
+                    .map(img -> "/images/" + img.getImageUrl())
+                    .collect(Collectors.toList()));
 
             return dto;
     }
