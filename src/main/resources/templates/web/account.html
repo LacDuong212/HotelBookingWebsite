@@ -176,7 +176,12 @@
 </head>
 <body>
 <!-- Include header fragment -->
-<div th:replace="~{web/fragments/header :: header}"></div>
+<div th:replace="${session.user.role == 'MANAGER'} ?
+     ~{host/fragments/host-header :: header} :
+     (${session.user.role == 'CUSTOMER'} ?
+     ~{web/fragments/header :: header} :
+     ~{common/fragments/default-header :: header})">
+</div>
 
 <!-- MAIN CONTENT -->
 <main>
@@ -186,8 +191,12 @@
             <div class="profile-sidebar">
                 <div class="profile-avatar">
                     <div class="avatar-circle">
-                        <i class="fas fa-user avatar-placeholder"></i>
+                        <!-- Show avatar image if it exists, otherwise show placeholder icon -->
+                        <img th:if="${avatar != null}" th:src="@{/images/{imageUrl}(imageUrl=${avatar.imageUrl})}"
+                             alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        <i th:unless="${avatar != null}" class="fas fa-user avatar-placeholder"></i>
                     </div>
+                    <input type="file" id="avatarInput" style="display: none;" accept="image/*">
                     <h2 class="profile-name" th:text="${session.user.fullname}">John Doe</h2>
                     <h2 class="profile-role" th:text="${session.user.role}">Host</h2>
                 </div>

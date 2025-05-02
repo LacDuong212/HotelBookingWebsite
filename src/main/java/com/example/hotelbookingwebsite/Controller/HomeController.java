@@ -3,8 +3,10 @@ package com.example.hotelbookingwebsite.Controller;
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.DTO.HotelDetailDTO;
 import com.example.hotelbookingwebsite.Model.Hotel;
+import com.example.hotelbookingwebsite.Model.Images;
 import com.example.hotelbookingwebsite.Model.Promotion;
 import com.example.hotelbookingwebsite.Model.User;
+import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import com.example.hotelbookingwebsite.Service.*;
 import jakarta.servlet.http.HttpSession;
 import com.example.hotelbookingwebsite.Service.UserService;
@@ -13,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +27,13 @@ public class HomeController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ImagesRepository imagesRepository;
+
+    @Autowired
+    private ImageService imageService;
+
     private final HotelService hotelService;
     private final HotelDetailService hotelDetailService;
     private final RoomService roomService;
@@ -59,7 +70,7 @@ public class HomeController {
 
     @GetMapping("/booking-history")
     public String bookingHistory(HttpSession session,Model model) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        User loggedInUser = (User) session.getAttribute("user");
         if (loggedInUser != null) {
             model.addAttribute("upcomingBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"UPCOMING"));
             model.addAttribute("confirmedBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"CONFIRMED"));
@@ -90,40 +101,116 @@ public class HomeController {
     @GetMapping({"/host/account", "/customer/account"})
     public String Account(Model model, HttpSession session) {
         User loggedInUser = (User) session.getAttribute("user");
+
         if (loggedInUser == null) {
             return "redirect:/signin";
         }
 
+        Images avatar = imagesRepository.findByOidAndStt(loggedInUser.getUid(), 0);
+        model.addAttribute("avatar", avatar);
         model.addAttribute("user", loggedInUser);
         return "web/account";
+    }
+
+    @PostMapping("/upload-avatar")
+    @ResponseBody
+    public Map<String, Object> uploadAvatar(
+            @RequestParam("avatar") MultipartFile avatarFile,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            User currentUser = (User) session.getAttribute("user");
+
+            if (currentUser == null) {
+                response.put("success", false);
+                response.put("message", "Bạn chưa đăng nhập.");
+                return response;
+            }
+
+            // Check if file is empty
+            if (avatarFile.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Vui lòng chọn ảnh để tải lên.");
+                return response;
+            }
+
+            // Check file type
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                response.put("success", false);
+                response.put("message", "Chỉ chấp nhận file hình ảnh.");
+                return response;
+            }
+
+            // Upload the image
+            String avatarUrl = imageService.uploadImage(avatarFile);
+
+            // Check if user already has an avatar
+            Images existingAvatar = imagesRepository.findByOidAndStt(currentUser.getUid(), 0);
+
+            if (existingAvatar != null) {
+                // Update existing avatar
+                existingAvatar.setImageUrl(avatarUrl);
+                imageService.saveImage(existingAvatar);
+            } else {
+                // Create new avatar entry
+                Images newAvatar = new Images();
+                newAvatar.setImageUrl(avatarUrl);
+                newAvatar.setOid(currentUser.getUid());
+                newAvatar.setStt(0); // Use 0 for avatar images
+                imageService.saveImage(newAvatar);
+            }
+
+            response.put("success", true);
+            response.put("message", "Ảnh đại diện đã được cập nhật thành công.");
+            response.put("avatarUrl", avatarUrl);
+
+            return response;
+
+        } catch (IOException e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi tải ảnh lên: " + e.getMessage());
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+            return response;
+        }
     }
 
     @GetMapping({"/host/edit-account", "/customer/edit-account"})
     public String editAccount(Model model, HttpSession session) {
         User loggedInUser = (User) session.getAttribute("user");
-
         if (loggedInUser == null) {
             return "redirect:/signin";
         }
+        Images avatar = imagesRepository.findByOidAndStt(loggedInUser.getUid(), 0);
 
         model.addAttribute("user", loggedInUser);
+        model.addAttribute("avatar", avatar);
         return "web/edit-account";
     }
 
     @PostMapping({"/host/update-account", "/customer/update-account"})
-    public String updateAccount(@RequestParam("uid") Long uid,
-                                @RequestParam("fullname") String fullname,
-                                @RequestParam("email") String email,
-                                @RequestParam("phoneNumber") String phoneNumber,
-                                HttpSession session,
-                                RedirectAttributes redirectAttributes) {
-
+    @ResponseBody  // This annotation is required to return JSON
+    public Map<String, Object> updateAccount(@RequestParam("uid") Long uid,
+                                             @RequestParam("fullname") String fullname,
+                                             @RequestParam("email") String email,
+                                             @RequestParam("phoneNumber") String phoneNumber,
+                                             HttpSession session,
+                                             RedirectAttributes redirectAttributes) {
+        Map<String, Object> response = new HashMap<>();
         try {
             User currentUser = (User) session.getAttribute("user");
 
+            // Security check that was in your original code but missing in the new version
             if (currentUser == null || !currentUser.getUid().equals(uid)) {
-                redirectAttributes.addFlashAttribute("error", "Không có quyền cập nhật thông tin này");
-                return "redirect:/signin";
+                response.put("success", false);
+                response.put("message", "Không có quyền cập nhật thông tin này");
+                return response;
             }
 
             currentUser.setFullname(fullname);
@@ -135,24 +222,16 @@ public class HomeController {
             // Update session
             session.setAttribute("user", updatedUser);
 
-            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công");
+            response.put("success", true);
+            response.put("message", "Cập nhật thông tin thành công");
+            response.put("redirectUrl", "MANAGER".equals(currentUser.getRole()) ?
+                    "/host/edit-account" : "/customer/edit-account");
 
-            // Redirect based on user role
-            if ("MANAGER".equals(currentUser.getRole())) {
-                return "redirect:/host/account";
-            } else {
-                return "redirect:/customer/account";
-            }
-
+            return response;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-
-            // Redirect back to edit page based on user role
-            if (session.getAttribute("user") != null && "MANAGER".equals(((User)session.getAttribute("user")).getRole())) {
-                return "redirect:/host/edit-account";
-            } else {
-                return "redirect:/customer/edit-account";
-            }
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return response;
         }
     }
 }

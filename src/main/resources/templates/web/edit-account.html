@@ -264,7 +264,12 @@
 </head>
 <body>
 <!-- Include header fragment -->
-<div th:replace="~{web/fragments/header :: header}"></div>
+<div th:replace="${session.user.role == 'MANAGER'} ?
+     ~{host/fragments/host-header :: header} :
+     (${session.user.role == 'CUSTOMER'} ?
+     ~{web/fragments/header :: header} :
+     ~{common/fragments/default-header :: header})">
+</div>
 
 <!-- MAIN CONTENT -->
 <main>
@@ -274,9 +279,13 @@
             <div class="profile-sidebar">
                 <div class="profile-avatar">
                     <div class="avatar-circle">
-                        <i class="fas fa-user avatar-placeholder"></i>
+                        <!-- Show avatar image if it exists, otherwise show placeholder icon -->
+                        <img th:if="${avatar != null}" th:src="@{/images/{imageUrl}(imageUrl=${avatar.imageUrl})}"
+                             alt="User Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        <i th:unless="${avatar != null}" class="fas fa-user avatar-placeholder"></i>
                     </div>
-                    <a href="#" class="profile-upload-btn">Tải ảnh</a>
+                    <a href="#" class="profile-upload-btn" id="avatarUploadBtn">Tải ảnh</a>
+                    <input type="file" id="avatarInput" style="display: none;" accept="image/*">
                     <h2 class="profile-name" th:text="${session.user.fullname}">John Doe</h2>
                     <h2 class="profile-role" th:text="${session.user.role}">Host</h2>
                 </div>
@@ -330,7 +339,7 @@
                     </div>
 
                     <div class="form-actions">
-                        <a th:href="${session.user.role == 'MANAGER' ? '/host/home' : '/customer/customer'}" class="btn btn-cancel">Hủy</a>
+                        <a th:href="${session.user.role == 'MANAGER' ? '/host/account' : '/customer/account'}" class="btn btn-cancel">Hủy</a>
                         <button type="submit" class="btn btn-save">Lưu</button>
                     </div>
                 </form>
@@ -345,18 +354,19 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const editProfileForm = document.getElementById('editProfileForm');
-        const cancelBtn = document.querySelector('.btn-cancel');
         const alertContainer = document.getElementById('alertContainer');
-
         const userRole = /*[[${session.user.role}]]*/ 'MANAGER';
+        const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+        const avatarInput = document.getElementById('avatarInput');
 
         // Handle form submission
         editProfileForm.addEventListener('submit', function(e) {
-            // e.preventDefault();
+            e.preventDefault();
 
             // Create form data
             const formData = new FormData(editProfileForm);
             const updateUrl = userRole === 'MANAGER' ? '/host/update-account' : '/customer/update-account';
+            const redirectUrl = userRole === 'MANAGER' ? '/host/edit-account' : '/customer/edit-account';
 
             // Send AJAX request to update user data
             fetch(updateUrl, {
@@ -364,23 +374,20 @@
                 body: formData
             })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
                     }
                     return response.json();
                 })
                 .then(data => {
-                    if (data.success) {
-                        // Show success message
+                    if (data && data.success) {
                         showAlert('success', 'Thông tin đã được cập nhật thành công!');
-                        const redirectUrl = userRole === 'MANAGER' ? '/host/account' : '/customer/account';
-                        // Redirect to account page after short delay
                         setTimeout(() => {
                             window.location.href = redirectUrl;
                         }, 2000);
                     } else {
-                        // Show error message
-                        showAlert('danger', data.message || 'Có lỗi xảy ra khi cập nhật thông tin.');
+                        showAlert('danger', data?.message || 'Có lỗi xảy ra khi cập nhật thông tin.');
                     }
                 })
                 .catch(error => {
@@ -389,13 +396,67 @@
                 });
         });
 
-        // Show alert message
+        // Connect the upload button to the hidden file input
+        if (avatarUploadBtn && avatarInput) {
+            avatarUploadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                avatarInput.click();
+            });
+
+            // Handle file selection
+            avatarInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Create form data for upload
+                    const formData = new FormData();
+                    formData.append('avatar', this.files[0]);
+
+                    // Upload the avatar
+                    fetch('/upload-avatar', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success message
+                                showAlert('success', 'Ảnh đại diện đã được cập nhật thành công!');
+
+                                // Reload the page after a short delay to show the new avatar
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                showAlert('danger', data.message || 'Có lỗi xảy ra khi cập nhật ảnh đại diện.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('danger', 'Có lỗi xảy ra khi cập nhật ảnh đại diện.');
+                        });
+                }
+            });
+        }
+
+        // Show alert message function
         function showAlert(type, message) {
+            // Create alert element
             alertContainer.innerHTML = `
-                <div class="alert alert-${type}">
-                    ${message}
-                </div>
-            `;
+            <div class="alert alert-${type}">
+                ${message}
+                <span class="close-btn" style="float:right; cursor:pointer; font-weight:bold;">&times;</span>
+            </div>
+        `;
+
+            // Make sure the alert is visible
+            alertContainer.style.display = 'block';
+
+            // Add click event to close button
+            const closeBtn = alertContainer.querySelector('.close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    alertContainer.innerHTML = '';
+                });
+            }
 
             // Auto-hide after 5 seconds
             setTimeout(() => {

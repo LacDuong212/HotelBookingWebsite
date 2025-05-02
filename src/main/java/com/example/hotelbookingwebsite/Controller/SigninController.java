@@ -1,9 +1,11 @@
 package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.Model.Constants;
+import com.example.hotelbookingwebsite.Model.Images;
 import com.example.hotelbookingwebsite.Model.Manager;
 import com.example.hotelbookingwebsite.Model.User;
 import com.example.hotelbookingwebsite.Repository.HotelRepository;
+import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import com.example.hotelbookingwebsite.Repository.ManagerRepository;
 import com.example.hotelbookingwebsite.Service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -26,6 +28,9 @@ public class SigninController {
 
     @Autowired
     private HotelRepository hotelRepository;
+
+    @Autowired
+    private ImagesRepository imagesRepository;
 
     @Autowired
     private ManagerRepository managerRepository;
@@ -52,9 +57,10 @@ public class SigninController {
             model.addAttribute("email", email);
             return "web/signin";
         }
+        Images avatar = imagesRepository.findByOidAndStt(user.getUid(), 0);
 
         session.setAttribute("user", user);
-
+        session.setAttribute("avatar", avatar);
         String role = user.getRole();
 
         if (Objects.equals(role, Constants.ROLE.MANAGER)) {
@@ -64,7 +70,7 @@ public class SigninController {
                 return "redirect:/host/add-hotel";
             }
         } else {
-            return "redirect:/";
+            return "redirect:/customer/home";
         }
     }
 }
