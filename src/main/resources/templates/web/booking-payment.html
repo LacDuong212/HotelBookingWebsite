@@ -212,51 +212,124 @@
         <h1 class="page-title">Thông tin đặt phòng</h1>
         <p class="page-subtitle">Xin hãy điền đầy đủ thông tin</p>
 
+        <!-- Booking Container -->
         <div class="booking-container">
             <!-- Room Information -->
             <div class="room-info">
-                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Deluxe Twin" class="room-image">
-                <h2 class="room-title">Deluxe Twin</h2>
-                <p class="hotel-name">Pistachio Hotel</p>
-                <p class="room-price">400.000 VNĐ</p>
+                <img th:src="${roomImage}" alt="Room Image" class="room-image">
+                <h2 class="room-title" th:text="${roomName}"></h2>
+                <p class="hotel-name" th:text="${hotelName}"></p>
+                <p class="room-price" id="room-price"
+                   th:text="${#numbers.formatDecimal(price, 0, 'COMMA')} + ' VNĐ'"></p>
             </div>
 
             <!-- Booking Form -->
-            <div class="booking-form">
+            <form th:action="@{/payment-confirm}" method="get" class="booking-form" onsubmit="return validateBeforeSubmit();">
                 <div class="form-group">
                     <label for="checkin" class="form-label">Ngày nhận phòng:</label>
-                    <input type="text" id="checkin" class="form-control" value="28/04/2025" disabled>
+                    <input type="date" id="checkin" name="checkin" class="form-control" required>
                 </div>
 
                 <div class="form-group">
                     <label for="checkout" class="form-label">Ngày trả phòng:</label>
-                    <input type="text" id="checkout" class="form-control" value="30/04/2025" disabled>
+                    <input type="date" id="checkout" name="checkout" class="form-control" required>
                 </div>
 
                 <div class="form-group">
                     <label for="discount" class="form-label">Mã giảm giá:</label>
                     <div class="discount-group">
-                        <input type="text" id="discount" class="form-control discount-input" value="THUYDUONGHOTEL123">
-                        <button class="btn-apply">Áp dụng</button>
+                        <input type="text" id="discount" name="discount" class="form-control discount-input" placeholder="Nhập mã giảm giá">
+                        <button class="btn-apply" type="button" onclick="calculateTotalPrice()">Áp dụng</button>
                     </div>
-                    <p class="discount-applied">Mã giảm giá khách sạn: -200.000 VNĐ</p>
+                    <p class="discount-applied">Mã giảm giá khách sạn: -<span id="discountValue">0</span></p>
                 </div>
 
                 <div class="booking-total">
-                    Tổng tiền: 1.000.000 VNĐ
+                    Tổng tiền: <span id="totalPriceDisplay">0</span> VNĐ
                 </div>
-            </div>
-        </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <a href="/payment-confirm" th:href="@{/payment-confirm}" class="btn-pay">Thanh toán</a>
-            <a href="/cancel" th:href="@{/cancel}" class="btn-cancel">Hủy</a>
+                <!-- Hidden inputs để gửi dữ liệu -->
+                <input type="hidden" id="finalTotal" name="totalPrice">
+                <input type="hidden" id="roomId" name="roomId" th:value="${roomId}">
+                <!-- Action Buttons bên trong form -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn-pay">Thanh toán</button>
+                    <a href="/cancel" class="btn-cancel">Hủy</a>
+                </div>
+            </form>
         </div>
     </div>
 </main>
 
 <!-- Include footer fragment -->
 <div th:replace="~{web/fragments/footer :: footer}"></div>
+<script>
+    function calculateTotalPrice() {
+        const checkin = document.getElementById('checkin').value;
+        const checkout = document.getElementById('checkout').value;
+        const priceText = document.getElementById('room-price').innerText;
+        const price = parseFloat(priceText.replace(/[^\d]/g, '')); // Chuyển '1.000.000 VNĐ' -> 1000000
+        const discountCode = document.getElementById('discount').value;
+
+        if (!checkin || !checkout) {
+            return;
+        }
+
+        const checkinDate = new Date(checkin);
+        const checkoutDate = new Date(checkout);
+        const timeDifference = checkoutDate - checkinDate;
+        const numberOfDays = timeDifference / (1000 * 3600 * 24);
+
+        if (numberOfDays <= 0) {
+            alert('Ngày trả phòng phải sau ngày nhận phòng!');
+            return;
+        }
+
+        let totalPrice = price * numberOfDays;
+
+        if (discountCode) {
+            fetch(`/api/discount/${discountCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const discountPercentage = data.discount;
+                        const discountAmount = totalPrice * (discountPercentage / 100);
+                        totalPrice -= discountAmount;
+                        document.querySelector('.discount-applied span').innerText = discountPercentage + "%";
+                    } else {
+                        alert("Mã giảm giá không hợp lệ.");
+                    }
+                    updateTotal(totalPrice, checkin, checkout);
+                })
+                .catch(error => {
+                    alert("Lỗi khi áp dụng mã giảm giá.");
+                });
+        } else {
+            updateTotal(totalPrice, checkin, checkout);
+        }
+    }
+
+    function updateTotal(totalPrice, checkin, checkout) {
+        document.querySelector('.booking-total span').innerText = totalPrice.toFixed(0);
+        document.getElementById('finalTotal').value = totalPrice.toFixed(0);
+        document.getElementById('finalCheckin').value = checkin;
+        document.getElementById('finalCheckout').value = checkout;
+    }
+
+    function validateBeforeSubmit() {
+        const checkin = document.getElementById('checkin').value;
+        const checkout = document.getElementById('checkout').value;
+        if (!checkin || !checkout) {
+            alert('Vui lòng điền đầy đủ ngày nhận và trả phòng.');
+            return false;
+        }
+        return true;
+    }
+
+    // Tự động tính lại khi thay đổi ngày hoặc mã
+    document.getElementById('checkin').addEventListener('change', calculateTotalPrice);
+    document.getElementById('checkout').addEventListener('change', calculateTotalPrice);
+    document.getElementById('discount').addEventListener('input', calculateTotalPrice);
+</script>
 </body>
 </html>

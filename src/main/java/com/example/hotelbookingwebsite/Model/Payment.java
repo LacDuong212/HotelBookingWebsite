@@ -16,11 +16,11 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pmid;
 
-    private String paymentMethod = Constants.UNKNOWN;
+    private String paymentMethod;
 
-    private String status = Constants.UNKNOWN;
+    private String status;
 
-    private float amount = 0;
+    private float amount;
 
     @OneToOne(mappedBy = "payment")
     @JsonBackReference

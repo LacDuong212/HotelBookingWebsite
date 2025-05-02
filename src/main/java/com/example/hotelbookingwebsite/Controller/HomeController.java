@@ -80,10 +80,6 @@ public class HomeController {
         return "web/booking-details";
     }
 
-    @GetMapping("/booking-payment")
-    public String bookingPayment(Model model) {
-        return "web/booking-payment";
-    }
     @GetMapping("/vouchers")
     public String voucher(Model model) {
         model.addAttribute("promotionactive",promotionService.getPromotionByStatus(true));

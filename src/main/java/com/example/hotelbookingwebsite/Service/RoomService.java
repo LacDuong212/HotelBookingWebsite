@@ -52,4 +52,8 @@ public class RoomService {
         return imagesRepository.findImagesByRid(rid);
 
     }
+    public Room getRoomById(Long roomId) {
+        return roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
+    }
 }

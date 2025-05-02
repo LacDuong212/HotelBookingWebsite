@@ -1,24 +1,35 @@
 package com.example.hotelbookingwebsite.Service;
 
 import com.example.hotelbookingwebsite.DTO.BookingDTO;
-import com.example.hotelbookingwebsite.Model.Booking;
-import com.example.hotelbookingwebsite.Model.Customer;
+import com.example.hotelbookingwebsite.Model.*;
 import com.example.hotelbookingwebsite.Repository.BookingRepository;
 import com.example.hotelbookingwebsite.Repository.CustomerRepository;
+import com.example.hotelbookingwebsite.Repository.PaymentRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final CustomerRepository customerRepository;
+    private final PaymentRepository paymentRepository;
     private final RoomService roomService;
+
     @Autowired
-    public BookingService(BookingRepository bookingRepository, CustomerRepository customerRepository, RoomService roomService) {
+    private HttpSession session;
+
+    @Autowired
+    public BookingService(BookingRepository bookingRepository, CustomerRepository customerRepository,
+                          PaymentRepository paymentRepository, RoomService roomService) {
         this.bookingRepository = bookingRepository;
         this.customerRepository = customerRepository;
+        this.paymentRepository = paymentRepository;
         this.roomService = roomService;
     }
     public BookingDTO getBookingBybid(long bid) {
@@ -51,6 +62,51 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy booking"));
 
         booking.setStatus("cancelled"); // đổi trạng thái
+        bookingRepository.save(booking);
+    }
+    public Long createPendingBooking(float totalPrice, String checkin, String checkout, Long roomId) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate checkInDate = LocalDate.parse(checkin, formatter);
+            LocalDate checkOutDate = LocalDate.parse(checkout, formatter);
+
+            User loggedInUser = (User) session.getAttribute("user");
+            if (loggedInUser == null) {
+                throw new RuntimeException("User not logged in");
+            }
+
+            Booking booking = new Booking();
+            booking.setCheckInDate(checkInDate);
+            booking.setCheckOutDate(checkOutDate);
+            booking.setStatus(Constants.BOOKING_STATUS.PENDING);
+            booking.setTotalPrice(totalPrice);
+            // Tìm phòng theo roomId
+            Room room = roomService.getRoomById(roomId); // Bạn cần tạo phương thức getRoomById trong RoomService
+            booking.setRoom(room);
+
+            // Tìm customer theo uid
+            Customer customer = customerRepository.findById(loggedInUser.getUid())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy customer với ID: " + loggedInUser.getUid()));
+            booking.setCustomer(customer);  // Gán customer vào booking
+
+            // Tạo đối tượng Payment và gán vào booking
+            Payment payment = new Payment();
+            payment.setPaymentMethod(Constants.PAYMENT_METHOD.BANK_TRANSFER);
+            payment.setStatus(Constants.PAYMENT_STATUS.UNPAID);  // Bạn có thể tùy chỉnh trạng thái thanh toán tại đây
+            paymentRepository.save(payment);  // Lưu bản ghi payment vào cơ sở dữ liệu
+            booking.setPayment(payment);  // Gán payment vào booking
+
+            bookingRepository.save(booking);
+
+            return booking.getBid();
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("Invalid date format for check-in or check-out.", e);
+        }
+    }
+
+    public void markBookingAsPaid(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
+        booking.setStatus("PAID");
         bookingRepository.save(booking);
     }
 }

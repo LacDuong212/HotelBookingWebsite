@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -20,9 +20,9 @@ public class Booking {
     private Long bid;
 
     @Column(nullable = false)
-    private LocalDateTime checkInDate = LocalDateTime.now();    // default value
+    private LocalDate checkInDate;    // default value
 
-    private LocalDateTime checkOutDate;
+    private LocalDate checkOutDate;
 
     @Column(nullable = false)
     private String status = Constants.UNKNOWN;

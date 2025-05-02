@@ -419,7 +419,8 @@
                         <span class="price-label">Giá phòng:</span>
                         <span class="price-value" th:text="${room.price} + ' VNĐ'"> VNĐ</span>
                     </div>
-                    <a href="#" class="book-button">Đặt ngay</a>
+                    <a th:href="@{/booking-payment(roomImage = ${room.imageUrl}, roomId=${room.rid}, price=${room.price}, roomName=${room.roomName}, hotelName=${room.hotel.name})}"
+                       class="book-button">Đặt ngay</a>
                 </div>
             </div>
         </div>
