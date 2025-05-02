@@ -181,44 +181,19 @@
         </div>
 
         <div class="room-grid">
-            <!-- Room Card 1 -->
-            <div class="room-card">
+            <!-- Lặp qua danh sách phòng từ model -->
+            <div th:each="roomDTO : ${rooms}" class="room-card" th:data-room-id="${roomDTO.rid}">
+                <!-- Hiển thị ảnh phòng -->
                 <div class="room-image-container">
-                    <img src="/path/to/room1.jpg" alt="Family Apartment" class="room-image">
-                    <span class="room-tag">Family Apartment</span>
+                    <img th:src="@{${roomDTO.imageUrl}}" alt="Room Image" class="room-image" />
+                    <span class="room-tag" th:text="${roomDTO.roomName}">Room Name</span>
                 </div>
                 <div class="room-info">
                     <div class="room-actions-container">
-                        <button class="room-action-btn view-btn">Chỉnh sửa</button>
-                        <button class="room-action-btn edit-btn">Xóa</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Room Card 2 -->
-            <div class="room-card">
-                <div class="room-image-container">
-                    <img src="/path/to/room2.jpg" alt="Family Apartment" class="room-image">
-                    <span class="room-tag">Family Apartment</span>
-                </div>
-                <div class="room-info">
-                    <div class="room-actions-container">
-                        <button class="room-action-btn view-btn">Chỉnh sửa</button>
-                        <button class="room-action-btn edit-btn">Xóa</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Room Card 3 -->
-            <div class="room-card">
-                <div class="room-image-container">
-                    <img src="/path/to/room3.jpg" alt="Family Apartment" class="room-image">
-                    <span class="room-tag">Family Apartment</span>
-                </div>
-                <div class="room-info">
-                    <div class="room-actions-container">
-                        <button class="room-action-btn view-btn">Chỉnh sửa</button>
-                        <button class="room-action-btn edit-btn">Xóa</button>
+                        <!-- Chỉnh sửa phòng -->
+                        <button class="room-action-btn view-btn" th:href="@{/host/edit-room/{id}(id=${roomDTO.rid})}">Chỉnh sửa</button>
+                        <!-- Xóa phòng -->
+                        <button class="room-action-btn edit-btn" th:onclick="'deleteRoom(' + ${roomDTO.rid} + ')'">Xóa</button>
                     </div>
                 </div>
             </div>
@@ -257,11 +232,32 @@
             button.addEventListener('click', function () {
                 const roomId = this.closest('.room-card').dataset.roomId;
                 if (confirm('Bạn có chắc chắn muốn xóa phòng này?')) {
-                    // Send delete request or handle deletion logic
-                    console.log(`Delete room with ID: ${roomId}`);
+                    deleteRoom(roomId);
                 }
             });
         });
+        function deleteRoom(roomId) {
+            if (confirm('Bạn có chắc chắn muốn xóa phòng này?')) {
+                // Gửi yêu cầu xóa phòng (có thể là gọi API xóa phòng qua AJAX)
+                console.log('Xóa phòng với ID:', roomId);
+                // Ví dụ: gửi yêu cầu xóa qua Fetch API
+                fetch(`/host/delete-room/${roomId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Phòng đã được xóa!');
+                            location.reload(); // Làm mới trang sau khi xóa thành công
+                        } else {
+                            alert('Có lỗi xảy ra khi xóa phòng!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Có lỗi xảy ra khi xóa phòng!');
+                    });
+            }
+        }
+
     });
 </script>
 </body>
