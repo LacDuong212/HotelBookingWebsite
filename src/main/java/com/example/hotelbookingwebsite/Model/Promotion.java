@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -19,16 +19,16 @@ public class Promotion {
     private Long pid;
 
     @Column(nullable = false)
-    private String name = Constants.UNKNOWN;
+    private String code = Constants.UNKNOWN;
 
     private String description = "";
 
     @Column(nullable = false)
     private float discount = 0;
 
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Column(nullable = false)
     private boolean status = Constants.PROMOTION_STATUS.INACTIVE;
