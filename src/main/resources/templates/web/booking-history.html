@@ -200,7 +200,7 @@
         <div id="upcoming-bookings" class="tab-content active">
             <div class="booking-list">
                 <div class="booking-item" th:each="booking : ${upcomingBookings}">
-                    <img th:src="@{${booking.room.imageUrl}}" class="booking-image" alt="Room Image"/>
+                    <img th:src="@{${booking.room.imageUrl[0]}}" class="booking-image" alt="Room Image"/>
 
                     <div class="booking-details">
                         <h3 class="booking-title" th:text="${booking.room.roomName}">Room Name</h3>

@@ -154,7 +154,7 @@
 
         <div class="booking-details-card">
             <div class="booking-header">
-                <img th:src="${booking.room.imageUrl}" alt="Premium Deluxe Twin" class="booking-image">
+                <img th:src="${booking.room.imageUrl[0]}" alt="Premium Deluxe Twin" class="booking-image">
 
                 <div>
                     <h2 class="booking-title" th:text="${booking.room.roomName}">Premium Deluxe Twin</h2>

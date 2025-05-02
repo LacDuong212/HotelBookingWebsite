@@ -220,7 +220,7 @@
                 <h2 class="room-title" th:text="${roomName}"></h2>
                 <p class="hotel-name" th:text="${hotelName}"></p>
                 <p class="room-price" id="room-price"
-                   th:text="${#numbers.formatDecimal(price, 0, 'COMMA')} + ' VNĐ'"></p>
+                   th:text="${#numbers.formatInteger(price, 0, 'COMMA')} + ' VNĐ'"></p>
             </div>
 
             <!-- Booking Form -->

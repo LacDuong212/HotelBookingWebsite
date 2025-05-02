@@ -151,14 +151,6 @@
             margin-bottom: 15px;
         }
 
-        /* Map */
-        .hotel-map {
-            height: 200px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-
         .hotel-map img {
             width: 100%;
             height: 100%;
@@ -241,79 +233,6 @@
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 5px;
-        }
-
-        /* Reviews */
-        .reviews-section {
-            margin-bottom: 50px;
-        }
-
-        .review-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .review-score {
-            font-size: 24px;
-            font-weight: 700;
-            margin-right: 10px;
-        }
-
-        .review-stars {
-            color: #FFD700;
-        }
-
-        .review-item {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .reviewer {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .reviewer-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-        }
-
-        .reviewer-avatar i {
-            color: #999;
-            font-size: 20px;
-        }
-
-        .reviewer-info {
-            flex: 1;
-        }
-
-        .reviewer-name {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .review-date {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .review-rating {
-            color: #FFD700;
-            margin-bottom: 5px;
-        }
-
-        .review-text {
-            color: #555;
-            line-height: 1.6;
         }
 
         /* Responsive */
@@ -400,9 +319,6 @@
                 <div class="info-section">
                     <h2 class="section-title">Vị trí</h2>
                     <p class="hotel-address" th:text="${hotel.address}"></p>
-                    <div class="hotel-map">
-                        <img src="https://maps.googleapis.com/maps/api/staticmap?center=Sapa,Vietnam&zoom=14&size=600x200&markers=color:red%7CSapa,Vietnam&key=YOUR_API_KEY" alt="Map">
-                    </div>
                 </div>
             </div>
 
