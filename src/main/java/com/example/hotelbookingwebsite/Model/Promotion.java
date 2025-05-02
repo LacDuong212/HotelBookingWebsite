@@ -19,7 +19,7 @@ public class Promotion {
     private Long pid;
 
     @Column(nullable = false)
-    private String code = Constants.UNKNOWN;
+    private String code;
 
     private String description = "";
 
