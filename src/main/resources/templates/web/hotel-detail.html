@@ -493,7 +493,7 @@
                 <a th:each="room : ${hotel.rooms}"
                    th:href="@{/room-detail/{id}(id=${room.rid})} "
                    class="room-card">
-                    <img th:src="@{${room.imageUrl}}" alt="Room Image" class="room-image">
+                    <img th:src="${room.imageUrl[0]}" alt="Room Image" class="room-image">
                     <div class="room-info">
                         <h3 class="room-name" th:text="${room.roomName}"></h3>
                     </div>
