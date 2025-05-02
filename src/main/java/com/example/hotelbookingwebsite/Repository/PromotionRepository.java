@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     List<Promotion> findByStatus(boolean status);
  	List<Promotion> findAllByStatusTrue();
-    Optional<Promotion> findByName(String name);
+    Optional<Promotion> findByCode(String code);
 }

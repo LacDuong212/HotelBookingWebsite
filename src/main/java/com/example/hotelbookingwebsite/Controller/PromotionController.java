@@ -20,9 +20,9 @@ public class PromotionController {
     @Autowired
     private PromotionService promotionService;
 
-    @GetMapping("/promotion/{name}")
-    public ResponseEntity<Map<String, Object>> checkDiscountCode(@PathVariable String name) {
-        Promotion promotion = promotionService.findValidPromotionByName(name);
+    @GetMapping("/promotion/{code}")
+    public ResponseEntity<Map<String, Object>> checkDiscountCode(@PathVariable String code) {
+        Promotion promotion = promotionService.findValidPromotionByCode(code);
         if (promotion != null) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

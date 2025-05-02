@@ -70,7 +70,7 @@ public class SigninController {
                 return "redirect:/host/add-hotel";
             }
         } else {
-            return "redirect:/customer/home";
+            return "redirect:/";
         }
     }
 }
