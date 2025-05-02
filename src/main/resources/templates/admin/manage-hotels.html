@@ -192,40 +192,126 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5);
         }
 
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 400px;
-            border-radius: 5px;
+            padding: 25px;
+            border-radius: 8px;
+            width: 450px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             text-align: center;
+            position: relative;
         }
 
         .modal-actions {
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .modal-btn {
-            padding: 8px 20px;
-            border-radius: 4px;
+            padding: 10px 24px;
+            border-radius: 5px;
             cursor: pointer;
             border: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.2s ease;
         }
 
         .modal-btn-cancel {
-            background-color: #ccc;
+            background-color: #f1f1f1;
+            color: #555;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #e4e4e4;
         }
 
         .modal-btn-confirm {
             background-color: #ff4d4d;
             color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background-color: #ff3333;
+        }
+
+        /* Notification Modal Styles */
+        .notification-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .notification-content {
+            background-color: #ffffff;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 480px;
+            max-width: 90%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .notification-icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .notification-icon i {
+            font-size: 52px;
+            color: #ff9800;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .notification-message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #666;
+        }
+
+        .notification-btn {
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .notification-btn:hover {
+            background-color: #3a7bc8;
         }
 
         /* Responsive */
@@ -243,6 +329,12 @@
             .pagination {
                 flex-wrap: wrap;
                 justify-content: center;
+            }
+
+            .notification-content,
+            .modal-content {
+                width: 95%;
+                padding: 20px;
             }
         }
     </style>
@@ -332,7 +424,7 @@
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
-        <p>Bạn có chắc chắn muốn xóa khách sạn này?</p>
+        <p style="font-size: 16px;">Bạn có chắc chắn muốn xóa khách sạn này?</p>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Hủy</button>
             <button class="modal-btn modal-btn-confirm" id="confirmDeleteBtn">Xác nhận</button>
@@ -340,56 +432,55 @@
     </div>
 </div>
 
+<!-- Notification Modal for Booking in Progress -->
+<div id="notificationModal" class="notification-modal">
+    <div class="notification-content">
+        <div class="notification-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="notification-title">Không thể xóa khách sạn</h3>
+        <p class="notification-message">Khách sạn này đang có khách hàng đặt phòng. Vui lòng đợi cho đến khi tất cả đặt phòng hoàn tất hoặc hủy các đặt phòng trước khi xóa.</p>
+        <button class="notification-btn" onclick="closeNotificationModal()">Đã hiểu</button>
+    </div>
+</div>
+
 <script>
     // Modal handling
-    const modal = document.getElementById("deleteModal");
+    const deleteModal = document.getElementById("deleteModal");
+    const notificationModal = document.getElementById("notificationModal");
     const confirmBtn = document.getElementById("confirmDeleteBtn");
 
     function confirmDelete(hotelId) {
-        modal.style.display = "block";
+        deleteModal.style.display = "block";
 
         // Set the onclick handler with the hotel ID
         confirmBtn.onclick = function() {
-            deleteHotel(hotelId);
+            showCannotDeleteNotification();
         };
     }
 
     function closeModal() {
-        modal.style.display = "none";
+        deleteModal.style.display = "none";
     }
 
-    // Close the modal if clicked outside
+    function showCannotDeleteNotification() {
+        closeModal(); // Close the delete confirmation modal first
+        notificationModal.style.display = "block";
+    }
+
+    function closeNotificationModal() {
+        notificationModal.style.display = "none";
+    }
+
+    // Close the modals if clicked outside
     window.onclick = function(event) {
-        if (event.target === modal) {
+        if (event.target === deleteModal) {
             closeModal();
         }
+        if (event.target === notificationModal) {
+            closeNotificationModal();
+        }
     };
-
-    // Delete hotel function
-    function deleteHotel(hotelId) {
-        fetch(`/admin/delete-hotel/${hotelId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                // 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to the same page to refresh the hotel list
-                    window.location.reload();
-                } else {
-                    alert('Có lỗi xảy ra khi xóa khách sạn. Vui lòng thử lại sau.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi xóa khách sạn. Vui lòng thử lại sau.');
-            })
-            .finally(() => {
-                closeModal();
-            });
-    }
 </script>
 
 <!-- Include footer fragment -->

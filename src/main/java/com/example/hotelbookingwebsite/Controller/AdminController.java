@@ -2,6 +2,9 @@ package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.DTO.UserDTO;
+import com.example.hotelbookingwebsite.Repository.HotelRepository;
+import com.example.hotelbookingwebsite.Repository.RoomRepository;
+import com.example.hotelbookingwebsite.Repository.UserRepository;
 import com.example.hotelbookingwebsite.Service.HotelService;
 import com.example.hotelbookingwebsite.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,14 @@ public class AdminController {
 
     @Autowired
     private HotelService hotelService;
+
+    @Autowired
+    private HotelRepository hotelRepository;
+
+    @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/manage-hotels")
     public String managehotels(
@@ -62,8 +73,9 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> deleteHotel(@PathVariable Long hotelId) {
         try {
-            System.out.println(hotelId);
-            //hotelService.deleteHotelById(hotelId);
+            roomRepository.deleteAllByHotel_Hid(hotelId);
+            hotelRepository.deleteById(hotelId);
+
             return ResponseEntity.ok().body(Collections.singletonMap("success", true));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
