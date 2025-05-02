@@ -2,9 +2,12 @@ package com.example.hotelbookingwebsite.DTO;
 
 
 import com.example.hotelbookingwebsite.Model.Hotel;
+import com.example.hotelbookingwebsite.Model.Images;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,10 +16,10 @@ public class RoomDTO {
 
     private Long rid;
     private String description;
-    private Double price;
+    private Float price;
     private String roomName;
     private String status;
     private Hotel hotel;
 
-    private String imageUrl; // URL ảnh đại diện của phòng
+    private List<String> imageUrl;
 }

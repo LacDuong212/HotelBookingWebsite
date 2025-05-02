@@ -72,7 +72,7 @@ public class HomeController {
     public String bookingHistory(HttpSession session,Model model) {
         User loggedInUser = (User) session.getAttribute("user");
         if (loggedInUser != null) {
-            model.addAttribute("upcomingBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"UPCOMING"));
+            model.addAttribute("upcomingBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"PAID"));
             model.addAttribute("confirmedBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"CONFIRMED"));
         return "web/booking-history";
         }
@@ -91,10 +91,6 @@ public class HomeController {
         return "web/booking-details";
     }
 
-    @GetMapping("/booking-payment")
-    public String bookingPayment(Model model) {
-        return "web/booking-payment";
-    }
     @GetMapping("/vouchers")
     public String voucher(Model model) {
         model.addAttribute("promotionactive",promotionService.getPromotionByStatus(true));

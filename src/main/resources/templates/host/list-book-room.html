@@ -84,6 +84,15 @@
             gap: 15px;
         }
 
+        /* This is the key CSS to hide non-active tabs */
+        .booking-status {
+            display: none;
+        }
+
+        .booking-status.active {
+            display: block;
+        }
+
         .booking-item {
             display: flex;
             background-color: white;
@@ -147,6 +156,19 @@
             background-color: #555;
         }
 
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .booking-status:has(.booking-item) .empty-message {
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .booking-details {
@@ -178,48 +200,88 @@
 
         <!-- Booking Tabs -->
         <div class="booking-tabs">
-            <div class="tab-item active">Sắp tới</div>
-            <div class="tab-item">Đã đặt</div>
-            <div class="tab-item">Hủy</div>
+            <div class="tab-item active" data-status="upcoming">Sắp tới</div>
+            <div class="tab-item" data-status="booked">Đã đặt</div>
+            <div class="tab-item" data-status="canceled">Hủy</div>
         </div>
 
         <!-- Booking List -->
         <div class="booking-list">
-            <!-- Booking Item 1 -->
-            <div class="booking-item">
-                <img src="/path/to/room1.jpg" alt="Phòng đôi" class="booking-image">
-                <div class="booking-details">
-                    <div class="booking-info">
-                        <h3 class="booking-title">Phòng đôi</h3>
-                        <div class="booking-meta">
-                            <div class="booking-date">Ngày đến: 15/05/2025</div>
-                            <div class="booking-date">Ngày đi: 18/05/2025</div>
-                            <div class="booking-guests">Khách: 2 người lớn</div>
+            <!-- Sắp tới -->
+            <div class="booking-status upcoming active">
+                <!-- Biến để theo dõi hiển thị -->
+                <div th:remove="tag" th:with="displayedUpcoming = false">
+                    <!-- Hiển thị danh sách đặt phòng sắp tới -->
+                    <div th:each="item : ${bookedRooms}" th:if="${item.status == 'UPCOMING'}" class="booking-item" th:with="displayedUpcoming = true">
+                        <img th:src="@{${item.room.imageUrl}}" alt="Phòng" class="booking-image">
+                        <div class="booking-details">
+                            <div class="booking-info">
+                                <h3 class="booking-title" th:text="${item.room.roomName}">Phòng</h3>
+                                <div class="booking-meta">
+                                    <div class="booking-date" th:text="'Ngày đến: ' + ${item.checkInDate}">Ngày đến</div>
+                                    <div class="booking-date" th:text="'Ngày đi: ' + ${item.checkOutDate}">Ngày đi</div>
+                                    <div class="booking-guests" th:text="'Khách: ' + ${item.customerName}">Khách</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="booking-host">By: Thụy Dun</div>
                     </div>
-                    <div class="booking-action">
-                        <button class="view-details-btn">Xem chi tiết</button>
-                    </div>
+                </div>
+
+                <!-- Thông báo trống, sẽ tự động ẩn nếu có đặt phòng hiển thị -->
+                <div class="empty-message">
+                    Không có đặt phòng nào sắp tới
                 </div>
             </div>
 
-            <!-- Booking Item 2 -->
-            <div class="booking-item">
-                <img src="/path/to/room2.jpg" alt="Phòng đơn - 4P" class="booking-image">
-                <div class="booking-details">
-                    <div class="booking-info">
-                        <h3 class="booking-title">Phòng đơn - 4P</h3>
-                        <div class="booking-meta">
-                            <div class="booking-date">Ngày đến: 21/05/2025</div>
-                            <div class="booking-date">Ngày đi: 23/05/2025</div>
-                            <div class="booking-guests">Khách: 4 người lớn</div>
+            <!-- Đã đặt -->
+            <div class="booking-status booked">
+                <!-- Biến để theo dõi hiển thị -->
+                <div th:remove="tag" th:with="displayedConfirmed = false">
+                    <!-- Hiển thị danh sách đặt phòng đã xác nhận -->
+                    <div th:each="item : ${bookedRooms}" th:if="${item.status == 'CONFIRMED'}" class="booking-item" th:with="displayedConfirmed = true">
+                        <img th:src="@{${item.room.imageUrl}}" alt="Phòng" class="booking-image">
+                        <div class="booking-details">
+                            <div class="booking-info">
+                                <h3 class="booking-title" th:text="${item.room.roomName}">Phòng</h3>
+                                <div class="booking-meta">
+                                    <div class="booking-date" th:text="'Ngày đến: ' + ${item.checkInDate}">Ngày đến</div>
+                                    <div class="booking-date" th:text="'Ngày đi: ' + ${item.checkOutDate}">Ngày đi</div>
+                                    <div class="booking-guests" th:text="'Khách: ' + ${item.customerName}">Khách</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="booking-host">By: Lạc Dương</div>
                     </div>
-                    <div class="booking-action">
-                        <button class="view-details-btn">Xem chi tiết</button>
+                </div>
+
+                <!-- Thông báo trống, sẽ tự động ẩn nếu có đặt phòng hiển thị -->
+                <div class="empty-message">
+                    Không có đặt phòng nào đã xác nhận
+                </div>
+            </div>
+
+            <!-- Hủy -->
+            <div class="booking-status canceled">
+                <!-- Biến để theo dõi hiển thị -->
+                <div th:remove="tag" th:with="displayedCancelled = false">
+                    <!-- Hiển thị danh sách đặt phòng đã hủy -->
+                    <div th:each="item : ${bookedRooms}" th:if="${item.status == 'CANCELLED'}" class="booking-item" th:with="displayedCancelled = true">
+                        <img th:src="@{${item.room.imageUrl}}" alt="Phòng" class="booking-image">
+                        <div class="booking-details">
+                            <div class="booking-info">
+                                <h3 class="booking-title" th:text="${item.room.roomName}">Phòng</h3>
+                                <div class="booking-meta">
+                                    <div class="booking-date" th:text="'Ngày đến: ' + ${item.checkInDate}">Ngày đến</div>
+                                    <div class="booking-date" th:text="'Ngày đi: ' + ${item.checkOutDate}">Ngày đi</div>
+                                    <div class="booking-guests" th:text="'Khách: ' + ${item.customerName}">Khách</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Thông báo trống, sẽ tự động ẩn nếu có đặt phòng hiển thị -->
+                <div class="empty-message">
+                    Không có đặt phòng nào bị hủy
                 </div>
             </div>
         </div>
@@ -230,53 +292,32 @@
 <div th:replace="~{host/fragments/host-footer :: footer}"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Tab switching functionality
         const tabs = document.querySelectorAll('.tab-item');
+        const statusContainers = document.querySelectorAll('.booking-status');
 
         tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
+            tab.addEventListener('click', function () {
                 // Remove active class from all tabs
                 tabs.forEach(t => t.classList.remove('active'));
-
                 // Add active class to clicked tab
                 this.classList.add('active');
 
-                // In a real application, you would load different booking data based on tab
-                const tabName = this.textContent.trim();
-                console.log(`Switched to ${tabName} tab`);
+                // Get status from data attribute
+                const status = this.getAttribute('data-status');
 
-                // Example of how you might load data based on tab selection
-                // loadBookings(tabName);
+                // Hide all status containers
+                statusContainers.forEach(container => {
+                    container.classList.remove('active');
+                });
+
+                // Show the selected status container
+                document.querySelector(`.booking-status.${status}`).classList.add('active');
+
+                console.log(`Switched to ${status} tab`);
             });
         });
-
-        // View details button functionality
-        const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
-
-        viewDetailsButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const bookingItem = this.closest('.booking-item');
-                const bookingTitle = bookingItem.querySelector('.booking-title').textContent;
-
-                // In a real application, you would get the booking ID and redirect to details page
-                console.log(`View details for: ${bookingTitle}`);
-                // window.location.href = `/booking-details/${bookingId}`;
-            });
-        });
-
-        // Function to load bookings based on status (would be implemented with actual data)
-        function loadBookings(status) {
-            // This would be replaced with actual API call or data loading
-            // Example:
-            // fetch(`/api/bookings?status=${status}`)
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         renderBookings(data);
-            //     });
-
-            console.log(`Loading ${status} bookings...`);
-        }
     });
 </script>
 </body>
