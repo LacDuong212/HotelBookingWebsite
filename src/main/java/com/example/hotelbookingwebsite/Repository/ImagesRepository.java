@@ -1,6 +1,7 @@
 package com.example.hotelbookingwebsite.Repository;
 
 import com.example.hotelbookingwebsite.Model.Images;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,10 @@ public interface ImagesRepository extends JpaRepository<Images, Long> {
     @Query("SELECT MAX(i.stt) FROM Images i WHERE i.oid = :oid")
     Integer findMaxSttByOid(@Param("oid") Long oid);
     List<Integer> findSttByOid(Long oid);
+
+    @Query("SELECT i.iid FROM Images i WHERE i.oid = :oid ORDER BY i.stt ASC")
+    List<Long> findIidByOid(@Param("oid") Long oid);
+
+    @Transactional
+    void deleteAllByOid(Long rid);
 }

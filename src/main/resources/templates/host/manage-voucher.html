@@ -417,7 +417,7 @@
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code" th:text="${promotion.name}">VOUCHER123</div>
+                    <div class="voucher-code" th:text="${promotion.code}">VOUCHER123</div>
                     <div class="voucher-dates">
                         <span th:text="'Từ ngày: ' + ${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}">Từ ngày: 15/02/2025</span>
                         <span th:text="'Đến ngày: ' + ${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">Đến ngày: 15/05/2025</span>
@@ -445,10 +445,10 @@
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code" th:text="${promotion.name}">VOUCHER123</div>
+                    <div class="voucher-code" th:text="${promotion.code}">VOUCHER123</div>
                     <div class="voucher-dates">
-                        <span th:text="'Từ ngày: ' + ${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}">Từ ngày: 15/02/2025</span>
-                        <span th:text="'Đến ngày: ' + ${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">Đến ngày: 15/05/2025</span>
+                        <span th:text="'Từ ngày: ' + ${#temporals.format(promotion.startDate, 'yyyy/MM/dd')}">Từ ngày: 15/02/2025</span>
+                        <span th:text="'Đến ngày: ' + ${#temporals.format(promotion.endDate, 'yyyy/MM/dd')}">Đến ngày: 15/05/2025</span>
                     </div>
                     <div class="voucher-discount" th:text="${#numbers.formatDecimal(promotion.discount, 1, 0) + '%'}">100%</div>
                 </div>
@@ -468,7 +468,7 @@
             <div class="modal-body">
                 <form id="addDiscountForm" th:action="@{/host/voucher/add}" method="post" th:object="${newPromotion}">
                     <div class="form-group">
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Nhập mã giảm giá" required>
+                        <input type="text" class="form-control" id="code" name="code" placeholder="Nhập mã giảm giá" required>
                     </div>
                     <div class="form-group">
                         <input type="text" class="form-control" id="description" name="description" placeholder="Mô tả (không bắt buộc)">
@@ -576,15 +576,8 @@
             const startDateInput = document.getElementById('startDateFull');
             const endDateInput = document.getElementById('endDateFull');
 
-            // Set start date to beginning of day (00:00:00)
-            const startDate = new Date(startDateSelector.value);
-            startDate.setHours(0, 0, 0, 0);
-            startDateInput.value = startDate.toISOString().slice(0, 19);
-
-            // Set end date to end of day (23:59:59)
-            const endDate = new Date(endDateSelector.value);
-            endDate.setHours(23, 59, 59, 999);
-            endDateInput.value = endDate.toISOString().slice(0, 19);
+            startDateInput.value = startDateSelector.value;
+            endDateInput.value = endDateSelector.value;
 
             addDiscountForm.submit();
         });
