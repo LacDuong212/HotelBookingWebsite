@@ -3,7 +3,7 @@ import com.example.hotelbookingwebsite.Model.Promotion;
 import com.example.hotelbookingwebsite.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ public class PromotionService {
     }
 
 	public List<Promotion> getValidPromotions() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         return promotionRepository.findAll().stream()
                 .filter(p -> p.isStatus()
                         && p.getStartDate() != null
@@ -29,19 +29,19 @@ public class PromotionService {
     }
 
     public List<Promotion> getExpiredPromotions() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         return promotionRepository.findAll().stream()
                 .filter(p -> !p.isStatus()
                         || now.isAfter(p.getEndDate()))
                 .collect(Collectors.toList());
     }
 
-    public Promotion findValidPromotionByName(String name) {
-        Optional<Promotion> optionalPromotion = promotionRepository.findByName(name);
+    public Promotion findValidPromotionByCode(String code) {
+        Optional<Promotion> optionalPromotion = promotionRepository.findByCode(code);
 
         if (optionalPromotion.isPresent()) {
             Promotion promotion = optionalPromotion.get();
-            LocalDateTime now = LocalDateTime.now();
+            LocalDate now = LocalDate.now();
 
             boolean isValid = promotion.isStatus()
                     && promotion.getStartDate() != null
@@ -55,8 +55,8 @@ public class PromotionService {
         return null;
     }
 
-    public float getDiscountPercent(String name) {
-        Promotion promotion = findValidPromotionByName(name);
+    public float getDiscountPercent(String code) {
+        Promotion promotion = findValidPromotionByCode(code);
         return (promotion != null) ? promotion.getDiscount() : 0;
     }
 }
