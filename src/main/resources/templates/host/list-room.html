@@ -213,7 +213,7 @@
         if (addRoomBtn) {
             addRoomBtn.addEventListener('click', function () {
                 // Redirect to room creation page or open modal
-                window.location.href = '/add-room';
+                window.location.href = '/host/add-room';
             });
         }
 
@@ -224,7 +224,7 @@
         editButtons.forEach(button => {
             button.addEventListener('click', function () {
                 const roomId = this.closest('.room-card').dataset.roomId;
-                window.location.href = `/edit-room/${roomId}`;
+                window.location.href = `/host/edit-room/${roomId}`;
             });
         });
 

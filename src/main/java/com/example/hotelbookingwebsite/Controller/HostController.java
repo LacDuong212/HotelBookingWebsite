@@ -1,13 +1,10 @@
 package com.example.hotelbookingwebsite.Controller;
 
-import com.example.hotelbookingwebsite.DTO.BookingDTO;
+import com.example.hotelbookingwebsite.DTO.BookedRoomDTO;
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.DTO.RoomDTO;
 import com.example.hotelbookingwebsite.Model.*;
-import com.example.hotelbookingwebsite.Repository.ImagesRepository;
-import com.example.hotelbookingwebsite.Repository.ManagerRepository;
-import com.example.hotelbookingwebsite.Repository.PromotionRepository;
-import com.example.hotelbookingwebsite.Repository.RoomRepository;
+import com.example.hotelbookingwebsite.Repository.*;
 import com.example.hotelbookingwebsite.Service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -50,6 +47,9 @@ public class HostController {
 
     @Autowired
     private RoomRepository roomRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
 
     @Autowired
     private PromotionRepository promotionRepository;
@@ -517,7 +517,7 @@ public class HostController {
 
         if (loggedInUser == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập.");
-            return "redirect:/login";  // Điều hướng đến trang đăng nhập nếu chưa đăng nhập
+            return "redirect:/signin";  // Điều hướng đến trang đăng nhập nếu chưa đăng nhập
         }
 
         // Lấy khách sạn của người quản lý
@@ -528,14 +528,29 @@ public class HostController {
 
         // Lọc ra các phòng đã được đặt
         List<RoomDTO> bookedRooms = allRooms.stream()
-                .filter(roomDTO -> !Objects.equals(roomDTO.getStatus(), "AVAILABLE"))
+                .filter(roomDTO -> Objects.equals(roomDTO.getStatus(), "AVAILABLE"))
                 .collect(Collectors.toList());
+
+        List<BookedRoomDTO> bookedRoomDTOs = new ArrayList<>();
+        for (RoomDTO roomDTO : bookedRooms) {
+            Long roomId = roomDTO.getRid();
+
+            List<Booking> bookings = bookingRepository.findAllByRoom_Rid(roomId);
+            for (Booking booking : bookings) {
+                bookedRoomDTOs.add(new BookedRoomDTO(
+                        roomDTO,
+                        booking.getCheckInDate(),
+                        booking.getCheckOutDate(),
+                        booking.getCustomer().getUser().getFullname(),
+                        booking.getStatus().toUpperCase()
+                ));
+            }
+        }
 
         if (bookedRooms.isEmpty()) {
             model.addAttribute("message", "Không có phòng nào đã được đặt.");
         }
-
-        model.addAttribute("bookedRooms", bookedRooms);
+        model.addAttribute("bookedRooms", bookedRoomDTOs);
         return "host/list-book-room";  // Chuyển tới trang hiển thị danh sách phòng đã được đặt
     }
 
@@ -548,7 +563,7 @@ public class HostController {
 
         if (loggedInUser == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập.");
-            return "redirect:/login";  // Điều hướng đến trang đăng nhập nếu chưa đăng nhập
+            return "redirect:/signin";  // Điều hướng đến trang đăng nhập nếu chưa đăng nhập
         }
 
         // Lấy khách sạn của người quản lý
