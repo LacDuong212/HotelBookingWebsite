@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,7 +35,7 @@ public class Room {
     @JsonBackReference
     private Hotel hotel;  // Each room belongs to one hotel
 
-    @OneToOne(mappedBy = "room")
+    @OneToMany(mappedBy = "room")
     @JsonBackReference
-    private Booking booking;
+    private List<Booking> bookings;
 }

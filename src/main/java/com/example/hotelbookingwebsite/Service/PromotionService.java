@@ -23,7 +23,7 @@ public class PromotionService {
                 .filter(p -> p.isStatus()
                         && p.getStartDate() != null
                         && p.getEndDate() != null
-                        && !now.isAfter(p.getEndDate()))
+                        && !now.isAfter(p.getEndDate().atStartOfDay()))
                 .collect(Collectors.toList());
     }
 
@@ -31,7 +31,7 @@ public class PromotionService {
         LocalDateTime now = LocalDateTime.now();
         return promotionRepository.findAll().stream()
                 .filter(p -> !p.isStatus()
-                        || now.isAfter(p.getEndDate()))
+                        || now.isAfter(p.getEndDate().atStartOfDay()))
                 .collect(Collectors.toList());
     }
 }
