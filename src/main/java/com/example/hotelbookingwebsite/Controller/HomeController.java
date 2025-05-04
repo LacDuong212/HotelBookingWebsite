@@ -170,6 +170,8 @@ public class HomeController {
                 imageService.saveImage(newAvatar);
             }
 
+            session.setAttribute("avatar", existingAvatar);
+
             response.put("success", true);
             response.put("message", "Ảnh đại diện đã được cập nhật thành công.");
             response.put("avatarUrl", avatarUrl);
