@@ -26,8 +26,4 @@ public class Manager {
     @OneToOne(mappedBy = "manager")
     @JsonBackReference
     private Hotel hotel;  // A manager is assigned to a hotel
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "manager")
-    @JsonManagedReference
-    private List<Promotion> promotions;  // A manager can have many promotions
 }

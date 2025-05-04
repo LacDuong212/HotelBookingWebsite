@@ -150,7 +150,7 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy booking với ID: " + bookingId));
         Payment payment = booking.getPayment();
         payment.setAmount(getAmountFromVNPay(request)); // Tự xử lý logic lấy số tiền từ request
-        payment.setPaymentMethod(Constants.PAYMENT_METHOD.BANK_TRANSFER);
+        payment.setPaymentMethod(Constants.PAYMENT_METHOD.VNPAY);
         payment.setStatus(Constants.PAYMENT_STATUS.PAID);
         paymentRepository.save(payment);
     }

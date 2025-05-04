@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PaymentController {
@@ -24,8 +23,7 @@ public class PaymentController {
                                  @RequestParam("checkout") String checkout,
                                  @RequestParam("totalPrice") Float totalAmount,
                                  @RequestParam("roomId") Long roomId,
-                                 HttpServletRequest request,
-                                 RedirectAttributes redirectAttributes) {
+                                 HttpServletRequest request) {
 
         Long bookingId = bookingService.createPendingBooking(totalAmount, checkin, checkout, roomId); // Cần viết hàm này
         request.getSession().setAttribute("pendingBookingId", bookingId);
@@ -33,6 +31,24 @@ public class PaymentController {
         int totalAmountInCents = (int) (totalAmount * 100);
 
         String orderInfo = "Thanh toan dat phong";
+
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+        String vnpayUrl = paymentService.createOrder(totalAmountInCents, orderInfo, baseUrl, request);
+
+        return "redirect:" + vnpayUrl;
+    }
+
+    @GetMapping("/repayment")
+    public String processRePayment(@RequestParam("bookingId") Long bookingId,
+                                 @RequestParam("totalPrice") Float totalAmount,
+                                 HttpServletRequest request) {
+
+        int totalAmountInCents = (int) (totalAmount * 100);
+
+        String orderInfo = "Thanh toan dat phong";
+
+        // Lưu bookingId vào session để sử dụng ở vnpayReturn
+        request.getSession().setAttribute("pendingBookingId", bookingId);
 
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         String vnpayUrl = paymentService.createOrder(totalAmountInCents, orderInfo, baseUrl, request);
@@ -53,10 +69,10 @@ public class PaymentController {
             paymentService.savePaymentInfo(bookingId, request);
 
             model.addAttribute("bookingId", bookingId);
-            return "web/payment-success"; // trang JSP thông báo thanh toán thành công
+            return "web/payment-success"; // trang thông báo thanh toán thành công
         } else {
             model.addAttribute("bookingId", bookingId);
-            return "web/payment-failed"; // trang JSP thông báo thanh toán thất bại
+            return "web/payment-failed"; // trang thông báo thanh toán thất bại
         }
     }
 }

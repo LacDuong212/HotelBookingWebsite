@@ -12,9 +12,7 @@ public class Constants {
 
     // payment method
     public static class PAYMENT_METHOD {
-        public static final String BANK_TRANSFER = "BANK_TRANSFER";
-        public static final String CASH = "CASH";
-        public static final String CREDIT_CARD = "CREDIT_CARD";
+        public static final String VNPAY = "VNPAY";
     }
 
     // payment status

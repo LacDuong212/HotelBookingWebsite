@@ -21,17 +21,23 @@
                 <!-- Navigation -->
                 <nav class="navigation">
                     <ul class="nav-links">
-                        <li><a href="#" th:href="@{/}">Trang chủ</a></li>
-                        <li><a href="#" th:href="@{/voucher}">Phiếu giảm giá và ưu đãi</a></li>
+                        <li th:if="${hasHotel}">
+                            <a th:href="@{/host/info-hotel}"><i class="fas fa-hotel"></i> Quản lý thông tin khách sạn</a>
+                        </li>
+                        <li th:if="${hasHotel}">
+                            <a th:href="@{/host/list-room}"><i class="fas fa-bed"></i> Quản lý phòng</a>
+                        </li>
+                        <li th:if="${hasHotel}">
+                            <a th:href="@{/host/list-book-room}"><i class="fas fa-calendar-check"></i> Danh sách đặt phòng</a>
+                        </li>
+                        <li th:if="${hasHotel == false}">
+                            <a th:href="@{/host/add-hotel}"><i class="fas fa-plus-square"></i> Thêm khách sạn</a>
+                        </li>
                     </ul>
                 </nav>
 
                 <!-- Actions -->
                 <div class="actions">
-                    <button class="btn-partner">Đăng ký đối tác</button>
-                    <button class="btn-menu" aria-label="Menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
                     <div class="user-dropdown">
                         <button class="btn-user" aria-label="User profile" id="userDropdownBtn">
                             <!-- Show avatar if it exists, otherwise show default icon -->
@@ -43,11 +49,7 @@
                         </button>
                         <div class="dropdown-content" id="userDropdown">
                             <a href="#" th:href="@{/host/account}"><i class="fas fa-user-cog"></i> Tài khoản</a>
-                            <a href="#" th:href="@{/host/list-book-room}"><i class="fas fa-calendar-check"></i> Danh sách đặt phòng</a>
-                            <a href="#" th:href="@{/host/list-room}"><i class="fas fa-home"></i> Quản lý phòng</a>
-                            <a href="#" th:href="@{/host/info-hotel}"><i class="fas fa-hotel"></i> Quản lý thông tin khách sạn</a>
-                            <a href="#" th:href="@{/host/manage-voucher}"><i class="fas fa-tag"></i> Quản lý khuyến mãi</a>
-                            <a href="#" th:href="@{/signin}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                            <a href="#" th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
                         </div>
                     </div>
                 </div>
@@ -98,12 +100,17 @@
         .nav-links a {
             text-decoration: none;
             color: #333;
-            font-size: 16px;
-            transition: color 0.3s;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            transition: all 0.3s ease;
         }
 
         .nav-links a:hover {
-            color: #666;
+            border-color: #333;
+            background-color: #333;
+            color: white;
         }
 
         /* Actions */
@@ -113,22 +120,7 @@
             position: relative;
         }
 
-        .btn-partner {
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-partner:hover {
-            background-color: #555;
-        }
-
-        .btn-menu, .btn-user {
+       .btn-user {
             background: none;
             border: none;
             font-size: 20px;
@@ -187,14 +179,6 @@
         /* Responsive styles */
         @media (max-width: 992px) {
             .navigation {
-                display: none;
-            }
-
-            .btn-menu {
-                display: block;
-            }
-
-            .btn-partner {
                 display: none;
             }
         }

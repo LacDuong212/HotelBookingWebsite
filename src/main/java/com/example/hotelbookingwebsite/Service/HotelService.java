@@ -117,4 +117,8 @@ public class HotelService {
     public void updateHotel(Hotel hotel) {
         hotelRepository.save(hotel);
     }
+
+    public boolean existsByOwnerId(Long ownerId) {
+        return hotelRepository.existsByManagerUid(ownerId);
+    }
 }

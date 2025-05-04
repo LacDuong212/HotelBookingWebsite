@@ -116,9 +116,15 @@
             justify-content: center;
         }
 
-        .voucher-code {
+        .voucher-descripption {
             font-weight: 600;
             font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .voucher-code {
+            font-weight: 600;
+            font-size: 14px;
             margin-bottom: 5px;
         }
 
@@ -133,45 +139,6 @@
             font-size: 18px;
             margin-top: 5px;
         }
-
-        .voucher-actions {
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            min-width: 120px;
-        }
-
-        .btn {
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: 500;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            border: none;
-            transition: background-color 0.3s;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #ddd;
-            color: #666;
-        }
-
-        .btn-outline:hover {
-            background-color: #f5f5f5;
-        }
-
-        .btn-detail {
-            background-color: #f0f0f0;
-            color: #333;
-            margin-right: 10px;
-        }
-
-        .btn-detail:hover {
-            background-color: #e0e0e0;
-        }
-
         /* Discount Icons */
         .discount-icon {
             width: 100%;
@@ -205,13 +172,6 @@
                 border-right: none;
                 border-bottom: 1px dashed #ddd;
             }
-
-            .voucher-actions {
-                width: 100%;
-                padding: 15px;
-                justify-content: center;
-            }
-
         }
     </style>
 </head>
@@ -232,48 +192,42 @@
 
         <!-- Voucher List - Upcoming -->
         <div class="voucher-list" id="upcoming-tab">
-            <div th:each="promotion : ${promotioninactive}" class="voucher-item">
+            <div th:each="promotion : ${promotionUpcoming}" class="voucher-item">
                 <div class="voucher-icon">
                     <div class="discount-icon">
                         <i class="fas fa-percentage fa-2x"></i>
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code" th:text="${promotion.name}">Voucher Code</div>
+                    <div class="voucher-descripption" th:text="${promotion.description}">Voucher Code</div>
+                    <div class="voucher-code" th:text="'Code: ' + ${promotion.code}">Voucher Code</div>
                     <div class="voucher-dates">
                         <span>Từ ngày: <span th:text="${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}" style="margin-right: 15px;">Start Date</span></span>
                         <span class="mx-2" style="margin-right: 15px;">|</span>
                         <span>Đến ngày: <span th:text="${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">End Date</span></span>
                     </div>
                     <div class="voucher-discount" th:text="${promotion.discount + '%'}">Discount</div>
-                </div>
-                <div class="voucher-actions">
-                    <a href="#" class="btn btn-detail">Xem Chi Tiết</a>
-                    <a href="#" class="btn btn-outline">Lưu</a>
                 </div>
             </div>
         </div>
 
         <!-- Voucher List - Ongoing -->
         <div class="voucher-list" id="ongoing-tab" style="display: none;">
-            <div th:each="promotion : ${promotionactive}" class="voucher-item">
+            <div th:each="promotion : ${promotionOngoing}" class="voucher-item">
                 <div class="voucher-icon">
                     <div class="discount-icon red">
                         <i class="fas fa-tag fa-2x"></i>
                     </div>
                 </div>
                 <div class="voucher-content">
-                    <div class="voucher-code" th:text="${promotion.name}">Voucher Code</div>
+                    <div class="voucher-descripption" th:text="${promotion.description}">Voucher Code</div>
+                    <div class="voucher-code" th:text="'Code: ' + ${promotion.code}">Voucher Code</div>
                     <div class="voucher-dates">
                         <span>Từ ngày: <span th:text="${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}" style="margin-right: 15px;">Start Date</span></span>
                         <span class="mx-2" style="margin-right: 15px;">|</span>
                         <span>Đến ngày: <span th:text="${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}">End Date</span></span>
                     </div>
                     <div class="voucher-discount" th:text="${promotion.discount + '%'}">Discount</div>
-                </div>
-                <div class="voucher-actions">
-                    <a href="#" class="btn btn-detail">Xem Chi Tiết</a>
-                    <a href="#" class="btn btn-outline">Lưu</a>
                 </div>
             </div>
         </div>

@@ -45,6 +45,25 @@ public class BookingService {
                 .map(this::convertToDTO)
                 .toList();
     }
+
+    public List<BookingDTO> getUpcomingBookings(long uid) {
+        Customer customer = customerRepository.findById(uid)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + uid));
+
+        List<String> statuses = List.of("UNPAID", "PAID");
+
+        List<Booking> bookings = bookingRepository.findByCustomerAndStatusInAndCheckInDateAfter(customer, statuses, LocalDate.now());
+
+        return bookings.stream().map(this::convertToDTO).toList();
+    }
+
+    public List<BookingDTO> getPaidBookings(long uid) {
+        Customer customer = customerRepository.findById(uid)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + uid));
+        List<Booking> bookings = bookingRepository.findByCustomerAndStatusAndCheckInDateLessThanEqual(customer, "PAID", LocalDate.now());
+        return bookings.stream().map(this::convertToDTO).toList();
+    }
+
     private BookingDTO convertToDTO(Booking booking) {
         BookingDTO dto = new BookingDTO();
         dto.setBid(booking.getBid());
@@ -61,7 +80,7 @@ public class BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy booking"));
 
-        booking.setStatus("cancelled"); // đổi trạng thái
+        booking.setStatus(Constants.PAYMENT_STATUS.REFUNDED); // đổi trạng thái
         bookingRepository.save(booking);
     }
     public Long createPendingBooking(float totalPrice, String checkin, String checkout, Long roomId) {
@@ -78,7 +97,7 @@ public class BookingService {
             Booking booking = new Booking();
             booking.setCheckInDate(checkInDate);
             booking.setCheckOutDate(checkOutDate);
-            booking.setStatus(Constants.BOOKING_STATUS.PENDING);
+            booking.setStatus(Constants.PAYMENT_STATUS.UNPAID);
             booking.setTotalPrice(totalPrice);
             // Tìm phòng theo roomId
             Room room = roomService.getRoomById(roomId); // Bạn cần tạo phương thức getRoomById trong RoomService
@@ -91,7 +110,7 @@ public class BookingService {
 
             // Tạo đối tượng Payment và gán vào booking
             Payment payment = new Payment();
-            payment.setPaymentMethod(Constants.PAYMENT_METHOD.BANK_TRANSFER);
+            payment.setPaymentMethod(Constants.PAYMENT_METHOD.VNPAY);
             payment.setStatus(Constants.PAYMENT_STATUS.UNPAID);  // Bạn có thể tùy chỉnh trạng thái thanh toán tại đây
             paymentRepository.save(payment);  // Lưu bản ghi payment vào cơ sở dữ liệu
             booking.setPayment(payment);  // Gán payment vào booking

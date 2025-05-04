@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,9 +38,6 @@ public class HostController {
     private ImageService imageService;
 
     @Autowired
-    private PromotionService promotionService;
-
-    @Autowired
     private ImagesRepository imagesRepository;
 
     @Autowired
@@ -48,21 +46,16 @@ public class HostController {
     @Autowired
     private BookingRepository bookingRepository;
 
-    @Autowired
-    private PromotionRepository promotionRepository;
-
-    @Autowired
-    private ManagerRepository managerRepository;
-
-    @GetMapping("/home")
-    public String homePage(Model model) {
-        model.addAttribute("newestHotels", hotelService.getNewestHotels());
-        model.addAttribute("hcmHotels", hotelService.getTop4NewestHotelsInHCM());
-        return "host/home";
-    }
-
     @GetMapping("/add-hotel")
-    public String showAddHotelForm(Model model) {
+    public String showAddHotelForm(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (user != null) {
+            hasHotel = hotelService.existsByOwnerId(user.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
         model.addAttribute("hotelDTO", new HotelDTO());
         return "host/add-hotel";
     }
@@ -133,7 +126,7 @@ public class HostController {
             }
 
             redirectAttributes.addFlashAttribute("success", "Khách sạn đã được thêm thành công!");
-            return "redirect:/host/home";
+            return "redirect:/host/info-hotel";
 
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi tải ảnh lên: " + e.getMessage());
@@ -160,15 +153,25 @@ public class HostController {
         session.setAttribute("imagesList", imagesList);
         model.addAttribute("imagesList", imagesList);
 
+        model.addAttribute("hasHotel", true); // thêm dòng này
+
         return "host/info-hotel";
     }
 
     @GetMapping("/edit-info-hotel/{id}")
     public String editInfoHotel(@PathVariable("id") Long id, Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (user != null) {
+            hasHotel = hotelService.existsByOwnerId(user.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
         Hotel hotel = hotelService.getHotelById(id);
         if (hotel == null) {
             model.addAttribute("error", "Không tìm thấy thông tin khách sạn.");
-            return "redirect:/host/home";
+            return "redirect:/host/add-hotel";
         }
 
         List<Images> imagesList = imagesRepository.findByOidOrderBySttAsc(hotel.getHid());
@@ -352,7 +355,7 @@ public class HostController {
             Hotel hotel = hotelService.getHotelById(image.getOid());
             if (hotel == null) {
                 redirectAttributes.addFlashAttribute("error", "Không tìm thấy thông tin khách sạn.");
-                return "redirect:/host/home";
+                return "redirect:/host/add-hotel";
             }
 
             // Set up confirmation data
@@ -462,7 +465,15 @@ public class HostController {
     }
 
     @GetMapping("/add-room")
-    public String showAddRoomForm(Model model) {
+    public String showAddRoomForm(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (user != null) {
+            hasHotel = hotelService.existsByOwnerId(user.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
         model.addAttribute("roomDTO", new RoomDTO());
         return "host/add-room";  // Trả về trang thêm phòng
     }
@@ -559,6 +570,13 @@ public class HostController {
     public String listBookedRooms(Model model, HttpSession session) {
         // Lấy thông tin người quản lý từ session
         User loggedInUser = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (loggedInUser != null) {
+            hasHotel = hotelService.existsByOwnerId(loggedInUser.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
 
         if (loggedInUser == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập.");
@@ -576,26 +594,52 @@ public class HostController {
                 .filter(roomDTO -> Objects.equals(roomDTO.getStatus(), "AVAILABLE"))
                 .collect(Collectors.toList());
 
-        List<BookedRoomDTO> bookedRoomDTOs = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        List<BookedRoomDTO> upcomingBookings = new ArrayList<>();
+        List<BookedRoomDTO> pastBookings = new ArrayList<>();
+
         for (RoomDTO roomDTO : bookedRooms) {
             Long roomId = roomDTO.getRid();
-
             List<Booking> bookings = bookingRepository.findAllByRoom_Rid(roomId);
+
             for (Booking booking : bookings) {
-                bookedRoomDTOs.add(new BookedRoomDTO(
+                BookedRoomDTO dto = new BookedRoomDTO(
                         roomDTO,
                         booking.getCheckInDate(),
                         booking.getCheckOutDate(),
                         booking.getCustomer().getUser().getFullname(),
                         booking.getStatus().toUpperCase()
-                ));
+                );
+
+                if (!booking.getCheckOutDate().isBefore(today)) {
+                    upcomingBookings.add(dto);
+                } else {
+                    pastBookings.add(dto);
+                }
             }
         }
 
         if (bookedRooms.isEmpty()) {
             model.addAttribute("message", "Không có phòng nào đã được đặt.");
         }
-        model.addAttribute("bookedRooms", bookedRoomDTOs);
+
+        List<BookedRoomDTO> cancelledBookings = new ArrayList<>();
+        cancelledBookings.addAll(
+                upcomingBookings.stream()
+                        .filter(b -> "REFUNDED".equalsIgnoreCase(b.getStatus()))
+                        .collect(Collectors.toList())
+        );
+        cancelledBookings.addAll(
+                pastBookings.stream()
+                        .filter(b -> "REFUNDED".equalsIgnoreCase(b.getStatus()))
+                        .collect(Collectors.toList())
+        );
+
+        model.addAttribute("cancelledBookings", cancelledBookings);
+        model.addAttribute("upcomingBookings", upcomingBookings);
+        model.addAttribute("pastBookings", pastBookings);
+
         return "host/list-book-room";  // Chuyển tới trang hiển thị danh sách phòng đã được đặt
     }
 
@@ -603,6 +647,14 @@ public class HostController {
     public String listRooms(Model model, HttpSession session) {
         // Lấy thông tin người quản lý từ session
         User loggedInUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (user != null) {
+            hasHotel = hotelService.existsByOwnerId(user.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
 
         if (loggedInUser == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập.");
@@ -631,28 +683,6 @@ public class HostController {
         RoomDTO rooms = roomService.getRoomDTOById(id);
         model.addAttribute("room", rooms);
         return "host/edit-info-room";
-    }
-
-    @GetMapping("/manage-voucher")
-    public String manageVoucher(Model model, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) return "redirect:/signin";
-
-        List<Promotion> validPromotions = promotionService.getValidPromotions();
-        List<Promotion> expiredPromotions = promotionService.getExpiredPromotions();
-
-        validPromotions = validPromotions.stream()
-                .filter(p -> p.getManager().getUid().equals(user.getUid()))
-                .collect(Collectors.toList());
-
-        expiredPromotions = expiredPromotions.stream()
-                .filter(p -> p.getManager().getUid().equals(user.getUid()))
-                .collect(Collectors.toList());
-
-        model.addAttribute("validPromotions", validPromotions);
-        model.addAttribute("expiredPromotions", expiredPromotions);
-
-        return "host/manage-voucher";
     }
 
     @PostMapping("/room/edit")
@@ -799,66 +829,6 @@ public class HostController {
         }
     }
 
-    @PostMapping("/voucher/add")
-    public String addPromotion(@ModelAttribute("newPromotion") Promotion promotion,
-                               HttpSession session,
-                               RedirectAttributes redirectAttributes) {
-        User loggedInUser = (User) session.getAttribute("user");
-        if (loggedInUser == null) {
-            return "redirect:/signin";
-        }
-
-        Optional<Manager> optionalManager = managerRepository.findById(loggedInUser.getUid());
-        if (optionalManager.isEmpty()) {
-            return "redirect:/signin";
-        }
-
-        if(promotion.getCode() == null) {
-            promotion.setCode(Constants.UNKNOWN);
-        }
-
-        promotion.setManager(optionalManager.get());
-        promotion.setStatus(true);
-        promotionRepository.save(promotion);
-
-        redirectAttributes.addFlashAttribute("successMessage", "Mã giảm giá đã được thêm thành công!");
-
-        return "redirect:/host/manage-voucher";
-    }
-
-    @GetMapping("/voucher/delete")
-    public String deletePromotion(@RequestParam("id") Long promotionId,
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes) {
-        User loggedInUser = (User) session.getAttribute("user");
-        if (loggedInUser == null) {
-            return "redirect:/signin";
-        }
-
-        Optional<Manager> optionalManager = managerRepository.findById(loggedInUser.getUid());
-        if (optionalManager.isEmpty()) {
-            return "redirect:/signin";
-        }
-
-        Optional<Promotion> optionalPromotion = promotionRepository.findById(promotionId);
-        if (optionalPromotion.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy mã giảm giá!");
-            return "redirect:/host/manage-voucher";
-        }
-
-        Promotion promotion = optionalPromotion.get();
-
-        if (!promotion.getManager().getUid().equals(loggedInUser.getUid())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền xóa mã giảm giá này!");
-            return "redirect:/host/manage-voucher";
-        }
-
-        promotionRepository.delete(promotion);
-        redirectAttributes.addFlashAttribute("successMessage", "Mã giảm giá đã được xóa thành công!");
-
-        return "redirect:/host/manage-voucher";
-    }
-
     @DeleteMapping("/delete-room/{rid}")
     @ResponseBody
     public Map<String, Object> deleteRoom(@PathVariable("rid") Long rid, HttpSession session) {
@@ -889,9 +859,9 @@ public class HostController {
                 return response;
             }
 
-            imagesRepository.deleteAllByOid(rid);
             // Xóa phòng
             roomRepository.deleteById(rid);
+            imagesRepository.deleteAllByOid(rid);
 
             response.put("success", true);
             response.put("message", "Phòng đã được xóa thành công");

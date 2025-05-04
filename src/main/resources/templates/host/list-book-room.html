@@ -212,8 +212,8 @@
                 <!-- Biến để theo dõi hiển thị -->
                 <div th:remove="tag" th:with="displayedUpcoming = false">
                     <!-- Hiển thị danh sách đặt phòng sắp tới -->
-                    <div th:each="item : ${bookedRooms}" th:if="${item.status == 'UPCOMING'}" class="booking-item" th:with="displayedUpcoming = true">
-                        <img th:src="@{${item.room.imageUrl}}" alt="Phòng" class="booking-image">
+                    <div th:each="item : ${upcomingBookings}" class="booking-item" th:with="displayedUpcoming = true">
+                        <img th:src="@{${item.room.imageUrl[0]}}" alt="Phòng" class="booking-image">
                         <div class="booking-details">
                             <div class="booking-info">
                                 <h3 class="booking-title" th:text="${item.room.roomName}">Phòng</h3>
@@ -238,8 +238,8 @@
                 <!-- Biến để theo dõi hiển thị -->
                 <div th:remove="tag" th:with="displayedConfirmed = false">
                     <!-- Hiển thị danh sách đặt phòng đã xác nhận -->
-                    <div th:each="item : ${bookedRooms}" th:if="${item.status == 'CONFIRMED'}" class="booking-item" th:with="displayedConfirmed = true">
-                        <img th:src="@{${item.room.imageUrl}}" alt="Phòng" class="booking-image">
+                    <div th:each="item : ${pastBookings}" class="booking-item" th:with="displayedConfirmed = true">
+                        <img th:src="@{${item.room.imageUrl[0]}}" alt="Phòng" class="booking-image">
                         <div class="booking-details">
                             <div class="booking-info">
                                 <h3 class="booking-title" th:text="${item.room.roomName}">Phòng</h3>
@@ -264,8 +264,8 @@
                 <!-- Biến để theo dõi hiển thị -->
                 <div th:remove="tag" th:with="displayedCancelled = false">
                     <!-- Hiển thị danh sách đặt phòng đã hủy -->
-                    <div th:each="item : ${bookedRooms}" th:if="${item.status == 'CANCELLED'}" class="booking-item" th:with="displayedCancelled = true">
-                        <img th:src="@{${item.room.imageUrl}}" alt="Phòng" class="booking-image">
+                    <div th:each="item : ${cancelledBookings}" th:if="${item.status == 'CANCELLED'}" class="booking-item" th:with="displayedCancelled = true">
+                        <img th:src="@{${item.room.imageUrl[0]}}" alt="Phòng" class="booking-image">
                         <div class="booking-details">
                             <div class="booking-info">
                                 <h3 class="booking-title" th:text="${item.room.roomName}">Phòng</h3>

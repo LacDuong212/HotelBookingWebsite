@@ -378,7 +378,7 @@
 </head>
 <body>
 <!-- Include header fragment -->
-<div th:replace="~{host/fragments/host-header :: header}"></div>
+<div th:replace="~{admin/fragments/admin-header :: header}"></div>
 
 <!-- MAIN CONTENT -->
 <main>
@@ -425,7 +425,7 @@
                     <div class="voucher-discount" th:text="${#numbers.formatDecimal(promotion.discount, 1, 0) + '%'}">100%</div>
                 </div>
                 <div class="voucher-actions">
-                    <a th:href="@{/host/voucher/delete(id=${promotion.pid})}" class="btn btn-delete">Xóa</a>
+                    <a th:href="@{/admin/voucher/delete(id=${promotion.pid})}" class="btn btn-delete">Xóa</a>
                 </div>
             </div>
         </div>
@@ -453,7 +453,7 @@
                     <div class="voucher-discount" th:text="${#numbers.formatDecimal(promotion.discount, 1, 0) + '%'}">100%</div>
                 </div>
                 <div class="voucher-actions">
-                    <a th:href="@{/host/voucher/delete(id=${promotion.pid})}" class="btn btn-delete">Xóa</a>
+                    <a th:href="@{/admin/voucher/delete(id=${promotion.pid})}" class="btn btn-delete">Xóa</a>
                 </div>
             </div>
         </div>
@@ -466,7 +466,7 @@
                 <h2 class="modal-title">Thêm mã giảm giá</h2>
             </div>
             <div class="modal-body">
-                <form id="addDiscountForm" th:action="@{/host/voucher/add}" method="post" th:object="${newPromotion}">
+                <form id="addDiscountForm" th:action="@{/admin/voucher/add}" method="post" th:object="${newPromotion}">
                     <div class="form-group">
                         <input type="text" class="form-control" id="code" name="code" placeholder="Nhập mã giảm giá" required>
                     </div>
@@ -500,7 +500,7 @@
 </main>
 
 <!-- Include footer fragment -->
-<div th:replace="~{host/fragments/host-footer :: footer}"></div>
+<div th:replace="~{admin/fragments/admin-footer :: footer}"></div>
 
 <!-- JavaScript for tab switching and modal -->
 <script>

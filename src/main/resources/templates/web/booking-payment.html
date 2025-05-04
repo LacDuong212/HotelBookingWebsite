@@ -239,7 +239,7 @@
                     <label for="discount" class="form-label">Mã giảm giá:</label>
                     <div class="discount-group">
                         <input type="text" id="discount" name="discount" class="form-control discount-input" placeholder="Nhập mã giảm giá">
-                        <button class="btn-apply" type="button" onclick="calculateTotalPrice()">Áp dụng</button>
+                        <button class="btn-apply" type="button">Áp dụng</button>
                     </div>
                     <p class="discount-applied">Mã giảm giá khách sạn: -<span id="discountValue">0</span></p>
                 </div>
@@ -288,11 +288,11 @@
         let totalPrice = price * numberOfDays;
 
         if (discountCode) {
-            fetch(`/api/discount/${discountCode}`)
+            fetch(`/api/promotion/${discountCode}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const discountPercentage = data.discount;
+                        const discountPercentage = data.promotion;
                         const discountAmount = totalPrice * (discountPercentage / 100);
                         totalPrice -= discountAmount;
                         document.querySelector('.discount-applied span').innerText = discountPercentage + "%";
@@ -301,9 +301,6 @@
                     }
                     updateTotal(totalPrice, checkin, checkout);
                 })
-                .catch(error => {
-                    alert("Lỗi khi áp dụng mã giảm giá.");
-                });
         } else {
             updateTotal(totalPrice, checkin, checkout);
         }
@@ -329,7 +326,7 @@
     // Tự động tính lại khi thay đổi ngày hoặc mã
     document.getElementById('checkin').addEventListener('change', calculateTotalPrice);
     document.getElementById('checkout').addEventListener('change', calculateTotalPrice);
-    document.getElementById('discount').addEventListener('input', calculateTotalPrice);
+    document.querySelector('.btn-apply').addEventListener('click', calculateTotalPrice);
 </script>
 </body>
 </html>

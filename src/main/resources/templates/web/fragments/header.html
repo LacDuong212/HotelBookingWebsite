@@ -21,14 +21,14 @@
                 <!-- Navigation -->
                 <nav class="navigation">
                     <ul class="nav-links">
-                        <li><a href="#" th:href="@{/}">Trang chủ</a></li>
-                        <li><a href="#" th:href="@{/vouchers}">Phiếu giảm giá và ưu đãi</a></li>
+                        <li><a href="#" th:href="@{/}"><i class="fas fa-home"></i>Trang chủ</a></li>
+                        <li><a href="#" th:href="@{/vouchers}"><i class="fas fa-ticket-alt"></i> Phiếu giảm giá và ưu đãi</a></li>
                     </ul>
                 </nav>
 
                 <!-- Actions -->
                 <div class="actions">
-                    <a th:href="@{/signup-host}" class="btn-partner">Đăng ký đối tác</a>
+                    <a th:href="@{/signup-manager}" class="btn-partner">Đăng ký đối tác</a>
                     <button class="btn-menu" aria-label="Menu">
                         <i class="fas fa-bars"></i>
                     </button>
@@ -100,12 +100,17 @@
         .nav-links a {
             text-decoration: none;
             color: #333;
-            font-size: 16px;
-            transition: color 0.3s;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            transition: all 0.3s ease;
         }
 
         .nav-links a:hover {
-            color: #666;
+            border-color: #333;
+            background-color: #333;
+            color: white;
         }
 
         /* Actions */
@@ -184,11 +189,6 @@
             width: 20px;
             text-align: center;
         }
-
-        .show {
-            display: block;
-        }
-
         /* Responsive styles */
         @media (max-width: 992px) {
             .navigation {
@@ -227,12 +227,17 @@
         }
 
         .btn-signup {
-            background-color: #f5f5f5;
             color: #333;
+            border: 1px solid #333;
         }
 
         .btn-signup:hover {
-            background-color: #e0e0e0;
+            background-color: #333;
+            color: white;
+        }
+
+        .show {
+            display: block;
         }
 
         @media (max-width: 576px) {

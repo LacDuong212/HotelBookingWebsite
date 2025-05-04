@@ -2,10 +2,7 @@ package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.DTO.HotelDetailDTO;
-import com.example.hotelbookingwebsite.Model.Hotel;
-import com.example.hotelbookingwebsite.Model.Images;
-import com.example.hotelbookingwebsite.Model.Promotion;
-import com.example.hotelbookingwebsite.Model.User;
+import com.example.hotelbookingwebsite.Model.*;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import com.example.hotelbookingwebsite.Service.*;
 import jakarta.servlet.http.HttpSession;
@@ -72,9 +69,10 @@ public class HomeController {
     public String bookingHistory(HttpSession session,Model model) {
         User loggedInUser = (User) session.getAttribute("user");
         if (loggedInUser != null) {
-            model.addAttribute("upcomingBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"PAID"));
-            model.addAttribute("confirmedBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(),"CONFIRMED"));
-        return "web/booking-history";
+            model.addAttribute("upcomingBookings", bookingService.getUpcomingBookings(loggedInUser.getUid()));
+            model.addAttribute("paidBookings", bookingService.getPaidBookings(loggedInUser.getUid()));
+            model.addAttribute("cancelBookings", bookingService.getBookingByUidAndStatus(loggedInUser.getUid(), Constants.PAYMENT_STATUS.REFUNDED));
+            return "web/booking-history";
         }
         else {
             return "redirect:/signin"; // Chuyển hướng về URL "/signin"
@@ -93,14 +91,22 @@ public class HomeController {
 
     @GetMapping("/vouchers")
     public String voucher(Model model) {
-        model.addAttribute("promotionactive",promotionService.getPromotionByStatus(true));
-        model.addAttribute("promotioninactive",promotionService.getPromotionByStatus(false));
+        model.addAttribute("promotionUpcoming", promotionService.getUpcomingPromotions());
+        model.addAttribute("promotionOngoing", promotionService.getOngoingPromotions());
         return "web/voucher";
     }
 
     @GetMapping({"/host/account", "/customer/account"})
     public String Account(Model model, HttpSession session) {
         User loggedInUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (user != null) {
+            hasHotel = hotelService.existsByOwnerId(user.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
 
         if (loggedInUser == null) {
             return "redirect:/signin";
@@ -183,6 +189,14 @@ public class HomeController {
 
     @GetMapping({"/host/edit-account", "/customer/edit-account"})
     public String editAccount(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        boolean hasHotel = false;
+
+        if (user != null) {
+            hasHotel = hotelService.existsByOwnerId(user.getUid());
+        }
+
+        model.addAttribute("hasHotel", hasHotel);
         User loggedInUser = (User) session.getAttribute("user");
         if (loggedInUser == null) {
             return "redirect:/signin";

@@ -63,9 +63,11 @@ public class SigninController {
         session.setAttribute("avatar", avatar);
         String role = user.getRole();
 
-        if (Objects.equals(role, Constants.ROLE.MANAGER)) {
-            if(hotelRepository.existsByManager_Uid(user.getUid())){
-                return "redirect:/host/home";
+        if (Objects.equals(role, Constants.ROLE.ADMIN)) {
+            return "redirect:/admin/manage-hotels";
+        } else if (Objects.equals(role, Constants.ROLE.MANAGER)) {
+            if (hotelRepository.existsByManager_Uid(user.getUid())) {
+                return "redirect:/host/info-hotel";
             } else {
                 return "redirect:/host/add-hotel";
             }

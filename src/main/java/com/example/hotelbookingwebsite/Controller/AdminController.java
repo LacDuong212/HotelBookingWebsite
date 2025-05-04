@@ -2,11 +2,12 @@ package com.example.hotelbookingwebsite.Controller;
 
 import com.example.hotelbookingwebsite.DTO.HotelDTO;
 import com.example.hotelbookingwebsite.DTO.UserDTO;
-import com.example.hotelbookingwebsite.Repository.HotelRepository;
-import com.example.hotelbookingwebsite.Repository.RoomRepository;
-import com.example.hotelbookingwebsite.Repository.UserRepository;
+import com.example.hotelbookingwebsite.Model.*;
+import com.example.hotelbookingwebsite.Repository.*;
 import com.example.hotelbookingwebsite.Service.HotelService;
+import com.example.hotelbookingwebsite.Service.PromotionService;
 import com.example.hotelbookingwebsite.Service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,11 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -38,8 +38,15 @@ public class AdminController {
 
     @Autowired
     private RoomRepository roomRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    private PromotionService promotionService;
+
+    @Autowired
+    private PromotionRepository promotionRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     @GetMapping("/manage-hotels")
     public String managehotels(
@@ -73,8 +80,8 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> deleteHotel(@PathVariable Long hotelId) {
         try {
-            roomRepository.deleteAllByHotel_Hid(hotelId);
             hotelRepository.deleteById(hotelId);
+            roomRepository.deleteAllByHotel_Hid(hotelId);
 
             return ResponseEntity.ok().body(Collections.singletonMap("success", true));
         } catch (Exception e) {
@@ -145,5 +152,87 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("message", "User not found"));
         }
+    }
+
+    @GetMapping("/manage-voucher")
+    public String manageVoucher(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/signin";
+
+        List<Promotion> validPromotions = promotionService.getValidPromotions();
+        List<Promotion> expiredPromotions = promotionService.getExpiredPromotions();
+
+        validPromotions = validPromotions.stream()
+                .filter(p -> p.getAdmin().getUid().equals(user.getUid()))
+                .collect(Collectors.toList());
+
+        expiredPromotions = expiredPromotions.stream()
+                .filter(p -> p.getAdmin().getUid().equals(user.getUid()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("validPromotions", validPromotions);
+        model.addAttribute("expiredPromotions", expiredPromotions);
+
+        return "admin/manage-voucher";
+    }
+
+    @PostMapping("/voucher/add")
+    public String addPromotion(@ModelAttribute("newPromotion") Promotion promotion,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "redirect:/signin";
+        }
+
+        Optional<Admin> optionalAdmin = adminRepository.findById(loggedInUser.getUid());
+        if (optionalAdmin.isEmpty()) {
+            return "redirect:/signin";
+        }
+
+        if(promotion.getCode() == null) {
+            promotion.setCode(Constants.UNKNOWN);
+        }
+
+        promotion.setAdmin(optionalAdmin.get());
+        promotion.setStatus(true);
+        promotionRepository.save(promotion);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Mã giảm giá đã được thêm thành công!");
+
+        return "redirect:/admin/manage-voucher";
+    }
+
+    @GetMapping("/voucher/delete")
+    public String deletePromotion(@RequestParam("id") Long promotionId,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "redirect:/signin";
+        }
+
+        Optional<Admin> optionalAdmin = adminRepository.findById(loggedInUser.getUid());
+        if (optionalAdmin.isEmpty()) {
+            return "redirect:/signin";
+        }
+
+        Optional<Promotion> optionalPromotion = promotionRepository.findById(promotionId);
+        if (optionalPromotion.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy mã giảm giá!");
+            return "redirect:/admin/manage-voucher";
+        }
+
+        Promotion promotion = optionalPromotion.get();
+
+        if (!promotion.getAdmin().getUid().equals(loggedInUser.getUid())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền xóa mã giảm giá này!");
+            return "redirect:/admin/manage-voucher";
+        }
+
+        promotionRepository.delete(promotion);
+        redirectAttributes.addFlashAttribute("successMessage", "Mã giảm giá đã được xóa thành công!");
+
+        return "redirect:/admin/manage-voucher";
     }
 }

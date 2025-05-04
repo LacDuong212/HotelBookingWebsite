@@ -29,5 +29,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
     boolean existsByManager_Uid(Long uid);
 
+    boolean existsByManagerUid(Long uid);
+
     Hotel findByManager_Uid(Long uid);
 }

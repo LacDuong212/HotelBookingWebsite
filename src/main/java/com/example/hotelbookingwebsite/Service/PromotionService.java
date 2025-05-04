@@ -14,8 +14,13 @@ public class PromotionService {
     public PromotionService(PromotionRepository promotionRepository) {
         this.promotionRepository = promotionRepository;
     }
-    public List<Promotion> getPromotionByStatus(boolean status) {
-        return promotionRepository.findByStatus(status);
+    public List<Promotion> getUpcomingPromotions() {
+        return promotionRepository.findByStartDateAfter(LocalDate.now());
+    }
+
+    public List<Promotion> getOngoingPromotions() {
+        LocalDate today = LocalDate.now();
+        return promotionRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(today, today);
     }
 
 	public List<Promotion> getValidPromotions() {
@@ -53,10 +58,5 @@ public class PromotionService {
         }
 
         return null;
-    }
-
-    public float getDiscountPercent(String code) {
-        Promotion promotion = findValidPromotionByCode(code);
-        return (promotion != null) ? promotion.getDiscount() : 0;
     }
 }

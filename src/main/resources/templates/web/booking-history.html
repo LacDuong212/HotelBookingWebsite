@@ -138,6 +138,14 @@
             font-size: 14px;
         }
 
+        .btn-pay {
+            background-color: #999;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+        }
+
         .btn-cancel {
             background-color: white;
             color: #ff4d4d;
@@ -194,14 +202,17 @@
         <div class="tabs">
             <div class="tab active" onclick="switchTab('upcoming')">Sắp tới</div>
             <div class="tab" onclick="switchTab('booked')">Đã đặt</div>
+            <div class="tab" onclick="switchTab('cancel')">Đã hủy</div>
         </div>
 
         <!-- Upcoming Bookings -->
         <div id="upcoming-bookings" class="tab-content active">
             <div class="booking-list">
-                <div class="booking-item" th:each="booking : ${upcomingBookings}">
-                    <img th:src="@{${booking.room.imageUrl[0]}}" class="booking-image" alt="Room Image"/>
-
+                <div th:if="${#lists.isEmpty(upcomingBookings)}">
+                    <p>Không có lịch sử đặt phòng.</p>
+                </div>
+                <div class="booking-item" th:each="booking : ${upcomingBookings}" th:if="${booking.room != null}">
+                    <img th:if="${booking.room.imageUrl[0] != null}" th:src="@{${booking.room.imageUrl[0]}}" class="booking-image" alt="Room Image"/>
                     <div class="booking-details">
                         <h3 class="booking-title" th:text="${booking.room.roomName}">Room Name</h3>
                         <div class="booking-dates">
@@ -210,24 +221,31 @@
                         </div>
                         <div class="booking-price" th:text="${booking.totalPrice} + ' VNĐ'"></div>
                     </div>
-
                     <div class="booking-actions">
-<!--                        <a href="/booking-details" th:href="@{/booking-details}" class="btn-view">Xem Chi Tiết</a>-->
                         <a th:href="@{/booking-details/{id}(id=${booking.bid})}" class="btn-view">Xem Chi Tiết</a>
-<!--                        <a href="/cancel-booking" th:href="@{/cancel-booking}" class="btn-cancel">Hủy Đặt Phòng</a>-->
-                        <a th:href="@{/cancel-booking/{id}(id=${booking.bid})}" class="btn-cancel">Hủy Đặt Phòng</a>
+
+                        <!-- Nút Thanh Toán nếu trạng thái là UNPAID -->
+                        <a th:if="${booking.status == 'UNPAID'}"
+                           th:href="@{/repayment(bookingId=${booking.bid}, totalPrice=${booking.totalPrice})}"
+                           class="btn-pay">Thanh Toán</a>
+
+                        <!-- Nút Hủy nếu trạng thái là PAID -->
+                        <a th:if="${booking.status == 'PAID'}"
+                           th:href="@{/cancel-booking/{id}(id=${booking.bid})}"
+                           class="btn-cancel">Hủy Đặt Phòng</a>
                     </div>
                 </div>
             </div>
         </div>
 
-
-        <!-- Booked Bookings -->
-        <div id="booked-bookings" class="tab-content">
+        <!-- Cancel Bookings -->
+        <div id="cancel-bookings" class="tab-content">
             <div class="booking-list">
-                <div class="booking-item" th:each="booking : ${confirmedBookings}">
-                    <img th:src="@{${booking.room.imageUrl}}" class="booking-image" alt="Room Image"/>
-
+                <div th:if="${#lists.isEmpty(cancelBookings)}">
+                    <p>Không có lịch sử đặt phòng.</p>
+                </div>
+                <div class="booking-item" th:each="booking : ${cancelBookings}" th:if="${booking.room != null}">
+                    <img th:if="${booking.room.imageUrl[0] != null}" th:src="@{${booking.room.imageUrl[0]}}" class="booking-image" alt="Room Image"/>
                     <div class="booking-details">
                         <h3 class="booking-title" th:text="${booking.room.roomName}">Room Name</h3>
                         <div class="booking-dates">
@@ -236,7 +254,29 @@
                         </div>
                         <div class="booking-price" th:text="${booking.totalPrice} + ' VNĐ'"></div>
                     </div>
+                    <div class="booking-actions">
+                        <a th:href="@{/booking-details/{id}(id=${booking.bid})}" class="btn-view">Xem Chi Tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Booked Bookings -->
+        <div id="booked-bookings" class="tab-content">
+            <div class="booking-list">
+                <div th:if="${#lists.isEmpty(paidBookings)}">
+                    <p>Không có lịch sử đặt phòng.</p>
+                </div>
+                <div class="booking-item" th:each="booking : ${paidBookings}" th:if="${booking.room != null}">
+                    <img th:if="${booking.room.imageUrl[0] != null}" th:src="@{${booking.room.imageUrl[0]}}" class="booking-image" alt="Room Image"/>
+                    <div class="booking-details">
+                        <h3 class="booking-title" th:text="${booking.room.roomName}">Room Name</h3>
+                        <div class="booking-dates">
+                            <span th:text="'Ngày nhận phòng: ' + ${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')}"></span>
+                            <span th:text="'Ngày trả phòng: ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}"></span>
+                        </div>
+                        <div class="booking-price" th:text="${booking.totalPrice} + ' VNĐ'"></div>
+                    </div>
                     <div class="booking-actions">
                         <a th:href="@{/booking-details/{id}(id=${booking.bid})}" class="btn-view">Xem Chi Tiết</a>
                     </div>

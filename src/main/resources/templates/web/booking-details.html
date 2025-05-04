@@ -165,7 +165,6 @@
             <div class="booking-info-grid">
                 <div class="booking-info-section">
                     <h3 class="booking-info-title">Chi tiết đơn đặt</h3>
-                    <p class="booking-info-item" >Ngày đặt: 20/01/2025</p>
                     <p class="booking-info-item" th:text="'Ngày check-in: ' + ${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')}">Ngày check-in: 24/01/2025</p>
                     <p class="booking-info-item" th:text="'Ngày check-out: ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}">Ngày check-out: 26/01/2025</p>
                 </div>
@@ -173,13 +172,11 @@
                 <div class="booking-info-section">
                     <h3 class="booking-info-title">Chi tiết hóa đơn</h3>
                     <p class="booking-info-item" th:text="'Đơn giá: ' + ${booking.room.price} + ' VNĐ'">Đơn giá: 1.500.000 VNĐ</p>
-                    <p class="booking-info-item">Thuế: 10%</p>
-                    <p class="booking-info-item">Khuyến mãi: 10%</p>
                 </div>
 
                 <div class="booking-info-section">
                     <h3 class="booking-info-title">Trạng thái</h3>
-                    <p class="booking-status">ĐÃ THANH TOÁN</p>
+                    <p class="booking-status" th:text="${booking.status}"></p>
                 </div>
             </div>
 

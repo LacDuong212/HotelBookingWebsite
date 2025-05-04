@@ -36,5 +36,5 @@ public class Promotion {
     @ManyToOne
     @JoinColumn(name = "uid")
     @JsonBackReference
-    private Manager manager;  // Each promotion belongs to one manager
+    private Admin admin;  // Each promotion belongs to one manager
 }

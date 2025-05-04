@@ -1,10 +1,7 @@
 package com.example.hotelbookingwebsite.Service;
 
 import com.example.hotelbookingwebsite.DTO.RoomDTO;
-import com.example.hotelbookingwebsite.Model.Hotel;
-import com.example.hotelbookingwebsite.Model.Images;
-import com.example.hotelbookingwebsite.Model.Manager;
-import com.example.hotelbookingwebsite.Model.Room;
+import com.example.hotelbookingwebsite.Model.*;
 import com.example.hotelbookingwebsite.Repository.HotelRepository;
 import com.example.hotelbookingwebsite.Repository.ImagesRepository;
 import com.example.hotelbookingwebsite.Repository.ManagerRepository;
@@ -30,6 +27,7 @@ public class RoomService {
         this.roomRepository = roomRepository;
         this.hotelRepository = hotelRepository;
     }
+
     public RoomDTO getRoomDTOById(Long rid) {
         Room room = roomRepository.findById(rid)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng với ID: " + rid));
@@ -41,23 +39,28 @@ public class RoomService {
                 .map(this::convertToRoomDTO)
                 .collect(Collectors.toList());
     }
+
     public RoomDTO convertToRoomDTO(Room room) {
-            RoomDTO dto = new RoomDTO();
-            dto.setRid(room.getRid());
-            dto.setRoomName(room.getRoomName());
-            dto.setDescription(room.getDescription());
-            dto.setStatus(room.getStatus());
-            dto.setPrice((float) room.getPrice());
-            dto.setHotel(room.getHotel());
+        if (room == null) {
+            return null;
+        }
+        RoomDTO dto = new RoomDTO();
+        dto.setRid(room.getRid());
+        dto.setRoomName(room.getRoomName());
+        dto.setDescription(room.getDescription());
+        dto.setStatus(room.getStatus());
+        dto.setPrice((float) room.getPrice());
+        dto.setHotel(room.getHotel());
 
-            // Lấy ảnh đại diện từ room
-            List<Images> imageUrls = getRoomImage(room.getRid());
-            dto.setImageUrl(imageUrls.stream()
-                    .map(img -> "/images/" + img.getImageUrl())
-                    .collect(Collectors.toList()));
+        // Lấy ảnh đại diện từ room
+        List<Images> imageUrls = getRoomImage(room.getRid());
+        dto.setImageUrl(imageUrls.stream()
+                .map(img -> "/images/" + img.getImageUrl())
+                .collect(Collectors.toList()));
 
-            return dto;
+        return dto;
     }
+
     @Transactional
     public Long saveRoom(RoomDTO roomDTO, Long uid) {
         System.out.println("Saving room with data: " + roomDTO);
@@ -69,7 +72,7 @@ public class RoomService {
         room.setRoomName(roomDTO.getRoomName());
         room.setDescription(roomDTO.getDescription());
         room.setPrice(roomDTO.getPrice());
-        room.setStatus("available");  // Trạng thái mặc định là "available"
+        room.setStatus(Constants.ROOM_STATUS.AVAILABLE);  // Trạng thái mặc định là "available"
         room.setHotel(hotel);  // Gán khách sạn cho phòng
 
         // Lưu phòng vào cơ sở dữ liệu
@@ -84,6 +87,7 @@ public class RoomService {
         return imagesRepository.findImagesByRid(rid);
 
     }
+
     public Room getRoomById(Long roomId) {
         return roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
